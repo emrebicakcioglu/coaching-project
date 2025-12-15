@@ -1,0 +1,643 @@
+/**
+ * AuthPages Styles
+ * STORY-001: Login System
+ * STORY-008: Session Management mit "Remember Me"
+ * STORY-009: Password Reset
+ *
+ * Shared styles for authentication pages (Login, Forgot Password, Reset Password).
+ * Responsive design for Mobile/Tablet/Desktop.
+ */
+
+/* ========================================
+   Base Page Layout
+   ======================================== */
+
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-background-page);
+  padding: 20px;
+}
+
+.auth-container {
+  background-color: var(--color-background-card);
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  padding: 40px;
+  width: 100%;
+  max-width: 420px;
+}
+
+/* ========================================
+   Logo
+   ======================================== */
+
+.auth-logo {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
+.auth-logo__placeholder {
+  width: 64px;
+  height: 64px;
+  background-color: var(--color-background-surface);
+  border: 2px solid var(--color-border-default);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ========================================
+   Header
+   ======================================== */
+
+.auth-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.auth-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin: 0 0 8px 0;
+}
+
+.auth-subtitle {
+  font-size: 0.9375rem;
+  color: var(--color-text-secondary);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* ========================================
+   Form
+   ======================================== */
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.auth-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.auth-field--checkbox {
+  flex-direction: row;
+  align-items: center;
+}
+
+.auth-field-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.auth-field-footer {
+  display: flex;
+  justify-content: center;
+  margin-top: 4px;
+}
+
+.auth-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+
+.auth-input {
+  padding: 12px 14px;
+  border: 1px solid var(--color-border-default);
+  border-radius: 8px;
+  font-size: 1rem;
+  color: var(--color-text-primary);
+  background-color: var(--color-background-card);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.auth-input:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.auth-input::placeholder {
+  color: var(--color-text-tertiary);
+}
+
+.auth-input--error {
+  border-color: #ef4444;
+}
+
+.auth-input--error:focus {
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.auth-input:disabled {
+  background-color: var(--color-background-surface);
+  cursor: not-allowed;
+}
+
+/* Input with toggle button (password visibility) */
+.auth-input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.auth-input-wrapper .auth-input {
+  width: 100%;
+  padding-right: 48px;
+}
+
+.auth-input-toggle {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  font-size: 1.125rem;
+  color: var(--color-text-secondary);
+  transition: color 0.2s ease;
+}
+
+.auth-input-toggle:hover {
+  color: var(--color-text-primary);
+}
+
+/* Field Messages */
+.auth-field-error,
+.validation-error {
+  font-size: 0.8125rem;
+  color: #ef4444;
+  margin: 4px 0 0 0;
+}
+
+.auth-field-success {
+  font-size: 0.8125rem;
+  color: #10b981;
+  margin: 4px 0 0 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ========================================
+   Buttons
+   ======================================== */
+
+.auth-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease, opacity 0.2s ease;
+  text-decoration: none;
+}
+
+.auth-button--primary {
+  background-color: #2563eb;
+  color: #ffffff;
+}
+
+.auth-button--primary:hover:not(:disabled) {
+  background-color: #1d4ed8;
+}
+
+.auth-button--primary:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.auth-button--secondary {
+  background-color: var(--color-background-card);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border-default);
+}
+
+.auth-button--secondary:hover:not(:disabled) {
+  background-color: #f9fafb;
+  border-color: var(--color-text-tertiary);
+}
+
+.auth-button--secondary:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.auth-button--secondary .auth-button__spinner {
+  border: 2px solid rgba(55, 65, 81, 0.3);
+  border-top-color: var(--color-text-primary);
+}
+
+.auth-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Button Spinner */
+.auth-button__spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: auth-spin 0.6s linear infinite;
+}
+
+@keyframes auth-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ========================================
+   Links
+   ======================================== */
+
+.auth-links {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.auth-link {
+  color: #2563eb;
+  font-size: 0.875rem;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.auth-link:hover {
+  color: #1d4ed8;
+  text-decoration: underline;
+}
+
+.auth-link--small {
+  font-size: 0.8125rem;
+}
+
+/* ========================================
+   Messages
+   ======================================== */
+
+/* Error Message */
+.auth-error {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  color: #991b1b;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.auth-error__icon {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #ef4444;
+  color: #ffffff;
+  border-radius: 50%;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+/* Success Message */
+.auth-success-message,
+.success-message {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  background-color: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  border-radius: 8px;
+  color: #065f46;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.auth-success-message__icon {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #10b981;
+  color: #ffffff;
+  border-radius: 50%;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+/* ========================================
+   Success State
+   ======================================== */
+
+.auth-success,
+.confirmation-message {
+  text-align: center;
+  padding: 20px 0;
+}
+
+.auth-success__icon {
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+  background-color: #ecfdf5;
+  border: 3px solid #10b981;
+  border-radius: 50%;
+  font-size: 1.5rem;
+  color: #10b981;
+}
+
+.auth-success__message {
+  font-size: 1rem;
+  color: var(--color-text-primary);
+  margin: 0 0 12px 0;
+  line-height: 1.5;
+}
+
+.auth-success__hint {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.auth-success__expiry {
+  font-size: 0.9375rem;
+  color: var(--color-text-primary);
+  margin: 0 0 12px 0;
+  line-height: 1.5;
+}
+
+/* ========================================
+   Actions
+   ======================================== */
+
+.auth-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.auth-actions .auth-button {
+  width: 100%;
+}
+
+.auth-resend-success {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background-color: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  border-radius: 8px;
+  color: #065f46;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  width: 100%;
+}
+
+/* ========================================
+   Error State
+   ======================================== */
+
+.auth-error-state,
+.error-message {
+  text-align: center;
+  padding: 20px 0;
+}
+
+.auth-error-state__icon {
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+  background-color: #fef2f2;
+  border: 3px solid #ef4444;
+  border-radius: 50%;
+  font-size: 1.5rem;
+  color: #ef4444;
+}
+
+.auth-error-state__message {
+  font-size: 1rem;
+  color: var(--color-text-primary);
+  margin: 0 0 12px 0;
+  line-height: 1.5;
+}
+
+.auth-error-state__hint {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* ========================================
+   Loading State
+   ======================================== */
+
+.auth-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+}
+
+.auth-loading__spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #e5e7eb;
+  border-top-color: #2563eb;
+  border-radius: 50%;
+  animation: auth-spin 0.8s linear infinite;
+  margin-bottom: 16px;
+}
+
+.auth-loading__text {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+/* ========================================
+   Footer
+   ======================================== */
+
+.auth-footer {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid var(--color-border-default);
+  text-align: center;
+}
+
+.auth-footer__text {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+/* ========================================
+   Responsive Design
+   ======================================== */
+
+/* Tablet */
+@media (max-width: 768px) {
+  .auth-container {
+    padding: 32px;
+    max-width: 400px;
+  }
+
+  .auth-title {
+    font-size: 1.5rem;
+  }
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  .auth-page {
+    padding: 16px;
+  }
+
+  .auth-container {
+    padding: 24px;
+    border-radius: 8px;
+  }
+
+  .auth-title {
+    font-size: 1.375rem;
+  }
+
+  .auth-subtitle {
+    font-size: 0.875rem;
+  }
+
+  .auth-form {
+    gap: 16px;
+  }
+
+  .auth-input {
+    padding: 10px 12px;
+  }
+
+  .auth-button {
+    padding: 10px 20px;
+    font-size: 0.9375rem;
+  }
+
+  .auth-field-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+}
+
+/* Small Mobile */
+@media (max-width: 360px) {
+  .auth-container {
+    padding: 20px;
+  }
+}
+
+/* ========================================
+   Private Route Loading State
+   STORY-007B: Login System Frontend UI
+   ======================================== */
+
+.private-route-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: var(--color-background-page);
+}
+
+.private-route-loading__spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid #e5e7eb;
+  border-top-color: #2563eb;
+  border-radius: 50%;
+  animation: auth-spin 0.8s linear infinite;
+}
+
+/* ========================================
+   Accessibility
+   ======================================== */
+
+/* Screen reader only - visually hidden but accessible */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+
+/* ========================================
+   Delay Message (STORY-CAPTCHA)
+   ======================================== */
+
+.auth-delay-message {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background-color: #fef3c7;
+  border: 1px solid #f59e0b;
+  border-radius: 8px;
+  color: #92400e;
+  font-size: 14px;
+  margin-top: 16px;
+}
+
+.auth-delay-message__icon {
+  flex-shrink: 0;
+}

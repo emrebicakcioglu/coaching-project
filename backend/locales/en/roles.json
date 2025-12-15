@@ -1,0 +1,32 @@
+{
+  "title": "Roles & Permissions",
+  "subtitle": "Manage user roles and their associated permissions.",
+  "newRole": "New Role",
+  "table": {
+    "role": "Role",
+    "description": "Description",
+    "permissions": "Permissions",
+    "permissionsCount": "{{count}} permissions",
+    "users": "Users",
+    "usersCount": "{{count}} users",
+    "actions": "Actions"
+  },
+  "actions": {
+    "edit": "Edit",
+    "delete": "Delete",
+    "editLabel": "Edit role {{name}}",
+    "deleteLabel": "Delete role {{name}}"
+  },
+  "badges": {
+    "system": "System"
+  },
+  "loading": "Loading roles...",
+  "empty": "No roles found. Create your first role to get started.",
+  "error": "Failed to load roles. Please try again.",
+  "retry": "Try again",
+  "toast": {
+    "created": "Role \"{{name}}\" successfully created.",
+    "updated": "Role \"{{name}}\" successfully updated.",
+    "deleted": "Role \"{{name}}\" successfully deleted."
+  }
+}

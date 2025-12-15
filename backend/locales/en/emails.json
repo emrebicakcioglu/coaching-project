@@ -1,0 +1,96 @@
+{
+  "common": {
+    "greeting": "Hello {{name}},",
+    "greetingGeneric": "Hello,",
+    "footer": "Best regards,\nThe {{companyName}} Team",
+    "supportLine": "If you have any questions, please contact us at {{supportEmail}}.",
+    "doNotReply": "This is an automated message. Please do not reply directly to this email.",
+    "unsubscribe": "To unsubscribe from these notifications, please update your email preferences in your account settings.",
+    "copyright": "{{year}} {{companyName}}. All rights reserved."
+  },
+  "welcome": {
+    "subject": "Welcome to {{companyName}}!",
+    "title": "Welcome!",
+    "body": "Thank you for registering with {{companyName}}. We're excited to have you on board!",
+    "nextSteps": "Here are some next steps to get started:",
+    "step1": "Complete your profile",
+    "step2": "Explore the dashboard",
+    "step3": "Configure your settings",
+    "button": "Go to Dashboard"
+  },
+  "verification": {
+    "subject": "Verify Your Email Address",
+    "title": "Email Verification",
+    "body": "Please verify your email address by clicking the button below.",
+    "warning": "This link will expire in {{expiresIn}}.",
+    "button": "Verify Email",
+    "alternative": "If the button doesn't work, copy and paste this link into your browser:",
+    "ignore": "If you didn't create an account, you can safely ignore this email."
+  },
+  "passwordReset": {
+    "subject": "Password Reset Request",
+    "title": "Password Reset",
+    "body": "We received a request to reset your password. Click the button below to create a new password.",
+    "warning": "This link will expire in {{expiresIn}}.",
+    "button": "Reset Password",
+    "alternative": "If the button doesn't work, copy and paste this link into your browser:",
+    "ignore": "If you didn't request a password reset, you can safely ignore this email. Your password will remain unchanged."
+  },
+  "passwordChanged": {
+    "subject": "Your Password Has Been Changed",
+    "title": "Password Changed",
+    "body": "Your password was successfully changed on {{date}}.",
+    "warning": "If you did not make this change, please contact our support team immediately.",
+    "button": "Contact Support"
+  },
+  "mfaEnabled": {
+    "subject": "Two-Factor Authentication Enabled",
+    "title": "MFA Enabled",
+    "body": "Two-factor authentication has been enabled for your account.",
+    "info": "Your account is now more secure. You will need your authenticator app to sign in.",
+    "backupCodesReminder": "Please make sure you have saved your backup codes in a safe place.",
+    "warning": "If you did not enable MFA, please contact our support team immediately."
+  },
+  "mfaDisabled": {
+    "subject": "Two-Factor Authentication Disabled",
+    "title": "MFA Disabled",
+    "body": "Two-factor authentication has been disabled for your account.",
+    "warning": "Your account is now less secure. We recommend enabling MFA for better protection.",
+    "reenable": "To re-enable MFA, go to your security settings."
+  },
+  "loginAlert": {
+    "subject": "New Login Detected",
+    "title": "Security Alert",
+    "body": "A new login to your account was detected.",
+    "details": "Login Details:",
+    "device": "Device: {{device}}",
+    "browser": "Browser: {{browser}}",
+    "location": "Location: {{location}}",
+    "ip": "IP Address: {{ip}}",
+    "time": "Time: {{time}}",
+    "warning": "If this wasn't you, please change your password immediately and contact support."
+  },
+  "accountLocked": {
+    "subject": "Account Locked",
+    "title": "Account Locked",
+    "body": "Your account has been locked due to multiple failed login attempts.",
+    "duration": "Your account will be automatically unlocked in {{duration}}.",
+    "unlock": "If you need immediate access, please contact support.",
+    "button": "Contact Support"
+  },
+  "feedback": {
+    "subject": "Feedback Received: {{subject}}",
+    "title": "New Feedback",
+    "from": "From: {{userName}} ({{userEmail}})",
+    "message": "Message:",
+    "ticketNumber": "Ticket Number: {{ticketNumber}}"
+  },
+  "support": {
+    "subject": "Support Request: {{subject}}",
+    "title": "Support Request",
+    "received": "We have received your support request.",
+    "ticketNumber": "Your ticket number is: {{ticketNumber}}",
+    "response": "Our team will respond within {{responseTime}}.",
+    "urgent": "For urgent matters, please call our support hotline."
+  }
+}

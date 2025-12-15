@@ -1,0 +1,578 @@
+/**
+ * MFA Setup Page Styles
+ * STORY-005C: MFA UI (Frontend)
+ *
+ * Styles for the multi-step MFA setup wizard.
+ * Features progress indicator, QR code display, and responsive design.
+ */
+
+/* ========================================
+   Container
+   ======================================== */
+
+.mfa-setup {
+  max-width: 600px;
+  margin: 0 auto;
+  background-color: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+/* ========================================
+   Header
+   ======================================== */
+
+.mfa-setup__header {
+  padding: 32px 32px 24px;
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  color: #ffffff;
+  text-align: center;
+}
+
+.mfa-setup__title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 0 8px 0;
+}
+
+.mfa-setup__subtitle {
+  font-size: 0.9375rem;
+  opacity: 0.9;
+  margin: 0;
+}
+
+/* ========================================
+   Progress Indicator
+   ======================================== */
+
+.mfa-setup__progress {
+  display: flex;
+  justify-content: space-between;
+  padding: 20px 32px;
+  background-color: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.mfa-setup__step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  position: relative;
+}
+
+.mfa-setup__step::after {
+  content: '';
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  width: 100%;
+  height: 2px;
+  background-color: #e5e7eb;
+  z-index: 0;
+}
+
+.mfa-setup__step:last-child::after {
+  display: none;
+}
+
+.mfa-setup__step--active::after {
+  background-color: #2563eb;
+}
+
+.mfa-setup__step-number {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #9ca3af;
+  background-color: #ffffff;
+  border: 2px solid #e5e7eb;
+  border-radius: 50%;
+  z-index: 1;
+  transition: all 0.2s ease;
+}
+
+.mfa-setup__step--active .mfa-setup__step-number {
+  color: #ffffff;
+  background-color: #2563eb;
+  border-color: #2563eb;
+}
+
+.mfa-setup__step-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #9ca3af;
+  transition: color 0.2s ease;
+}
+
+.mfa-setup__step--active .mfa-setup__step-label {
+  color: #2563eb;
+}
+
+/* ========================================
+   Content
+   ======================================== */
+
+.mfa-setup__content {
+  padding: 32px;
+}
+
+.mfa-setup__content-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 12px 0;
+  text-align: center;
+}
+
+.mfa-setup__content-description {
+  font-size: 0.9375rem;
+  color: #6b7280;
+  margin: 0 0 24px 0;
+  line-height: 1.6;
+  text-align: center;
+}
+
+/* ========================================
+   Init Step
+   ======================================== */
+
+.mfa-setup__init {
+  text-align: center;
+}
+
+.mfa-setup__icon {
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 24px;
+  background-color: #eff6ff;
+  border: 3px solid #2563eb;
+  border-radius: 50%;
+  font-size: 2.5rem;
+}
+
+.mfa-setup__benefits {
+  text-align: left;
+  margin: 0 0 28px 0;
+  padding: 20px 24px;
+  background-color: #f9fafb;
+  border-radius: 12px;
+  list-style: none;
+}
+
+.mfa-setup__benefits li {
+  position: relative;
+  padding-left: 28px;
+  margin-bottom: 12px;
+  font-size: 0.9375rem;
+  color: #374151;
+  line-height: 1.5;
+}
+
+.mfa-setup__benefits li:last-child {
+  margin-bottom: 0;
+}
+
+.mfa-setup__benefits li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: #10b981;
+  font-weight: 700;
+}
+
+/* ========================================
+   Verify Step
+   ======================================== */
+
+.mfa-setup__verify {
+  text-align: center;
+}
+
+.mfa-setup__qr-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
+.mfa-setup__qr-code {
+  width: 300px;
+  height: 300px;
+  padding: 16px;
+  background-color: #ffffff;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.mfa-setup__qr-placeholder {
+  width: 300px;
+  height: 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  background-color: #f9fafb;
+  border: 2px dashed #d1d5db;
+  border-radius: 12px;
+  color: #9ca3af;
+  font-size: 0.875rem;
+}
+
+.mfa-setup__manual-entry {
+  margin-bottom: 28px;
+  padding: 20px;
+  background-color: #f9fafb;
+  border-radius: 12px;
+}
+
+.mfa-setup__manual-label {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin: 0 0 12px 0;
+}
+
+.mfa-setup__secret-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.mfa-setup__secret {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1f2937;
+  letter-spacing: 0.1em;
+  padding: 10px 16px;
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  word-break: break-all;
+}
+
+.mfa-setup__copy-button {
+  padding: 10px;
+  font-size: 1.25rem;
+  background: none;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mfa-setup__copy-button:hover {
+  background-color: #f3f4f6;
+  border-color: #d1d5db;
+}
+
+.mfa-setup__code-input {
+  max-width: 320px;
+  margin: 0 auto 16px;
+}
+
+.mfa-setup__hint {
+  font-size: 0.8125rem;
+  color: #9ca3af;
+  margin: 0;
+}
+
+/* ========================================
+   Backup Step
+   ======================================== */
+
+.mfa-setup__backup {
+  text-align: center;
+}
+
+/* ========================================
+   Done Step
+   ======================================== */
+
+.mfa-setup__done {
+  text-align: center;
+}
+
+.mfa-setup__success-icon {
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 24px;
+  background-color: #ecfdf5;
+  border: 3px solid #10b981;
+  border-radius: 50%;
+  font-size: 2.5rem;
+}
+
+.mfa-setup__success-info {
+  padding: 20px;
+  background-color: #f9fafb;
+  border-radius: 12px;
+  margin-bottom: 24px;
+  text-align: left;
+}
+
+.mfa-setup__success-info p {
+  font-size: 0.9375rem;
+  color: #374151;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.mfa-setup__success-info strong {
+  color: #1f2937;
+}
+
+/* ========================================
+   Buttons
+   ======================================== */
+
+.mfa-setup__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 14px 24px;
+  margin-bottom: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.mfa-setup__button--primary {
+  background-color: #2563eb;
+  color: #ffffff;
+}
+
+.mfa-setup__button--primary:hover:not(:disabled) {
+  background-color: #1d4ed8;
+}
+
+.mfa-setup__button--secondary {
+  background-color: transparent;
+  color: #6b7280;
+  border: 1px solid #e5e7eb;
+}
+
+.mfa-setup__button--secondary:hover:not(:disabled) {
+  background-color: #f9fafb;
+  border-color: #d1d5db;
+  color: #374151;
+}
+
+.mfa-setup__button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ========================================
+   Error
+   ======================================== */
+
+.mfa-setup__error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 18px;
+  margin-bottom: 20px;
+  font-size: 0.9375rem;
+  color: #991b1b;
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+}
+
+/* ========================================
+   Spinner
+   ======================================== */
+
+.mfa-setup__spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: mfa-setup-spin 0.8s linear infinite;
+}
+
+.mfa-setup__qr-placeholder .mfa-setup__spinner {
+  width: 32px;
+  height: 32px;
+  border-color: #e5e7eb;
+  border-top-color: #2563eb;
+}
+
+@keyframes mfa-setup-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ========================================
+   Responsive Design
+   ======================================== */
+
+/* Tablet */
+@media (max-width: 768px) {
+  .mfa-setup {
+    margin: 0 16px;
+  }
+
+  .mfa-setup__header {
+    padding: 24px 24px 20px;
+  }
+
+  .mfa-setup__title {
+    font-size: 1.375rem;
+  }
+
+  .mfa-setup__progress {
+    padding: 16px 24px;
+  }
+
+  .mfa-setup__step-label {
+    display: none;
+  }
+
+  .mfa-setup__content {
+    padding: 24px;
+  }
+
+  .mfa-setup__qr-code,
+  .mfa-setup__qr-placeholder {
+    width: 250px;
+    height: 250px;
+  }
+
+  .mfa-setup__icon,
+  .mfa-setup__success-icon {
+    width: 64px;
+    height: 64px;
+    font-size: 2rem;
+  }
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  .mfa-setup {
+    margin: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .mfa-setup__header {
+    padding: 20px 20px 16px;
+  }
+
+  .mfa-setup__title {
+    font-size: 1.25rem;
+  }
+
+  .mfa-setup__subtitle {
+    font-size: 0.875rem;
+  }
+
+  .mfa-setup__progress {
+    padding: 14px 20px;
+  }
+
+  .mfa-setup__step-number {
+    width: 24px;
+    height: 24px;
+    font-size: 0.6875rem;
+  }
+
+  .mfa-setup__content {
+    padding: 20px;
+  }
+
+  .mfa-setup__content-title {
+    font-size: 1.125rem;
+  }
+
+  .mfa-setup__content-description {
+    font-size: 0.875rem;
+  }
+
+  .mfa-setup__qr-code,
+  .mfa-setup__qr-placeholder {
+    width: 220px;
+    height: 220px;
+  }
+
+  .mfa-setup__secret {
+    font-size: 0.875rem;
+    padding: 8px 12px;
+  }
+
+  .mfa-setup__copy-button {
+    padding: 8px;
+    font-size: 1rem;
+  }
+
+  .mfa-setup__benefits {
+    padding: 16px 20px;
+  }
+
+  .mfa-setup__benefits li {
+    font-size: 0.875rem;
+    padding-left: 24px;
+  }
+
+  .mfa-setup__button {
+    padding: 12px 20px;
+    font-size: 0.9375rem;
+  }
+
+  .mfa-setup__icon,
+  .mfa-setup__success-icon {
+    width: 56px;
+    height: 56px;
+    font-size: 1.75rem;
+  }
+}
+
+/* Small Mobile */
+@media (max-width: 360px) {
+  .mfa-setup__header {
+    padding: 16px 16px 14px;
+  }
+
+  .mfa-setup__content {
+    padding: 16px;
+  }
+
+  .mfa-setup__qr-code,
+  .mfa-setup__qr-placeholder {
+    width: 180px;
+    height: 180px;
+    padding: 12px;
+  }
+
+  .mfa-setup__manual-entry {
+    padding: 16px;
+  }
+
+  .mfa-setup__secret-container {
+    flex-direction: column;
+    gap: 8px;
+  }
+}

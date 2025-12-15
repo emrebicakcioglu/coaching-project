@@ -1,0 +1,20 @@
+{
+  "title": "Dashboard",
+  "welcomeBack": "Willkommen zurück",
+  "cards": {
+    "totalUsers": "Benutzer gesamt",
+    "activeSessions": "Aktive Sitzungen",
+    "roles": "Rollen",
+    "systemStatus": "Systemstatus",
+    "healthy": "Gesund"
+  },
+  "quickActions": {
+    "title": "Schnellaktionen",
+    "manageUsers": "Benutzer verwalten",
+    "manageUsersDesc": "Benutzer anzeigen und verwalten",
+    "manageSessions": "Sitzungen verwalten",
+    "manageSessionsDesc": "Aktive Sitzungen anzeigen",
+    "settings": "Einstellungen",
+    "settingsDesc": "System konfigurieren"
+  }
+}

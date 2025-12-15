@@ -1,0 +1,177 @@
+/**
+ * User Delete Dialog Styles
+ * STORY-006B: User CRUD Frontend UI
+ *
+ * Styling for UserDeleteDialog confirmation modal.
+ * Uses BEM naming convention for consistency.
+ */
+
+/* Content container */
+.user-delete-dialog__content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  text-align: center;
+}
+
+/* Warning icon */
+.user-delete-dialog__icon {
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fee2e2;
+  border-radius: 50%;
+}
+
+.user-delete-dialog__icon-svg {
+  width: 32px;
+  height: 32px;
+  color: #dc2626;
+}
+
+/* Error message */
+.user-delete-dialog__error {
+  width: 100%;
+  padding: 12px 16px;
+  color: #b91c1c;
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+  font-size: 14px;
+  line-height: 1.5;
+  text-align: left;
+}
+
+/* Confirmation message */
+.user-delete-dialog__message {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 500;
+  color: #1f2937;
+  line-height: 1.5;
+}
+
+/* User info box */
+.user-delete-dialog__user-info {
+  width: 100%;
+  padding: 16px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  text-align: left;
+}
+
+.user-delete-dialog__user-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+}
+
+.user-delete-dialog__user-row:first-child {
+  padding-top: 0;
+}
+
+.user-delete-dialog__user-row:last-child {
+  padding-bottom: 0;
+}
+
+.user-delete-dialog__user-row:not(:last-child) {
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.user-delete-dialog__user-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #6b7280;
+}
+
+.user-delete-dialog__user-value {
+  font-size: 14px;
+  color: #1f2937;
+  font-weight: 500;
+}
+
+/* Warning note */
+.user-delete-dialog__note {
+  margin: 0;
+  font-size: 13px;
+  color: #6b7280;
+  line-height: 1.5;
+  font-style: italic;
+}
+
+/* Footer buttons */
+.user-delete-dialog__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+/* Buttons */
+.user-delete-dialog__btn {
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 100px;
+  text-align: center;
+}
+
+.user-delete-dialog__btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.user-delete-dialog__btn--secondary {
+  color: #374151;
+  background: white;
+  border: 1px solid #d1d5db;
+}
+
+.user-delete-dialog__btn--secondary:hover:not(:disabled) {
+  background: #f9fafb;
+  border-color: #9ca3af;
+}
+
+.user-delete-dialog__btn--secondary:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(156, 163, 175, 0.4);
+}
+
+.user-delete-dialog__btn--danger {
+  color: white;
+  background: #dc2626;
+  border: none;
+}
+
+.user-delete-dialog__btn--danger:hover:not(:disabled) {
+  background: #b91c1c;
+}
+
+.user-delete-dialog__btn--danger:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.4);
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .user-delete-dialog__footer {
+    flex-direction: column-reverse;
+  }
+
+  .user-delete-dialog__btn {
+    width: 100%;
+  }
+
+  .user-delete-dialog__user-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+}

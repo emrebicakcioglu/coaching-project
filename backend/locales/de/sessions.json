@@ -1,0 +1,26 @@
+{
+  "title": "Sessions verwalten",
+  "description": "Hier sehen Sie alle Geräte und Browser, auf denen Sie angemeldet sind. Sie können einzelne Sessions beenden oder sich auf allen Geräten gleichzeitig abmelden.",
+  "securityTip": {
+    "label": "Sicherheitstipp:",
+    "text": "Wenn Sie ein unbekanntes Gerät sehen, beenden Sie die Session sofort und ändern Sie Ihr Passwort."
+  },
+  "list": {
+    "current": "Aktuell",
+    "terminate": "Beenden",
+    "terminateAll": "Alle anderen Sessions beenden",
+    "confirmTerminate": "Möchten Sie diese Session wirklich beenden?",
+    "confirmTerminateAll": "Möchten Sie wirklich alle anderen Sessions beenden?"
+  },
+  "device": {
+    "browser": "Browser",
+    "os": "Betriebssystem",
+    "ip": "IP-Adresse",
+    "lastActive": "Letzte Aktivität",
+    "location": "Standort"
+  },
+  "loading": "Sessions werden geladen...",
+  "error": "Fehler beim Laden der Sessions. Bitte versuchen Sie es erneut.",
+  "terminateError": "Fehler beim Beenden der Session.",
+  "terminateAllError": "Fehler beim Beenden aller Sessions."
+}

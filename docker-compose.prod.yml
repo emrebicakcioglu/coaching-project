@@ -1,0 +1,362 @@
+# ======================================
+# Core Application - Production Docker Compose
+# ======================================
+# Production-optimized Docker configuration
+#
+# Features:
+#   - Resource limits and reservations
+#   - Production-ready logging
+#   - Secure networking
+#   - Health checks with proper intervals
+#   - Volume management for data persistence
+#   - SSL/TLS termination via Nginx
+#
+# Usage:
+#   1. Copy .env.docker.example to .env and configure
+#   2. Generate SSL certificates (see docker/ssl/README.md)
+#   3. Run: docker-compose -f docker-compose.prod.yml up -d
+#
+# Services:
+#   - frontend: React/Vite with Nginx (ports 80/443)
+#   - resource-api: NestJS API server (port 14102)
+#   - postgres: PostgreSQL 15 database (port 14101)
+#   - redis: Redis 7 cache/queue (port 14103)
+#   - minio: MinIO object storage (ports 14104/14105)
+#
+# ======================================
+
+version: '3.8'
+
+services:
+  # ----------------
+  # Frontend Service (React/Vite with Nginx - Production)
+  # ----------------
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: ${FRONTEND_API_URL:-http://localhost:14102/api/v1}
+    container_name: core-app-frontend-prod
+    ports:
+      - "${FRONTEND_HTTP_PORT:-80}:80"
+      - "${FRONTEND_HTTPS_PORT:-443}:443"
+    volumes:
+      # SSL certificates (mount from host)
+      - ./docker/ssl:/etc/nginx/ssl:ro
+      # Custom Nginx production config
+      - ./docker/nginx/nginx.prod.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      resource-api:
+        condition: service_healthy
+    networks:
+      - core-app-network
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ----------------
+  # Resource API Service (NestJS - Production)
+  # ----------------
+  resource-api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: core-app-api-prod
+    ports:
+      - "${API_PORT:-14102}:14102"
+    environment:
+      - NODE_ENV=production
+      - APP_PORT=14102
+      - APP_HOST=0.0.0.0
+      - APP_URL=${APP_URL:-http://localhost:14102}
+      - FRONTEND_URL=${FRONTEND_URL:-http://localhost}
+      - API_VERSION=v1
+      # Database
+      - DATABASE_URL=postgresql://${DB_USER:-postgres}:${DB_PASSWORD}@postgres:5432/${DB_NAME:-core_app}
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=${DB_USER:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME:-core_app}
+      - DB_SSL=${DB_SSL:-false}
+      - DB_POOL_MAX=${DB_POOL_MAX:-20}
+      - DB_POOL_IDLE_TIMEOUT_MS=${DB_POOL_IDLE_TIMEOUT_MS:-30000}
+      - DB_POOL_CONNECTION_TIMEOUT_MS=${DB_POOL_CONNECTION_TIMEOUT_MS:-2000}
+      # Redis
+      - REDIS_URL=redis://redis:6379
+      # JWT (REQUIRED - must be set in .env)
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN:-24h}
+      - JWT_REFRESH_EXPIRES_IN=${JWT_REFRESH_EXPIRES_IN:-30d}
+      - JWT_ACCESS_EXPIRY=${JWT_ACCESS_EXPIRY:-15m}
+      - JWT_REFRESH_EXPIRY_SHORT=${JWT_REFRESH_EXPIRY_SHORT:-24h}
+      - JWT_REFRESH_EXPIRY_LONG=${JWT_REFRESH_EXPIRY_LONG:-30d}
+      - TOKEN_CLEANUP_INTERVAL_MS=${TOKEN_CLEANUP_INTERVAL_MS:-3600000}
+      # Password hashing
+      - BCRYPT_ROUNDS=${BCRYPT_ROUNDS:-12}
+      # Email (Resend.com)
+      - RESEND_API_KEY=${RESEND_API_KEY}
+      - EMAIL_FROM_NAME=${EMAIL_FROM_NAME:-Core Application}
+      - EMAIL_FROM_ADDRESS=${EMAIL_FROM_ADDRESS}
+      - SUPPORT_EMAIL=${SUPPORT_EMAIL:-}
+      - EMAIL_MAX_RETRIES=${EMAIL_MAX_RETRIES:-3}
+      - EMAIL_RETRY_DELAY_MS=${EMAIL_RETRY_DELAY_MS:-1000}
+      # Email Queue
+      - EMAIL_QUEUE_ENABLED=${EMAIL_QUEUE_ENABLED:-true}
+      - EMAIL_QUEUE_PROCESS_INTERVAL=${EMAIL_QUEUE_PROCESS_INTERVAL:-5000}
+      - EMAIL_RETRY_MAX=${EMAIL_RETRY_MAX:-3}
+      - EMAIL_RETRY_DELAY=${EMAIL_RETRY_DELAY:-5000}
+      - EMAIL_RATE_LIMIT=${EMAIL_RATE_LIMIT:-60}
+      - COMPANY_LOGO_URL=${COMPANY_LOGO_URL:-}
+      # Rate limiting
+      - RATE_LIMIT_TTL=${RATE_LIMIT_TTL:-60}
+      - RATE_LIMIT_WINDOW_MS=${RATE_LIMIT_WINDOW_MS:-60000}
+      - RATE_LIMIT_MAX=${RATE_LIMIT_MAX:-100}
+      - RATE_LIMIT_MAX_REQUESTS=${RATE_LIMIT_MAX_REQUESTS:-100}
+      # Feedback
+      - FEEDBACK_USE_QUEUE=${FEEDBACK_USE_QUEUE:-true}
+      - FEEDBACK_QUEUE_PRIORITY=${FEEDBACK_QUEUE_PRIORITY:-normal}
+      - FEEDBACK_RATE_LIMIT_MAX=${FEEDBACK_RATE_LIMIT_MAX:-5}
+      - FEEDBACK_RATE_LIMIT_WINDOW_SECONDS=${FEEDBACK_RATE_LIMIT_WINDOW_SECONDS:-3600}
+      - EMAIL_QUEUE_RETRY_ATTEMPTS=${EMAIL_QUEUE_RETRY_ATTEMPTS:-3}
+      # Logging (production)
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - LOG_FILE_PATH=/app/logs/app.log
+      - LOG_DIR=/app/logs
+      - LOG_MAX_FILES=${LOG_MAX_FILES:-30d}
+      - LOG_MAX_SIZE=${LOG_MAX_SIZE:-50m}
+      - SENTRY_DSN=${SENTRY_DSN:-}
+      # Audit logging
+      - AUDIT_LOG_ENABLED=${AUDIT_LOG_ENABLED:-true}
+      - AUDIT_LOG_API_REQUESTS=${AUDIT_LOG_API_REQUESTS:-false}
+      - AUDIT_LOG_READ_ONLY=${AUDIT_LOG_READ_ONLY:-false}
+      # Swagger (disabled in production by default)
+      - SWAGGER_ENABLED=${SWAGGER_ENABLED:-false}
+      # Health checks
+      - SMTP_HOST=${SMTP_HOST:-}
+      - SMTP_PORT=${SMTP_PORT:-587}
+      - SMTP_CHECK_TIMEOUT=${SMTP_CHECK_TIMEOUT:-5000}
+      # MinIO
+      - MINIO_ENDPOINT=minio
+      - MINIO_PORT=9000
+      - MINIO_USE_SSL=${MINIO_USE_SSL:-false}
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
+      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
+      - MINIO_BUCKET_UPLOADS=${MINIO_BUCKET_UPLOADS:-uploads}
+      - MINIO_BUCKET_LOGOS=${MINIO_BUCKET_LOGOS:-logos}
+      - MINIO_BUCKET_FEEDBACK=${MINIO_BUCKET_FEEDBACK:-feedback}
+      - STORAGE_CHECK_TIMEOUT=${STORAGE_CHECK_TIMEOUT:-5000}
+      # Session timeout
+      - DEFAULT_SESSION_TIMEOUT_MINUTES=${DEFAULT_SESSION_TIMEOUT_MINUTES:-30}
+      - DEFAULT_SHOW_TIMEOUT_WARNING=${DEFAULT_SHOW_TIMEOUT_WARNING:-true}
+      - DEFAULT_WARNING_BEFORE_TIMEOUT_MINUTES=${DEFAULT_WARNING_BEFORE_TIMEOUT_MINUTES:-5}
+      # Permission system
+      - PERMISSION_CACHE_TTL_MS=${PERMISSION_CACHE_TTL_MS:-300000}
+      - PERMISSION_HIERARCHY_CACHE_TTL_MS=${PERMISSION_HIERARCHY_CACHE_TTL_MS:-600000}
+      # Settings cache
+      - SETTINGS_CACHE_TTL_MS=${SETTINGS_CACHE_TTL_MS:-60000}
+      # Feature toggles
+      - FEATURE_CACHE_TTL_MS=${FEATURE_CACHE_TTL_MS:-60000}
+      # MFA
+      - MFA_ISSUER=${MFA_ISSUER:-CoreApp}
+      - MFA_TEMP_TOKEN_SECRET=${MFA_TEMP_TOKEN_SECRET:-}
+      - MFA_TEMP_TOKEN_EXPIRY=${MFA_TEMP_TOKEN_EXPIRY:-300}
+      - MFA_LOCKOUT_DURATION=${MFA_LOCKOUT_DURATION:-900}
+      - MFA_MAX_ATTEMPTS=${MFA_MAX_ATTEMPTS:-5}
+      # Language
+      - DEFAULT_LANGUAGE=${DEFAULT_LANGUAGE:-en}
+      - SUPPORTED_LANGUAGES=${SUPPORTED_LANGUAGES:-en,de}
+      - FALLBACK_LANGUAGE=${FALLBACK_LANGUAGE:-en}
+      # Versioning
+      - BUILD_NUMBER=${BUILD_NUMBER:-}
+      - GIT_COMMIT=${GIT_COMMIT:-}
+      # Registration
+      - VERIFICATION_TOKEN_EXPIRY=${VERIFICATION_TOKEN_EXPIRY:-24h}
+      - REGISTRATION_RATE_LIMIT_MAX=${REGISTRATION_RATE_LIMIT_MAX:-3}
+      - REGISTRATION_RATE_LIMIT_WINDOW_SECONDS=${REGISTRATION_RATE_LIMIT_WINDOW_SECONDS:-3600}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    volumes:
+      - ./logs:/app/logs
+    networks:
+      - core-app-network
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:14102/api/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "5"
+
+  # ----------------
+  # PostgreSQL Database (Production)
+  # ----------------
+  postgres:
+    image: postgres:15-alpine
+    container_name: core-app-postgres-prod
+    ports:
+      - "${DB_EXTERNAL_PORT:-14101}:5432"
+    environment:
+      - POSTGRES_USER=${DB_USER:-postgres}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME:-core_app}
+      - POSTGRES_INITDB_ARGS=--encoding=UTF8 --locale=C
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/postgresql.conf:/etc/postgresql/postgresql.conf:ro
+      - ./backups/postgres:/backups
+    command: postgres -c config_file=/etc/postgresql/postgresql.conf
+    networks:
+      - core-app-network
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-core_app}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "3"
+
+  # ----------------
+  # Redis Cache/Queue (Production)
+  # ----------------
+  redis:
+    image: redis:7-alpine
+    container_name: core-app-redis-prod
+    ports:
+      - "${REDIS_EXTERNAL_PORT:-14103}:6379"
+    volumes:
+      - redis_data:/data
+      - ./docker/redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
+    command: redis-server /usr/local/etc/redis/redis.conf
+    networks:
+      - core-app-network
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ----------------
+  # MinIO Object Storage (Production)
+  # ----------------
+  minio:
+    image: minio/minio:latest
+    container_name: core-app-minio-prod
+    ports:
+      - "${MINIO_API_PORT:-14104}:9000"
+      - "${MINIO_CONSOLE_PORT:-14105}:9001"
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ACCESS_KEY}
+      - MINIO_ROOT_PASSWORD=${MINIO_SECRET_KEY}
+      - MINIO_BROWSER_REDIRECT_URL=${MINIO_CONSOLE_URL:-http://localhost:14105}
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_data:/data
+    networks:
+      - core-app-network
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+        reservations:
+          cpus: '0.2'
+          memory: 256M
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+      start_period: 30s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "3"
+
+# ----------------
+# Networks
+# ----------------
+networks:
+  core-app-network:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.28.0.0/16
+
+# ----------------
+# Volumes
+# ----------------
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  minio_data:
+    driver: local

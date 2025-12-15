@@ -1,0 +1,391 @@
+/**
+ * Global Styles
+ * STORY-017A: Layout & Grid-System
+ * STORY-017B: Theme-System Frontend
+ *
+ * CSS Custom Properties (Variables) for colors, spacing, and typography.
+ * These variables are referenced by Tailwind CSS configuration.
+ *
+ * Theme colors (--color-primary, --color-secondary, etc.) can be dynamically
+ * updated via the ThemeProvider which sets these properties on document.documentElement.
+ */
+
+/* ========================================
+   Tailwind CSS Directives
+   ======================================== */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ========================================
+   CSS Custom Properties (Variables)
+   ======================================== */
+
+:root {
+  /* =====================================
+     Dynamic Theme Colors (STORY-017B)
+     These can be overridden by ThemeProvider
+     ===================================== */
+
+  /* Background Colors - dynamically set by theme */
+  --color-background-page: #ffffff;
+  --color-background-card: #f9fafb;
+  --color-background-surface: #f9fafb;
+  --color-background-input: #ffffff;
+
+  /* Border Colors */
+  --color-border-default: #e5e7eb;
+  --color-border-light: #f3f4f6;
+  --color-border-hover: #9ca3af;
+
+  /* Text Colors - extended */
+  --color-text-tertiary: #9ca3af;
+
+  /* Text Colors - dynamically set by theme */
+  --color-text-primary: #111827;
+  --color-text-secondary: #6b7280;
+
+  /* Primary Color Palette - Blue (can be overridden by theme) */
+  --color-primary: #2563eb;
+  --color-primary-50: #eff6ff;
+  --color-primary-100: #dbeafe;
+  --color-primary-200: #bfdbfe;
+  --color-primary-300: #93c5fd;
+  --color-primary-400: #60a5fa;
+  --color-primary-500: #3b82f6;
+  --color-primary-600: #2563eb;
+  --color-primary-700: #1d4ed8;
+  --color-primary-800: #1e40af;
+  --color-primary-900: #1e3a8a;
+
+  /* Secondary Color Palette - Slate */
+  --color-secondary: #64748b;
+  --color-secondary-50: #f8fafc;
+  --color-secondary-100: #f1f5f9;
+  --color-secondary-200: #e2e8f0;
+  --color-secondary-300: #cbd5e1;
+  --color-secondary-400: #94a3b8;
+  --color-secondary-500: #64748b;
+  --color-secondary-600: #475569;
+  --color-secondary-700: #334155;
+  --color-secondary-800: #1e293b;
+  --color-secondary-900: #0f172a;
+
+  /* Success Color */
+  --color-success: #10b981;
+  --color-success-light: #ecfdf5;
+  --color-success-dark: #065f46;
+
+  /* Error Color */
+  --color-error: #ef4444;
+  --color-error-light: #fef2f2;
+  --color-error-dark: #991b1b;
+
+  /* Warning Color */
+  --color-warning: #f59e0b;
+  --color-warning-light: #fffbeb;
+  --color-warning-dark: #b45309;
+
+  /* Info Color */
+  --color-info: #3b82f6;
+  --color-info-light: #eff6ff;
+  --color-info-dark: #1e40af;
+
+  /* Neutral Colors */
+  --color-neutral-50: #f9fafb;
+  --color-neutral-100: #f3f4f6;
+  --color-neutral-200: #e5e7eb;
+  --color-neutral-300: #d1d5db;
+  --color-neutral-400: #9ca3af;
+  --color-neutral-500: #6b7280;
+  --color-neutral-600: #4b5563;
+  --color-neutral-700: #374151;
+  --color-neutral-800: #1f2937;
+  --color-neutral-900: #111827;
+
+  /* Typography */
+  --font-family-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-family-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+
+  /* Spacing Scale */
+  --spacing-xs: 0.25rem;  /* 4px */
+  --spacing-sm: 0.5rem;   /* 8px */
+  --spacing-md: 1rem;     /* 16px */
+  --spacing-lg: 1.5rem;   /* 24px */
+  --spacing-xl: 2rem;     /* 32px */
+  --spacing-2xl: 3rem;    /* 48px */
+  --spacing-3xl: 4rem;    /* 64px */
+
+  /* Border Radius */
+  --radius-sm: 0.25rem;   /* 4px */
+  --radius-md: 0.375rem;  /* 6px */
+  --radius-lg: 0.5rem;    /* 8px */
+  --radius-xl: 0.75rem;   /* 12px */
+  --radius-2xl: 1rem;     /* 16px */
+  --radius-full: 9999px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+
+  /* Z-Index Scale */
+  --z-dropdown: 1000;
+  --z-sticky: 1020;
+  --z-fixed: 1030;
+  --z-modal-backdrop: 1040;
+  --z-modal: 1050;
+  --z-popover: 1060;
+  --z-tooltip: 1070;
+
+  /* Transitions */
+  --transition-fast: 150ms ease-in-out;
+  --transition-normal: 200ms ease-in-out;
+  --transition-slow: 300ms ease-in-out;
+
+  /* Container Max Widths */
+  --container-sm: 640px;
+  --container-md: 768px;
+  --container-lg: 1024px;
+  --container-xl: 1280px;
+}
+
+/* ========================================
+   Base Styles
+   ======================================== */
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    font-family: var(--font-family-sans);
+    line-height: 1.5;
+    -webkit-text-size-adjust: 100%;
+    -moz-tab-size: 4;
+    tab-size: 4;
+  }
+
+  body {
+    margin: 0;
+    font-family: inherit;
+    line-height: inherit;
+    color: var(--color-text-primary);
+    background-color: var(--color-background-page);
+  }
+
+  /* Focus styles for accessibility */
+  :focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+
+  /* Reduce motion for users who prefer it */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+/* ========================================
+   Component Layer - Custom Components
+   ======================================== */
+
+@layer components {
+  /* Container Component Styles */
+  .layout-container {
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: var(--spacing-md);
+    padding-right: var(--spacing-md);
+  }
+
+  @media (min-width: 640px) {
+    .layout-container {
+      max-width: var(--container-sm);
+      padding-left: var(--spacing-lg);
+      padding-right: var(--spacing-lg);
+    }
+  }
+
+  @media (min-width: 768px) {
+    .layout-container {
+      max-width: var(--container-md);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .layout-container {
+      max-width: var(--container-lg);
+      padding-left: var(--spacing-xl);
+      padding-right: var(--spacing-xl);
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .layout-container {
+      max-width: var(--container-xl);
+    }
+  }
+
+  /* Full-width container variant */
+  .layout-container--fluid {
+    max-width: 100%;
+  }
+
+  /* Row Component Styles */
+  .layout-row {
+    display: flex;
+    flex-wrap: wrap;
+    margin-left: calc(var(--spacing-sm) * -1);
+    margin-right: calc(var(--spacing-sm) * -1);
+  }
+
+  .layout-row--no-gutters {
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .layout-row--no-gutters > .layout-col {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  /* Column Component Base Styles */
+  .layout-col {
+    flex: 1 0 0%;
+    padding-left: var(--spacing-sm);
+    padding-right: var(--spacing-sm);
+  }
+
+  /* Auto-width column */
+  .layout-col--auto {
+    flex: 0 0 auto;
+    width: auto;
+  }
+
+  /* 12-Column Grid System */
+  .layout-col--1 { flex: 0 0 auto; width: 8.333333%; }
+  .layout-col--2 { flex: 0 0 auto; width: 16.666667%; }
+  .layout-col--3 { flex: 0 0 auto; width: 25%; }
+  .layout-col--4 { flex: 0 0 auto; width: 33.333333%; }
+  .layout-col--5 { flex: 0 0 auto; width: 41.666667%; }
+  .layout-col--6 { flex: 0 0 auto; width: 50%; }
+  .layout-col--7 { flex: 0 0 auto; width: 58.333333%; }
+  .layout-col--8 { flex: 0 0 auto; width: 66.666667%; }
+  .layout-col--9 { flex: 0 0 auto; width: 75%; }
+  .layout-col--10 { flex: 0 0 auto; width: 83.333333%; }
+  .layout-col--11 { flex: 0 0 auto; width: 91.666667%; }
+  .layout-col--12 { flex: 0 0 auto; width: 100%; }
+
+  /* Responsive Column Classes - SM (640px+) */
+  @media (min-width: 640px) {
+    .layout-col--sm-1 { flex: 0 0 auto; width: 8.333333%; }
+    .layout-col--sm-2 { flex: 0 0 auto; width: 16.666667%; }
+    .layout-col--sm-3 { flex: 0 0 auto; width: 25%; }
+    .layout-col--sm-4 { flex: 0 0 auto; width: 33.333333%; }
+    .layout-col--sm-5 { flex: 0 0 auto; width: 41.666667%; }
+    .layout-col--sm-6 { flex: 0 0 auto; width: 50%; }
+    .layout-col--sm-7 { flex: 0 0 auto; width: 58.333333%; }
+    .layout-col--sm-8 { flex: 0 0 auto; width: 66.666667%; }
+    .layout-col--sm-9 { flex: 0 0 auto; width: 75%; }
+    .layout-col--sm-10 { flex: 0 0 auto; width: 83.333333%; }
+    .layout-col--sm-11 { flex: 0 0 auto; width: 91.666667%; }
+    .layout-col--sm-12 { flex: 0 0 auto; width: 100%; }
+  }
+
+  /* Responsive Column Classes - MD (768px+) */
+  @media (min-width: 768px) {
+    .layout-col--md-1 { flex: 0 0 auto; width: 8.333333%; }
+    .layout-col--md-2 { flex: 0 0 auto; width: 16.666667%; }
+    .layout-col--md-3 { flex: 0 0 auto; width: 25%; }
+    .layout-col--md-4 { flex: 0 0 auto; width: 33.333333%; }
+    .layout-col--md-5 { flex: 0 0 auto; width: 41.666667%; }
+    .layout-col--md-6 { flex: 0 0 auto; width: 50%; }
+    .layout-col--md-7 { flex: 0 0 auto; width: 58.333333%; }
+    .layout-col--md-8 { flex: 0 0 auto; width: 66.666667%; }
+    .layout-col--md-9 { flex: 0 0 auto; width: 75%; }
+    .layout-col--md-10 { flex: 0 0 auto; width: 83.333333%; }
+    .layout-col--md-11 { flex: 0 0 auto; width: 91.666667%; }
+    .layout-col--md-12 { flex: 0 0 auto; width: 100%; }
+  }
+
+  /* Responsive Column Classes - LG (1024px+) */
+  @media (min-width: 1024px) {
+    .layout-col--lg-1 { flex: 0 0 auto; width: 8.333333%; }
+    .layout-col--lg-2 { flex: 0 0 auto; width: 16.666667%; }
+    .layout-col--lg-3 { flex: 0 0 auto; width: 25%; }
+    .layout-col--lg-4 { flex: 0 0 auto; width: 33.333333%; }
+    .layout-col--lg-5 { flex: 0 0 auto; width: 41.666667%; }
+    .layout-col--lg-6 { flex: 0 0 auto; width: 50%; }
+    .layout-col--lg-7 { flex: 0 0 auto; width: 58.333333%; }
+    .layout-col--lg-8 { flex: 0 0 auto; width: 66.666667%; }
+    .layout-col--lg-9 { flex: 0 0 auto; width: 75%; }
+    .layout-col--lg-10 { flex: 0 0 auto; width: 83.333333%; }
+    .layout-col--lg-11 { flex: 0 0 auto; width: 91.666667%; }
+    .layout-col--lg-12 { flex: 0 0 auto; width: 100%; }
+  }
+
+  /* Responsive Column Classes - XL (1280px+) */
+  @media (min-width: 1280px) {
+    .layout-col--xl-1 { flex: 0 0 auto; width: 8.333333%; }
+    .layout-col--xl-2 { flex: 0 0 auto; width: 16.666667%; }
+    .layout-col--xl-3 { flex: 0 0 auto; width: 25%; }
+    .layout-col--xl-4 { flex: 0 0 auto; width: 33.333333%; }
+    .layout-col--xl-5 { flex: 0 0 auto; width: 41.666667%; }
+    .layout-col--xl-6 { flex: 0 0 auto; width: 50%; }
+    .layout-col--xl-7 { flex: 0 0 auto; width: 58.333333%; }
+    .layout-col--xl-8 { flex: 0 0 auto; width: 66.666667%; }
+    .layout-col--xl-9 { flex: 0 0 auto; width: 75%; }
+    .layout-col--xl-10 { flex: 0 0 auto; width: 83.333333%; }
+    .layout-col--xl-11 { flex: 0 0 auto; width: 91.666667%; }
+    .layout-col--xl-12 { flex: 0 0 auto; width: 100%; }
+  }
+}
+
+/* ========================================
+   Utility Layer - Custom Utilities
+   ======================================== */
+
+@layer utilities {
+  /* Screen Reader Only - Accessibility */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* Skip Link - Accessibility */
+  .skip-link {
+    position: absolute;
+    top: -40px;
+    left: 0;
+    background: var(--color-primary);
+    color: white;
+    padding: var(--spacing-sm) var(--spacing-md);
+    z-index: var(--z-modal);
+    transition: top var(--transition-fast);
+  }
+
+  .skip-link:focus {
+    top: 0;
+  }
+}

@@ -1,0 +1,292 @@
+# ======================================
+# Core Application - Development Docker Compose
+# ======================================
+# Development-optimized Docker configuration with hot reloading
+#
+# Features:
+#   - Volume mounts for hot reloading
+#   - Development debugging enabled
+#   - Swagger API documentation enabled
+#   - Verbose logging
+#   - Source maps
+#
+# Usage:
+#   docker-compose -f docker-compose.dev.yml up -d
+#   docker-compose -f docker-compose.dev.yml logs -f resource-api
+#
+# For frontend development, run locally:
+#   cd frontend && npm run dev
+#
+# ======================================
+
+version: '3.8'
+
+services:
+  # ----------------
+  # Resource API Service (NestJS - Development with Hot Reload)
+  # ----------------
+  resource-api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    container_name: core-app-api-dev
+    ports:
+      - "14102:14102"
+      - "9229:9229"  # Node.js debug port
+    environment:
+      - NODE_ENV=development
+      - APP_PORT=14102
+      - APP_HOST=0.0.0.0
+      - APP_URL=http://localhost:14102
+      - FRONTEND_URL=http://localhost:3000
+      - API_VERSION=v1
+      # Database
+      - DATABASE_URL=postgresql://postgres:devpassword123@postgres:5432/core_app_dev
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=devpassword123
+      - DB_NAME=core_app_dev
+      - DB_SSL=false
+      - DB_POOL_MAX=10
+      - DB_POOL_IDLE_TIMEOUT_MS=30000
+      - DB_POOL_CONNECTION_TIMEOUT_MS=2000
+      # Redis
+      - REDIS_URL=redis://redis:6379
+      # JWT (development)
+      - JWT_SECRET=dev_jwt_secret_key_min_32_characters_here
+      - JWT_EXPIRES_IN=24h
+      - JWT_REFRESH_EXPIRES_IN=30d
+      - JWT_ACCESS_EXPIRY=15m
+      - JWT_REFRESH_EXPIRY_SHORT=24h
+      - JWT_REFRESH_EXPIRY_LONG=30d
+      - TOKEN_CLEANUP_INTERVAL_MS=3600000
+      # Password hashing
+      - BCRYPT_ROUNDS=10  # Lower for faster dev iteration
+      # Email (development - use test API key)
+      - RESEND_API_KEY=${RESEND_API_KEY:-re_placeholder}
+      - EMAIL_FROM_NAME=Core Application (Dev)
+      - EMAIL_FROM_ADDRESS=${EMAIL_FROM_ADDRESS:-noreply@localhost}
+      - SUPPORT_EMAIL=
+      - EMAIL_MAX_RETRIES=1
+      - EMAIL_RETRY_DELAY_MS=500
+      # Email Queue
+      - EMAIL_QUEUE_ENABLED=true
+      - EMAIL_QUEUE_PROCESS_INTERVAL=5000
+      - EMAIL_RETRY_MAX=3
+      - EMAIL_RETRY_DELAY=5000
+      - EMAIL_RATE_LIMIT=60
+      - COMPANY_LOGO_URL=
+      # Rate limiting (relaxed for dev)
+      - RATE_LIMIT_TTL=60
+      - RATE_LIMIT_WINDOW_MS=60000
+      - RATE_LIMIT_MAX=1000
+      - RATE_LIMIT_MAX_REQUESTS=1000
+      # Feedback
+      - FEEDBACK_USE_QUEUE=true
+      - FEEDBACK_QUEUE_PRIORITY=normal
+      - FEEDBACK_RATE_LIMIT_MAX=100
+      - FEEDBACK_RATE_LIMIT_WINDOW_SECONDS=60
+      - EMAIL_QUEUE_RETRY_ATTEMPTS=3
+      # Logging (verbose for development)
+      - LOG_LEVEL=debug
+      - LOG_FILE_PATH=/app/logs/app.log
+      - LOG_DIR=/app/logs
+      - LOG_MAX_FILES=7d
+      - LOG_MAX_SIZE=20m
+      - SENTRY_DSN=
+      # Audit logging
+      - AUDIT_LOG_ENABLED=true
+      - AUDIT_LOG_API_REQUESTS=true
+      - AUDIT_LOG_READ_ONLY=true
+      # Swagger (enabled for development)
+      - SWAGGER_ENABLED=true
+      # Health checks
+      - SMTP_HOST=
+      - SMTP_PORT=587
+      - SMTP_CHECK_TIMEOUT=5000
+      # MinIO
+      - MINIO_ENDPOINT=minio
+      - MINIO_PORT=9000
+      - MINIO_USE_SSL=false
+      - MINIO_ACCESS_KEY=minioadmin
+      - MINIO_SECRET_KEY=minioadmin
+      - MINIO_BUCKET_UPLOADS=uploads
+      - MINIO_BUCKET_LOGOS=logos
+      - MINIO_BUCKET_FEEDBACK=feedback
+      - STORAGE_CHECK_TIMEOUT=5000
+      # Session timeout
+      - DEFAULT_SESSION_TIMEOUT_MINUTES=60
+      - DEFAULT_SHOW_TIMEOUT_WARNING=true
+      - DEFAULT_WARNING_BEFORE_TIMEOUT_MINUTES=5
+      # Permission system
+      - PERMISSION_CACHE_TTL_MS=60000
+      - PERMISSION_HIERARCHY_CACHE_TTL_MS=120000
+      # Settings cache
+      - SETTINGS_CACHE_TTL_MS=30000
+      # Feature toggles
+      - FEATURE_CACHE_TTL_MS=30000
+      # MFA
+      - MFA_ISSUER=CoreApp-Dev
+      - MFA_TEMP_TOKEN_SECRET=dev_mfa_temp_token_secret_min_32_chars
+      - MFA_TEMP_TOKEN_EXPIRY=600
+      - MFA_LOCKOUT_DURATION=60
+      - MFA_MAX_ATTEMPTS=10
+      # Language
+      - DEFAULT_LANGUAGE=en
+      - SUPPORTED_LANGUAGES=en,de
+      - FALLBACK_LANGUAGE=en
+      # Versioning
+      - BUILD_NUMBER=dev
+      - GIT_COMMIT=development
+      # Registration
+      - VERIFICATION_TOKEN_EXPIRY=24h
+      - REGISTRATION_RATE_LIMIT_MAX=100
+      - REGISTRATION_RATE_LIMIT_WINDOW_SECONDS=60
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    volumes:
+      # Mount source for hot reloading
+      - ./backend/src:/app/src:delegated
+      - ./backend/templates:/app/templates:delegated
+      - ./backend/locales:/app/locales:delegated
+      - ./logs:/app/logs
+      # Named volume for node_modules to prevent host override
+      - backend_node_modules:/app/node_modules
+    networks:
+      - core-app-dev-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:14102/api/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # ----------------
+  # PostgreSQL Database (Development)
+  # ----------------
+  postgres:
+    image: postgres:15-alpine
+    container_name: core-app-postgres-dev
+    ports:
+      - "14101:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=devpassword123
+      - POSTGRES_DB=core_app_dev
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+      - ./migrations:/docker-entrypoint-initdb.d
+    networks:
+      - core-app-dev-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d core_app_dev"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # ----------------
+  # Redis Cache/Queue (Development)
+  # ----------------
+  redis:
+    image: redis:7-alpine
+    container_name: core-app-redis-dev
+    ports:
+      - "14103:6379"
+    volumes:
+      - redis_dev_data:/data
+    networks:
+      - core-app-dev-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    command: redis-server --appendonly yes --maxmemory 128mb --maxmemory-policy allkeys-lru
+
+  # ----------------
+  # MinIO Object Storage (Development)
+  # ----------------
+  minio:
+    image: minio/minio:latest
+    container_name: core-app-minio-dev
+    ports:
+      - "14104:9000"
+      - "14105:9001"
+    environment:
+      - MINIO_ROOT_USER=minioadmin
+      - MINIO_ROOT_PASSWORD=minioadmin
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_dev_data:/data
+    networks:
+      - core-app-dev-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  # ----------------
+  # Adminer (Database Management UI - Development Only)
+  # ----------------
+  adminer:
+    image: adminer:latest
+    container_name: core-app-adminer-dev
+    ports:
+      - "14106:8080"
+    environment:
+      - ADMINER_DEFAULT_SERVER=postgres
+      - ADMINER_DESIGN=hydra
+    depends_on:
+      - postgres
+    networks:
+      - core-app-dev-network
+    restart: unless-stopped
+
+  # ----------------
+  # Redis Commander (Redis UI - Development Only)
+  # ----------------
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: core-app-redis-commander-dev
+    ports:
+      - "14107:8081"
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+    depends_on:
+      - redis
+    networks:
+      - core-app-dev-network
+    restart: unless-stopped
+
+# ----------------
+# Networks
+# ----------------
+networks:
+  core-app-dev-network:
+    driver: bridge
+
+# ----------------
+# Volumes
+# ----------------
+volumes:
+  postgres_dev_data:
+    driver: local
+  redis_dev_data:
+    driver: local
+  minio_dev_data:
+    driver: local
+  backend_node_modules:
+    driver: local

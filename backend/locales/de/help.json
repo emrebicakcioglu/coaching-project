@@ -1,0 +1,44 @@
+{
+  "title": "Hilfe & Support",
+  "subtitle": "Finden Sie Antworten auf häufige Fragen oder kontaktieren Sie den Support.",
+  "faq": {
+    "title": "Häufig gestellte Fragen",
+    "questions": {
+      "createUser": {
+        "question": "Wie erstelle ich einen neuen Benutzer?",
+        "answer": "Navigieren Sie zu Benutzerverwaltung > Neuer Benutzer in der Seitenleiste. Füllen Sie die erforderlichen Informationen aus und klicken Sie auf Speichern."
+      },
+      "resetPassword": {
+        "question": "Wie setze ich mein Passwort zurück?",
+        "answer": "Klicken Sie auf \"Passwort vergessen\" auf der Anmeldeseite. Geben Sie Ihre E-Mail-Adresse ein und folgen Sie den Anweisungen in der E-Mail."
+      },
+      "manageRoles": {
+        "question": "Wie verwalte ich Benutzerrollen?",
+        "answer": "Gehen Sie zu Rollen & Berechtigungen in der Seitenleiste. Sie können vorhandene Rollen anzeigen, neue erstellen und Berechtigungen zuweisen."
+      },
+      "viewSessions": {
+        "question": "Wie sehe ich meine aktiven Sitzungen?",
+        "answer": "Navigieren Sie zu Sitzungen in der Seitenleiste, um alle Ihre aktiven Sitzungen zu sehen. Sie können jede Sitzung von dort aus beenden."
+      },
+      "changeSettings": {
+        "question": "Wie ändere ich meine Kontoeinstellungen?",
+        "answer": "Gehen Sie zu Einstellungen in der Seitenleiste, um Ihre Profilinformationen, Benachrichtigungseinstellungen und Sicherheitseinstellungen zu aktualisieren."
+      }
+    }
+  },
+  "contact": {
+    "title": "Support kontaktieren",
+    "email": "E-Mail",
+    "phone": "Telefon"
+  },
+  "documentation": {
+    "title": "Dokumentation",
+    "gettingStarted": "Erste Schritte",
+    "userManagement": "Benutzerverwaltung",
+    "rolesPermissions": "Rollen & Berechtigungen",
+    "apiDocs": "API-Dokumentation"
+  },
+  "version": {
+    "title": "Anwendungsversion"
+  }
+}

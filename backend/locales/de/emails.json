@@ -1,0 +1,96 @@
+{
+  "common": {
+    "greeting": "Hallo {{name}},",
+    "greetingGeneric": "Hallo,",
+    "footer": "Mit freundlichen Grüßen,\nIhr {{companyName}} Team",
+    "supportLine": "Bei Fragen kontaktieren Sie uns bitte unter {{supportEmail}}.",
+    "doNotReply": "Dies ist eine automatische Nachricht. Bitte antworten Sie nicht direkt auf diese E-Mail.",
+    "unsubscribe": "Um diese Benachrichtigungen abzubestellen, aktualisieren Sie bitte Ihre E-Mail-Einstellungen in Ihrem Konto.",
+    "copyright": "{{year}} {{companyName}}. Alle Rechte vorbehalten."
+  },
+  "welcome": {
+    "subject": "Willkommen bei {{companyName}}!",
+    "title": "Willkommen!",
+    "body": "Vielen Dank für Ihre Registrierung bei {{companyName}}. Wir freuen uns, Sie an Bord zu haben!",
+    "nextSteps": "Hier sind einige nächste Schritte zum Einstieg:",
+    "step1": "Vervollständigen Sie Ihr Profil",
+    "step2": "Entdecken Sie das Dashboard",
+    "step3": "Konfigurieren Sie Ihre Einstellungen",
+    "button": "Zum Dashboard"
+  },
+  "verification": {
+    "subject": "Bestätigen Sie Ihre E-Mail-Adresse",
+    "title": "E-Mail-Verifizierung",
+    "body": "Bitte bestätigen Sie Ihre E-Mail-Adresse durch Klicken auf den Button unten.",
+    "warning": "Dieser Link läuft in {{expiresIn}} ab.",
+    "button": "E-Mail bestätigen",
+    "alternative": "Falls der Button nicht funktioniert, kopieren Sie diesen Link in Ihren Browser:",
+    "ignore": "Falls Sie kein Konto erstellt haben, können Sie diese E-Mail ignorieren."
+  },
+  "passwordReset": {
+    "subject": "Anfrage zur Passwort-Zurücksetzung",
+    "title": "Passwort zurücksetzen",
+    "body": "Wir haben eine Anfrage zur Zurücksetzung Ihres Passworts erhalten. Klicken Sie auf den Button unten, um ein neues Passwort zu erstellen.",
+    "warning": "Dieser Link läuft in {{expiresIn}} ab.",
+    "button": "Passwort zurücksetzen",
+    "alternative": "Falls der Button nicht funktioniert, kopieren Sie diesen Link in Ihren Browser:",
+    "ignore": "Falls Sie keine Passwort-Zurücksetzung angefordert haben, können Sie diese E-Mail ignorieren. Ihr Passwort bleibt unverändert."
+  },
+  "passwordChanged": {
+    "subject": "Ihr Passwort wurde geändert",
+    "title": "Passwort geändert",
+    "body": "Ihr Passwort wurde am {{date}} erfolgreich geändert.",
+    "warning": "Falls Sie diese Änderung nicht vorgenommen haben, kontaktieren Sie bitte umgehend unseren Support.",
+    "button": "Support kontaktieren"
+  },
+  "mfaEnabled": {
+    "subject": "Zwei-Faktor-Authentifizierung aktiviert",
+    "title": "MFA aktiviert",
+    "body": "Die Zwei-Faktor-Authentifizierung wurde für Ihr Konto aktiviert.",
+    "info": "Ihr Konto ist jetzt sicherer. Sie benötigen Ihre Authenticator-App zum Anmelden.",
+    "backupCodesReminder": "Bitte stellen Sie sicher, dass Sie Ihre Backup-Codes an einem sicheren Ort aufbewahrt haben.",
+    "warning": "Falls Sie MFA nicht aktiviert haben, kontaktieren Sie bitte umgehend unseren Support."
+  },
+  "mfaDisabled": {
+    "subject": "Zwei-Faktor-Authentifizierung deaktiviert",
+    "title": "MFA deaktiviert",
+    "body": "Die Zwei-Faktor-Authentifizierung wurde für Ihr Konto deaktiviert.",
+    "warning": "Ihr Konto ist jetzt weniger sicher. Wir empfehlen, MFA für besseren Schutz zu aktivieren.",
+    "reenable": "Um MFA erneut zu aktivieren, gehen Sie zu Ihren Sicherheitseinstellungen."
+  },
+  "loginAlert": {
+    "subject": "Neue Anmeldung erkannt",
+    "title": "Sicherheitshinweis",
+    "body": "Eine neue Anmeldung bei Ihrem Konto wurde erkannt.",
+    "details": "Anmeldungsdetails:",
+    "device": "Gerät: {{device}}",
+    "browser": "Browser: {{browser}}",
+    "location": "Standort: {{location}}",
+    "ip": "IP-Adresse: {{ip}}",
+    "time": "Zeit: {{time}}",
+    "warning": "Falls dies nicht Sie waren, ändern Sie bitte sofort Ihr Passwort und kontaktieren Sie den Support."
+  },
+  "accountLocked": {
+    "subject": "Konto gesperrt",
+    "title": "Konto gesperrt",
+    "body": "Ihr Konto wurde aufgrund mehrerer fehlgeschlagener Anmeldeversuche gesperrt.",
+    "duration": "Ihr Konto wird automatisch in {{duration}} entsperrt.",
+    "unlock": "Falls Sie sofortigen Zugang benötigen, kontaktieren Sie bitte den Support.",
+    "button": "Support kontaktieren"
+  },
+  "feedback": {
+    "subject": "Feedback erhalten: {{subject}}",
+    "title": "Neues Feedback",
+    "from": "Von: {{userName}} ({{userEmail}})",
+    "message": "Nachricht:",
+    "ticketNumber": "Ticketnummer: {{ticketNumber}}"
+  },
+  "support": {
+    "subject": "Support-Anfrage: {{subject}}",
+    "title": "Support-Anfrage",
+    "received": "Wir haben Ihre Support-Anfrage erhalten.",
+    "ticketNumber": "Ihre Ticketnummer lautet: {{ticketNumber}}",
+    "response": "Unser Team wird innerhalb von {{responseTime}} antworten.",
+    "urgent": "Für dringende Angelegenheiten rufen Sie bitte unsere Support-Hotline an."
+  }
+}

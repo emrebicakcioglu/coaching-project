@@ -1,0 +1,58 @@
+{
+  "title": "Languages",
+  "availableLanguages": "Available Languages",
+  "translations": "Translations",
+  "addLanguage": "Add Language",
+  "importJson": "Import JSON",
+  "exportJson": "Export JSON",
+  "allNamespaces": "All Namespaces",
+  "search": "Search...",
+  "key": "Key",
+  "empty": "(empty)",
+  "showingCount": "Showing {{shown}} of {{total}} translations",
+  "default": "Default",
+  "edit": "Edit",
+  "delete": "Delete",
+  "cancel": "Cancel",
+  "create": "Create",
+  "save": "Save",
+  "import": "Import",
+  "loading": "Loading...",
+  "deleteConfirm": "Are you sure you want to delete this language? This action cannot be undone.",
+  "modal": {
+    "create": {
+      "title": "Add Language",
+      "codeLabel": "Code (e.g. fr, es)",
+      "nameLabel": "Name (English)",
+      "nativeNameLabel": "Name (Native)",
+      "emojiFlagLabel": "Emoji Flag"
+    },
+    "edit": {
+      "title": "Edit Language: {{code}}",
+      "nameLabel": "Name (English)",
+      "nativeNameLabel": "Name (Native)",
+      "emojiFlagLabel": "Emoji Flag"
+    },
+    "import": {
+      "title": "Import JSON",
+      "languageLabel": "Language: {{code}}",
+      "namespaceLabel": "Namespace (optional)",
+      "allNested": "All (nested structure)",
+      "jsonLabel": "JSON",
+      "mergeLabel": "Merge with existing translations"
+    }
+  },
+  "toast": {
+    "created": "Language created successfully",
+    "updated": "Language updated successfully",
+    "deleted": "Language deleted successfully",
+    "imported": "Translations imported successfully",
+    "loadError": "Failed to load languages",
+    "createError": "Failed to create language",
+    "updateError": "Failed to update language",
+    "deleteError": "Failed to delete language",
+    "importError": "Failed to import translations",
+    "exportError": "Failed to export translations",
+    "saveError": "Failed to save translation"
+  }
+}

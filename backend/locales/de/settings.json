@@ -1,0 +1,44 @@
+{
+  "title": "Einstellungen",
+  "subtitle": "Verwalten Sie Ihre Kontoeinstellungen und Anwendungskonfiguration.",
+  "admin": {
+    "title": "Administrator-Einstellungen",
+    "subtitle": "Konfigurieren Sie systemweite Einstellungen für die Anwendung.",
+    "tabs": {
+      "general": "Allgemein",
+      "security": "Sicherheit",
+      "email": "E-Mail",
+      "maintenance": "Wartung"
+    }
+  },
+  "personal": {
+    "title": "Persönliche Einstellungen",
+    "subtitle": "Verwalten Sie Ihre persönlichen Kontoeinstellungen.",
+    "tabs": {
+      "profile": "Profil",
+      "security": "Sicherheit"
+    }
+  },
+  "profile": {
+    "title": "Profil",
+    "subtitle": "Ihre persönlichen Informationen.",
+    "name": "Name",
+    "email": "E-Mail"
+  },
+  "security": {
+    "title": "Sicherheit",
+    "subtitle": "Verwalten Sie Ihre Sicherheitseinstellungen.",
+    "mfa": {
+      "title": "Zwei-Faktor-Authentifizierung (2FA)",
+      "description": "Fügen Sie eine zusätzliche Sicherheitsebene zu Ihrem Konto hinzu.",
+      "setup": "2FA einrichten"
+    },
+    "password": {
+      "title": "Passwort ändern",
+      "current": "Aktuelles Passwort",
+      "new": "Neues Passwort",
+      "confirm": "Neues Passwort bestätigen",
+      "update": "Passwort aktualisieren"
+    }
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "title": "Sprachen",
+  "availableLanguages": "Verfügbare Sprachen",
+  "translations": "Übersetzungen",
+  "addLanguage": "Sprache hinzufügen",
+  "importJson": "JSON importieren",
+  "exportJson": "JSON exportieren",
+  "allNamespaces": "Alle Namespaces",
+  "search": "Suchen...",
+  "key": "Schlüssel",
+  "empty": "(leer)",
+  "showingCount": "Zeige {{shown}} von {{total}} Übersetzungen",
+  "default": "Standard",
+  "edit": "Bearbeiten",
+  "delete": "Löschen",
+  "cancel": "Abbrechen",
+  "create": "Erstellen",
+  "save": "Speichern",
+  "import": "Importieren",
+  "loading": "Wird geladen...",
+  "deleteConfirm": "Möchten Sie diese Sprache wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
+  "modal": {
+    "create": {
+      "title": "Sprache hinzufügen",
+      "codeLabel": "Code (z.B. fr, es)",
+      "nameLabel": "Name (Englisch)",
+      "nativeNameLabel": "Name (Nativ)",
+      "emojiFlagLabel": "Emoji-Flagge"
+    },
+    "edit": {
+      "title": "Sprache bearbeiten: {{code}}",
+      "nameLabel": "Name (Englisch)",
+      "nativeNameLabel": "Name (Nativ)",
+      "emojiFlagLabel": "Emoji-Flagge"
+    },
+    "import": {
+      "title": "JSON importieren",
+      "languageLabel": "Sprache: {{code}}",
+      "namespaceLabel": "Namespace (optional)",
+      "allNested": "Alle (verschachtelte Struktur)",
+      "jsonLabel": "JSON",
+      "mergeLabel": "Mit vorhandenen Übersetzungen zusammenführen"
+    }
+  },
+  "toast": {
+    "created": "Sprache erfolgreich erstellt",
+    "updated": "Sprache erfolgreich aktualisiert",
+    "deleted": "Sprache erfolgreich gelöscht",
+    "imported": "Übersetzungen erfolgreich importiert",
+    "loadError": "Sprachen konnten nicht geladen werden",
+    "createError": "Sprache konnte nicht erstellt werden",
+    "updateError": "Sprache konnte nicht aktualisiert werden",
+    "deleteError": "Sprache konnte nicht gelöscht werden",
+    "importError": "Übersetzungen konnten nicht importiert werden",
+    "exportError": "Übersetzungen konnten nicht exportiert werden",
+    "saveError": "Übersetzung konnte nicht gespeichert werden"
+  }
+}

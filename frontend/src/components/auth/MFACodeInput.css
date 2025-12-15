@@ -1,0 +1,161 @@
+/**
+ * MFA Code Input Styles
+ * STORY-005C: MFA UI (Frontend)
+ *
+ * Styles for the 6-digit MFA code input component.
+ * Features large, centered digits with wide letter-spacing for readability.
+ */
+
+/* ========================================
+   Container
+   ======================================== */
+
+.mfa-code-input {
+  width: 100%;
+}
+
+/* ========================================
+   Label
+   ======================================== */
+
+.mfa-code-input__label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 8px;
+}
+
+/* ========================================
+   Input Wrapper
+   ======================================== */
+
+.mfa-code-input__wrapper {
+  position: relative;
+}
+
+/* ========================================
+   Input
+   ======================================== */
+
+.mfa-code-input__input {
+  width: 100%;
+  padding: 16px 20px;
+  font-size: 1.75rem;
+  font-family: 'Courier New', Courier, monospace;
+  font-weight: 600;
+  text-align: center;
+  letter-spacing: 0.5em;
+  color: #1f2937;
+  background-color: #ffffff;
+  border: 2px solid #d1d5db;
+  border-radius: 12px;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.mfa-code-input__input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+}
+
+.mfa-code-input__input::placeholder {
+  color: #d1d5db;
+  letter-spacing: 0.3em;
+}
+
+.mfa-code-input__input:disabled {
+  background-color: #f9fafb;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Error State */
+.mfa-code-input__input--error {
+  border-color: #ef4444;
+}
+
+.mfa-code-input__input--error:focus {
+  box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1);
+}
+
+/* ========================================
+   Spinner
+   ======================================== */
+
+.mfa-code-input__spinner {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 24px;
+  border: 3px solid #e5e7eb;
+  border-top-color: #2563eb;
+  border-radius: 50%;
+  animation: mfa-spin 0.8s linear infinite;
+}
+
+@keyframes mfa-spin {
+  to {
+    transform: translateY(-50%) rotate(360deg);
+  }
+}
+
+/* ========================================
+   Error Message
+   ======================================== */
+
+.mfa-code-input__error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 10px 14px;
+  font-size: 0.875rem;
+  color: #991b1b;
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+}
+
+/* ========================================
+   Responsive Design
+   ======================================== */
+
+/* Tablet */
+@media (max-width: 768px) {
+  .mfa-code-input__input {
+    font-size: 1.5rem;
+    padding: 14px 16px;
+    letter-spacing: 0.4em;
+  }
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  .mfa-code-input__input {
+    font-size: 1.25rem;
+    padding: 12px 14px;
+    letter-spacing: 0.3em;
+  }
+
+  .mfa-code-input__input::placeholder {
+    letter-spacing: 0.2em;
+  }
+
+  .mfa-code-input__spinner {
+    width: 20px;
+    height: 20px;
+    right: 12px;
+  }
+}
+
+/* Small Mobile */
+@media (max-width: 360px) {
+  .mfa-code-input__input {
+    font-size: 1.125rem;
+    padding: 10px 12px;
+    letter-spacing: 0.25em;
+  }
+}

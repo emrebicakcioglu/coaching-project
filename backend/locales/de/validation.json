@@ -1,0 +1,78 @@
+{
+  "required": "Dieses Feld ist erforderlich",
+  "invalidEmail": "Bitte geben Sie eine gültige E-Mail-Adresse ein",
+  "minLength": "Muss mindestens {{min}} Zeichen lang sein",
+  "maxLength": "Darf höchstens {{max}} Zeichen lang sein",
+  "min": "Muss mindestens {{min}} sein",
+  "max": "Darf höchstens {{max}} sein",
+  "pattern": "Ungültiges Format",
+  "unique": "Dieser Wert existiert bereits",
+  "match": "Werte stimmen nicht überein",
+  "invalid": "Ungültiger Wert",
+  "password": {
+    "tooShort": "Passwort muss mindestens {{min}} Zeichen lang sein",
+    "tooLong": "Passwort darf höchstens {{max}} Zeichen lang sein",
+    "requireUppercase": "Passwort muss mindestens einen Großbuchstaben enthalten",
+    "requireLowercase": "Passwort muss mindestens einen Kleinbuchstaben enthalten",
+    "requireNumber": "Passwort muss mindestens eine Zahl enthalten",
+    "requireSpecial": "Passwort muss mindestens ein Sonderzeichen enthalten",
+    "mismatch": "Passwörter stimmen nicht überein",
+    "incorrect": "Aktuelles Passwort ist falsch",
+    "sameAsOld": "Neues Passwort muss sich vom aktuellen unterscheiden"
+  },
+  "email": {
+    "invalid": "Bitte geben Sie eine gültige E-Mail-Adresse ein",
+    "exists": "Diese E-Mail-Adresse ist bereits registriert",
+    "notFound": "E-Mail-Adresse nicht gefunden"
+  },
+  "user": {
+    "notFound": "Benutzer nicht gefunden",
+    "inactive": "Benutzerkonto ist inaktiv",
+    "suspended": "Benutzerkonto ist gesperrt",
+    "deleted": "Benutzerkonto wurde gelöscht"
+  },
+  "role": {
+    "notFound": "Rolle nicht gefunden",
+    "inUse": "Rolle ist derzeit Benutzern zugewiesen",
+    "systemRole": "Systemrollen können nicht geändert werden"
+  },
+  "permission": {
+    "notFound": "Berechtigung nicht gefunden",
+    "denied": "Zugriff verweigert"
+  },
+  "session": {
+    "expired": "Sitzung ist abgelaufen",
+    "invalid": "Ungültige Sitzung",
+    "notFound": "Sitzung nicht gefunden"
+  },
+  "token": {
+    "invalid": "Ungültiger Token",
+    "expired": "Token ist abgelaufen",
+    "revoked": "Token wurde widerrufen"
+  },
+  "mfa": {
+    "invalidCode": "Ungültiger MFA-Code",
+    "codeExpired": "MFA-Code ist abgelaufen",
+    "alreadyEnabled": "MFA ist bereits aktiviert",
+    "notEnabled": "MFA ist nicht aktiviert",
+    "backupCodeUsed": "Backup-Code wurde bereits verwendet",
+    "tooManyAttempts": "Zu viele fehlgeschlagene Versuche. Bitte versuchen Sie es später erneut."
+  },
+  "file": {
+    "tooLarge": "Dateigröße überschreitet das Maximum von {{max}}",
+    "invalidType": "Ungültiger Dateityp. Erlaubte Typen: {{types}}",
+    "uploadFailed": "Datei-Upload fehlgeschlagen"
+  },
+  "date": {
+    "invalid": "Ungültiges Datum",
+    "future": "Datum muss in der Zukunft liegen",
+    "past": "Datum muss in der Vergangenheit liegen",
+    "range": "Datum muss zwischen {{start}} und {{end}} liegen"
+  },
+  "number": {
+    "invalid": "Ungültige Zahl",
+    "positive": "Muss eine positive Zahl sein",
+    "negative": "Muss eine negative Zahl sein",
+    "integer": "Muss eine ganze Zahl sein"
+  }
+}

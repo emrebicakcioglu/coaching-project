@@ -1,0 +1,57 @@
+{
+  "title": "Benutzerverwaltung",
+  "newUser": "Neuer Benutzer",
+  "search": {
+    "placeholder": "Benutzer suchen...",
+    "label": "Benutzer suchen"
+  },
+  "filter": {
+    "statusLabel": "Status filtern",
+    "roleLabel": "Rolle filtern",
+    "allStatus": "Alle Status",
+    "allRoles": "Alle Rollen"
+  },
+  "status": {
+    "active": "Aktiv",
+    "inactive": "Inaktiv",
+    "suspended": "Gesperrt",
+    "deleted": "Gelöscht"
+  },
+  "roles": {
+    "admin": "Admin",
+    "user": "Benutzer",
+    "editor": "Editor",
+    "viewer": "Viewer"
+  },
+  "table": {
+    "name": "Name",
+    "email": "E-Mail",
+    "status": "Status",
+    "roles": "Rollen",
+    "lastLogin": "Letzter Login",
+    "actions": "Aktionen",
+    "noRoles": "Keine Rollen",
+    "never": "Nie"
+  },
+  "actions": {
+    "details": "Details",
+    "edit": "Bearbeiten",
+    "delete": "Löschen",
+    "detailsTitle": "Details anzeigen",
+    "editTitle": "Benutzer bearbeiten",
+    "deleteTitle": "Benutzer löschen"
+  },
+  "pagination": {
+    "previous": "Zurück",
+    "next": "Weiter",
+    "pageInfo": "Seite {{page}} von {{pages}} ({{total}} Benutzer)"
+  },
+  "loading": "Benutzer werden geladen...",
+  "empty": "Keine Benutzer gefunden",
+  "error": "Benutzer konnten nicht geladen werden. Bitte versuchen Sie es erneut.",
+  "toast": {
+    "created": "Benutzer \"{{name}}\" wurde erfolgreich erstellt.",
+    "updated": "Benutzer \"{{name}}\" wurde erfolgreich aktualisiert.",
+    "deleted": "Benutzer \"{{name}}\" wurde erfolgreich gelöscht."
+  }
+}

@@ -1,0 +1,78 @@
+{
+  "required": "This field is required",
+  "invalidEmail": "Please enter a valid email address",
+  "minLength": "Must be at least {{min}} characters",
+  "maxLength": "Must be at most {{max}} characters",
+  "min": "Must be at least {{min}}",
+  "max": "Must be at most {{max}}",
+  "pattern": "Invalid format",
+  "unique": "This value already exists",
+  "match": "Values do not match",
+  "invalid": "Invalid value",
+  "password": {
+    "tooShort": "Password must be at least {{min}} characters",
+    "tooLong": "Password must be at most {{max}} characters",
+    "requireUppercase": "Password must contain at least one uppercase letter",
+    "requireLowercase": "Password must contain at least one lowercase letter",
+    "requireNumber": "Password must contain at least one number",
+    "requireSpecial": "Password must contain at least one special character",
+    "mismatch": "Passwords do not match",
+    "incorrect": "Current password is incorrect",
+    "sameAsOld": "New password must be different from current password"
+  },
+  "email": {
+    "invalid": "Please enter a valid email address",
+    "exists": "This email is already registered",
+    "notFound": "Email address not found"
+  },
+  "user": {
+    "notFound": "User not found",
+    "inactive": "User account is inactive",
+    "suspended": "User account is suspended",
+    "deleted": "User account has been deleted"
+  },
+  "role": {
+    "notFound": "Role not found",
+    "inUse": "Role is currently assigned to users",
+    "systemRole": "System roles cannot be modified"
+  },
+  "permission": {
+    "notFound": "Permission not found",
+    "denied": "Permission denied"
+  },
+  "session": {
+    "expired": "Session has expired",
+    "invalid": "Invalid session",
+    "notFound": "Session not found"
+  },
+  "token": {
+    "invalid": "Invalid token",
+    "expired": "Token has expired",
+    "revoked": "Token has been revoked"
+  },
+  "mfa": {
+    "invalidCode": "Invalid MFA code",
+    "codeExpired": "MFA code has expired",
+    "alreadyEnabled": "MFA is already enabled",
+    "notEnabled": "MFA is not enabled",
+    "backupCodeUsed": "Backup code has already been used",
+    "tooManyAttempts": "Too many failed attempts. Please try again later."
+  },
+  "file": {
+    "tooLarge": "File size exceeds the maximum limit of {{max}}",
+    "invalidType": "Invalid file type. Allowed types: {{types}}",
+    "uploadFailed": "File upload failed"
+  },
+  "date": {
+    "invalid": "Invalid date",
+    "future": "Date must be in the future",
+    "past": "Date must be in the past",
+    "range": "Date must be between {{start}} and {{end}}"
+  },
+  "number": {
+    "invalid": "Invalid number",
+    "positive": "Must be a positive number",
+    "negative": "Must be a negative number",
+    "integer": "Must be a whole number"
+  }
+}

@@ -1,0 +1,146 @@
+/**
+ * Permission Checkbox Group Styles
+ * STORY-025B: Roles Management UI
+ *
+ * Styling for the PermissionCheckboxGroup component.
+ * Uses BEM naming convention for consistency.
+ */
+
+/* Container */
+.permission-checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Empty state */
+.permission-checkbox-group__empty {
+  padding: 24px;
+  text-align: center;
+  color: #6b7280;
+  background: #f9fafb;
+  border-radius: 8px;
+  border: 1px dashed #d1d5db;
+}
+
+/* Category container */
+.permission-checkbox-group__category {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Category header */
+.permission-checkbox-group__category-header {
+  padding: 12px 16px;
+  background: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.permission-checkbox-group__category-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-weight: 500;
+  color: #374151;
+}
+
+.permission-checkbox-group__category-checkbox {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: #3b82f6;
+}
+
+.permission-checkbox-group__category-checkbox:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.permission-checkbox-group__category-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.permission-checkbox-group__category-count {
+  font-size: 12px;
+  font-weight: 400;
+  color: #6b7280;
+  margin-left: auto;
+}
+
+/* Permissions list */
+.permission-checkbox-group__permissions {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 0;
+}
+
+/* Individual permission */
+.permission-checkbox-group__permission {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.permission-checkbox-group__permission:hover {
+  background: #f9fafb;
+}
+
+.permission-checkbox-group__checkbox {
+  width: 16px;
+  height: 16px;
+  margin-top: 2px;
+  cursor: pointer;
+  accent-color: #3b82f6;
+  flex-shrink: 0;
+}
+
+.permission-checkbox-group__checkbox:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.permission-checkbox-group__permission-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.permission-checkbox-group__permission-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.permission-checkbox-group__permission-description {
+  font-size: 12px;
+  color: #6b7280;
+  line-height: 1.4;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .permission-checkbox-group__category-header {
+    padding: 10px 12px;
+  }
+
+  .permission-checkbox-group__permission {
+    padding: 10px 12px;
+  }
+
+  .permission-checkbox-group__category-label {
+    gap: 8px;
+  }
+
+  .permission-checkbox-group__permission-name {
+    font-size: 13px;
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "dashboard": "Dashboard",
+  "users": "User Management",
+  "usersList": "All Users",
+  "usersCreate": "Create User",
+  "roles": "Roles & Permissions",
+  "sessions": "Sessions",
+  "design": "Design System",
+  "settings": "Settings",
+  "help": "Help",
+  "languages": "Languages",
+  "sidebar": {
+    "collapse": "Collapse",
+    "expand": "Expand",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "closeSidebar": "Close sidebar"
+  },
+  "theme": {
+    "lightMode": "Light Mode",
+    "darkMode": "Dark Mode",
+    "switchToLight": "Switch to light mode",
+    "switchToDark": "Switch to dark mode"
+  }
+}

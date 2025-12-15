@@ -1,0 +1,44 @@
+{
+  "title": "Help & Support",
+  "subtitle": "Find answers to common questions or get in touch with support.",
+  "faq": {
+    "title": "Frequently Asked Questions",
+    "questions": {
+      "createUser": {
+        "question": "How do I create a new user?",
+        "answer": "Navigate to User Management > New User from the sidebar. Fill in the required information and click Save to create the user."
+      },
+      "resetPassword": {
+        "question": "How do I reset my password?",
+        "answer": "Click on \"Forgot Password\" on the login page. Enter your email address and follow the instructions sent to your inbox."
+      },
+      "manageRoles": {
+        "question": "How do I manage user roles?",
+        "answer": "Go to Roles & Permissions from the sidebar. You can view existing roles, create new ones, and assign permissions."
+      },
+      "viewSessions": {
+        "question": "How do I view my active sessions?",
+        "answer": "Navigate to Sessions from the sidebar to see all your active sessions. You can terminate any session from there."
+      },
+      "changeSettings": {
+        "question": "How do I change my account settings?",
+        "answer": "Go to Settings from the sidebar to update your profile information, notification preferences, and security settings."
+      }
+    }
+  },
+  "contact": {
+    "title": "Contact Support",
+    "email": "Email",
+    "phone": "Phone"
+  },
+  "documentation": {
+    "title": "Documentation",
+    "gettingStarted": "Getting Started Guide",
+    "userManagement": "User Management",
+    "rolesPermissions": "Roles & Permissions",
+    "apiDocs": "API Documentation"
+  },
+  "version": {
+    "title": "Application Version"
+  }
+}

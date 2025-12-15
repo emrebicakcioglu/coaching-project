@@ -1,0 +1,1151 @@
+# ======================================
+# Core Application - Docker Compose
+# ======================================
+# Docker configuration for Core Application
+#
+# Services:
+#   - frontend: React/Vite frontend with Nginx (port 14100:80)
+#   - resource-api: Node.js NestJS API server (port 14102:14102)
+#   - postgres: PostgreSQL database (port 14101:5432)
+#   - redis: Redis cache/queue (port 14103:6379) - STORY-023B
+#   - minio: MinIO object storage (ports 14104:9000, 14105:9001) - STORY-026A
+#
+# Stories Implemented:
+#   - STORY-001A: Login System Backend (JWT Auth, Rate Limiting 5/min, bcrypt 12 rounds)
+#   - STORY-003A: User CRUD Backend API (JWT Auth Guards, Roles Guard, Soft Delete, Role Management)
+#   - STORY-005A: MFA Setup Backend (TOTP generation, QR codes, backup codes, otplib)
+#   - STORY-005B: MFA Login-Flow Backend (Temp tokens, TOTP/backup code verification, rate limiting, lockout)
+#   - STORY-008: Session Management mit "Remember Me" (Token Rotation, Session List, Token Cleanup)
+#   - STORY-009: Password Reset (Forgot/Reset password flow, German email templates, rate limiting)
+#   - STORY-012: Environment Configuration
+#   - STORY-021A: API-Basis-Infrastruktur (NestJS Setup)
+#   - STORY-021B: Resource-Endpoints (Users CRUD, Auth, Settings)
+#   - STORY-022: Swagger/OpenAPI Documentation
+#   - STORY-023A: E-Mail Service Setup (Resend.com) - Email templates, password reset emails
+#   - STORY-023B: E-Mail Templates & Queue - Database templates, queue system, retry mechanism
+#   - STORY-024A: PostgreSQL Database Setup
+#   - STORY-024B: PostgreSQL Schema & Migrations
+#   - STORY-025: Benutzerdaten (User Data Storage) - Repository pattern, PasswordService, bcrypt 12 rounds
+#   - STORY-027: Error Logging (Daily rotation, structured logging)
+#   - STORY-028: System Logging (Audit Trail)
+#   - STORY-029: Health Status (SMTP, MinIO health checks)
+#   - STORY-035: Support-E-Mail & Session-Timeout (Support email config, idle timeout)
+#   - STORY-007A: Rollen-Management Backend (Roles & Permissions CRUD, PermissionsGuard)
+#   - STORY-007B: User Role Assignment (User-Role many-to-many, Permission aggregation, Token invalidation)
+#   - STORY-027-PERM: Permission-System Core (Granular permissions, OR/AND checks, wildcard support, data-level filtering)
+#   - STORY-027B: Permission Guards & Data Filtering (Route guards, data-level filtering, permission hierarchy)
+#   - STORY-017: Theme-System Backend (Theme colors JSONB storage, GET/PUT /api/v1/settings/theme)
+#   - STORY-013A: In-App Settings Backend (Security settings, All settings CRUD, Settings history audit trail)
+#   - STORY-014A: Feature Toggles Backend (Feature flags JSONB, GET/PUT /api/v1/features, FeatureGuard middleware, 60s cache)
+#   - STORY-018A: Standard-Sprache Backend (i18n Setup) - Language service, translations JSON, localization utils, user/admin language settings
+#   - STORY-038A: Feedback-Backend API - Feedback submission with screenshots, Base64 processing, email attachments
+#   - STORY-038B: Feedback Rate Limiting & Email Queue - Rate limiting (5/hour), async email queue, browser info capture, route tracking
+#   - STORY-026A: MinIO Setup - S3-compatible object storage, bucket creation, file operations API
+#   - STORY-026B: MinIO File API - File listing pagination support (page/limit query params)
+#   - STORY-017A: Layout & Grid-System (Frontend) - Tailwind CSS config, responsive breakpoints, 12-column grid, layout components
+#   - STORY-017B-resp: Component Responsiveness (Frontend) - Responsive components (Sidebar, Table, Form, Modal, Navigation), mobile-first design, 44x44px touch targets
+#   - STORY-016A: Context Menu Core Navigation (Frontend) - Sidebar navigation, NavItem, SubNavigation, permission filtering, collapsible sidebar, mobile hamburger menu
+#   - STORY-018B: Context Menu Responsive & Mobile (Frontend) - MobileSidebar, HamburgerButton, SidebarOverlay, responsive breakpoints (Desktop ≥1024px, Tablet 768-1023px, Mobile <768px)
+#   - STORY-030: Application Versioning (Version display in footer/about dialog, GET /api/version endpoint)
+#   - STORY-017B: Theme-System Frontend (ThemeProvider, ThemeContext, CSS Variables, dynamic theme loading)
+#   - STORY-007B: Login System Frontend UI (LoginForm, PrivateRoute, AuthContext, password toggle, loading states, E2E tests)
+#   - Story 39 QA Fixes (Iteration 1): API URL port fix (4102→14102), test credentials fix (admin123→TestPassword123!), keyboard nav tab order, error message clearing, ThemeService test mocking
+#   - Story 39 QA Fixes (Iteration 2): Error message full clear on ANY input change, keyboard nav test autoFocus fix, E2E tests serial mode for rate limiting
+#   - STORY-006B: User CRUD Frontend UI (UserManagementPage, UserTable, Create/Edit/Delete Modals, Toast notifications, Playwright E2E tests)
+#   - Story 40 QA Fixes (Iteration 1): Access token localStorage fix (authService.ts), E2E test rate limit retry logic (user-crud.spec.ts)
+#   - Story 41 (STORY-023): User Registration (POST /register, GET /verify-email, POST /resend-verification, German email templates, 3 req/hour rate limit, 24h token expiry)
+#   - Story 41 QA Fixes (Iteration 1): Missing 'pending' status in countByStatus(), data-testid for password strength indicator, special character regex alignment (frontend/backend)
+#   - Story 41 QA Fixes (Iteration 2): E2E test BASE_URL port fix (3001→3000 in registration.spec.ts)
+#   - Story 42 (STORY-025B): Roles Management Frontend UI (RolesManagementPage, RoleCard, Create/Edit/Delete Modals, PermissionCheckboxGroup, E2E tests)
+#   - Story 42 QA Fixes (Iteration 1): Wrong password in loginAsAdmin() helper (Admin123!→TestPassword123!)
+#   - Story 42 QA Fixes (Iteration 2): Incomplete loginAsAdmin() rewritten with auth verification, rate limit retry logic, serial test mode
+#   - Story 43 (STORY-008B): Permission-System Frontend (usePermission hook, ProtectedRoute, IfHasPermission, withPermission HOC, ForbiddenPage)
+#   - Story 43 QA Fixes (Iteration 1): Role name mismatch fix in AuthContext.tsx (case-insensitive 'admin'/'Administrator' lookup)
+#   - Story 43 QA Fixes (Iteration 2): E2E test data-testid mismatch fixes (sidebar, roles-page)
+#   - Story 44 (STORY-005C): MFA UI Frontend (MFASetupPage, MFACodeInput, MFALoginPrompt, BackupCodesList, mfaService)
+#   - Story 44 QA Fixes (Iteration 1): API path mismatch fix (MFA_API_BASE_URL without /v1), E2E test rate limiting retry logic, BackupCodesList test cleanup
+#   - Story 44 QA Fixes (Iteration 2): E2E test strict mode fix (getByRole for heading), BackupCodesList unit test assertions (verify UI state not clipboard mocks)
+#   - Story 45 (STORY-013B): In-App Settings Frontend UI (SettingsPage tabs, GeneralSettings, SecuritySettings, EmailSettings, FormField, settingsService)
+#   - Story 45 QA Fixes (Iteration 1): E2E test loginAsAdmin() rewritten with rate limit retry logic, auth verification, serial test mode, 120s timeout
+#
+# Frontend Development (STORY-017A: Layout & Grid-System, STORY-017B-resp: Component Responsiveness, STORY-016A: Context Menu Core Navigation, STORY-018B: Context Menu Responsive & Mobile, STORY-030: Application Versioning, STORY-017B: Theme-System Frontend, STORY-007B: Login System Frontend UI, STORY-006B: User CRUD Frontend UI, Story 41: User Registration Frontend, Story 42: Roles Management Frontend UI, Story 43: Permission-System Frontend, Story 44: MFA UI Frontend, Story 45: In-App Settings Frontend UI):
+#   The frontend is developed separately and does not require Docker services.
+#   Frontend runs locally: cd frontend && npm install && npm run dev (port 3000)
+#   Frontend components (Container, Row, Col, Grid, GridItem) are in frontend/src/components/layout/
+#   Responsive components (ResponsiveSidebar, ResponsiveTable, ResponsiveForm, ResponsiveModal, ResponsiveNavigation) are in frontend/src/components/responsive/
+#   Navigation components (Sidebar, NavItem, SubNavigation, UserProfile, Logo, MobileSidebar, HamburgerButton, SidebarOverlay) are in frontend/src/components/navigation/
+#   User components (UserCreateModal, UserEditModal, UserDeleteDialog) are in frontend/src/components/users/
+#   Roles components (PermissionCheckboxGroup, CreateRoleModal, EditRoleModal, RoleDeleteDialog) are in frontend/src/components/roles/
+#   Auth components (LoginForm, PrivateRoute, ProtectedRoute, IfHasPermission, withPermission, MFACodeInput, MFALoginPrompt, BackupCodesList) are in frontend/src/components/auth/
+#   Settings components (SettingsTabs, FormField, GeneralSettings, SecuritySettings, EmailSettings) are in frontend/src/components/settings/
+#   Feedback components (Toast) are in frontend/src/components/feedback/
+#   Theme components (ThemeProvider, ThemeContext) are in frontend/src/contexts/
+#   Theme service (themeService) is in frontend/src/services/
+#
+#   STORY-017A Files Created/Modified:
+#     - frontend/vite.config.ts - Vite build configuration (port 3000)
+#     - frontend/tsconfig.json - TypeScript configuration
+#     - frontend/tsconfig.node.json - Node-specific TypeScript config
+#     - frontend/index.html - HTML entry point
+#     - frontend/src/main.tsx - JavaScript entry point with React Router
+#     - frontend/src/App.tsx - Main React component with routing (includes /grid-demo route)
+#     - frontend/src/vite-env.d.ts - Vite type declarations
+#     - frontend/tailwind.config.js - Tailwind CSS with breakpoints (sm:640px, md:768px, lg:1024px, xl:1280px)
+#     - frontend/postcss.config.js - PostCSS configuration
+#     - frontend/playwright.config.ts - Playwright E2E test configuration
+#     - frontend/e2e/layout-grid.spec.ts - E2E tests with Y-position tolerance (10px) and layout stability waits
+#
+#   STORY-017B Files Created/Modified:
+#     - frontend/src/hooks/useResponsive.ts - Viewport detection hook with breakpoint utilities
+#     - frontend/src/hooks/useResponsive.test.ts - Hook unit tests (18 tests)
+#     - frontend/src/hooks/index.ts - Hooks export index
+#     - frontend/src/components/responsive/ResponsiveSidebar.tsx - Fixed on desktop, overlay on mobile
+#     - frontend/src/components/responsive/ResponsiveTable.tsx - Full table on desktop, cards on mobile
+#     - frontend/src/components/responsive/ResponsiveForm.tsx - Multi-column on desktop, single on mobile
+#     - frontend/src/components/responsive/ResponsiveModal.tsx - Standard on desktop, fullscreen on mobile
+#     - frontend/src/components/responsive/ResponsiveNavigation.tsx - Sidebar on desktop, hamburger on mobile
+#     - frontend/src/components/responsive/index.ts - Components export index
+#     - frontend/src/pages/ResponsiveDemoPage.tsx - Demo page for all responsive components
+#     - frontend/e2e/component-responsiveness.spec.ts - Playwright E2E tests (32 scenarios)
+#     - frontend/src/App.tsx - Added /responsive-demo route
+#
+#   STORY-016A Files Created/Modified:
+#     - frontend/src/contexts/AuthContext.tsx - Authentication context with hasPermission hooks
+#     - frontend/src/contexts/index.ts - Context exports
+#     - frontend/src/config/navigation.ts - Navigation items configuration with permission filtering
+#     - frontend/src/config/index.ts - Config exports
+#     - frontend/src/components/icons/Icons.tsx - SVG icon components (Home, Users, Shield, Settings, Help, etc.)
+#     - frontend/src/components/icons/index.ts - Icon exports
+#     - frontend/src/components/navigation/Sidebar.tsx - Main sidebar (280px desktop, 64px collapsed, mobile hamburger)
+#     - frontend/src/components/navigation/NavItem.tsx - Navigation item with icon, badge, active state
+#     - frontend/src/components/navigation/SubNavigation.tsx - Nested menu items for expandable navigation
+#     - frontend/src/components/navigation/UserProfile.tsx - User profile footer with avatar and logout
+#     - frontend/src/components/navigation/Logo.tsx - Company logo component
+#     - frontend/src/components/navigation/index.ts - Navigation component exports
+#     - frontend/src/components/layout/AppLayout.tsx - Application layout wrapper with sidebar
+#     - frontend/src/pages/DashboardPage.tsx - Main dashboard with overview cards
+#     - frontend/src/pages/RolesPage.tsx - Roles & permissions management
+#     - frontend/src/pages/SettingsPage.tsx - User settings page
+#     - frontend/src/pages/HelpPage.tsx - Help & support page
+#     - frontend/src/components/navigation/Sidebar.test.tsx - 22 unit tests
+#     - frontend/src/components/navigation/NavItem.test.tsx - 26 unit tests
+#     - frontend/src/components/navigation/SubNavigation.test.tsx - 32 unit tests (keyboard nav, disabled state, accessibility)
+#     - frontend/src/components/navigation/UserProfile.test.tsx - 30 unit tests (expanded/collapsed modes, logout, accessibility)
+#     - frontend/src/components/navigation/Logo.test.tsx - 27 unit tests (logo mark, company name, collapsed mode, accessibility)
+#     - frontend/src/config/navigation.test.ts - 24 unit tests (navigation configuration)
+#     - frontend/e2e/sidebar-navigation.spec.ts - Playwright E2E tests (30+ scenarios)
+#     - frontend/src/App.tsx - Added AuthProvider, AppLayout, new routes
+#
+#   STORY-018B Files Created/Modified:
+#     - frontend/src/components/navigation/HamburgerButton.tsx - Hamburger menu toggle (animated ☰/✕, 44px touch targets, WCAG 2.1 AA)
+#     - frontend/src/components/navigation/SidebarOverlay.tsx - Semi-transparent backdrop (configurable opacity, click-to-dismiss)
+#     - frontend/src/components/navigation/MobileSidebar.tsx - Responsive sidebar container (280px desktop, overlay tablet, hamburger mobile)
+#     - frontend/src/components/navigation/HamburgerButton.test.tsx - Unit tests for HamburgerButton
+#     - frontend/src/components/navigation/SidebarOverlay.test.tsx - Unit tests for SidebarOverlay
+#     - frontend/src/components/navigation/MobileSidebar.test.tsx - Comprehensive unit tests for MobileSidebar
+#     - frontend/src/components/navigation/index.ts - Added exports for MobileSidebar, HamburgerButton, SidebarOverlay
+#     - frontend/e2e/responsive-sidebar.spec.ts - Playwright E2E tests for responsive navigation
+#     - frontend/playwright.config.ts - Added STORY-018B reference
+#
+#   STORY-030 Files Created/Modified:
+#     - frontend/src/services/versionService.ts - Service to fetch version from API with caching
+#     - frontend/src/services/versionService.test.ts - Unit tests for versionService
+#     - frontend/src/components/about/AboutDialog.tsx - Modal dialog showing detailed version info
+#     - frontend/src/components/about/VersionFooter.tsx - Footer component for sidebar showing version
+#     - frontend/src/components/about/index.ts - Component exports
+#     - frontend/src/components/about/AboutDialog.test.tsx - Unit tests for AboutDialog
+#     - frontend/src/components/about/VersionFooter.test.tsx - Unit tests for VersionFooter
+#     - frontend/e2e/version-display.spec.ts - Playwright E2E tests for version display
+#     - frontend/src/services/index.ts - Added versionService export
+#     - frontend/src/components/navigation/Sidebar.tsx - Added VersionFooter to sidebar
+#     - frontend/playwright.config.ts - Added STORY-030 reference
+#
+#   STORY-030 Features:
+#     - Version displayed in sidebar footer (adapts to collapsed mode)
+#     - About dialog with detailed version information
+#     - Version cached for 5 minutes to reduce API calls
+#     - Semantic Versioning format: MAJOR.MINOR.PATCH
+#     - Optional build number and Git commit hash display
+#
+#   STORY-017B (Theme-System Frontend) Files Created/Modified:
+#     - frontend/src/services/themeService.ts - Theme API service (fetch/update theme colors, localStorage caching)
+#     - frontend/src/services/themeService.test.ts - Unit tests for theme service
+#     - frontend/src/contexts/ThemeContext.tsx - ThemeProvider, useTheme, useThemeColor hooks
+#     - frontend/src/contexts/ThemeContext.test.tsx - Unit tests for ThemeContext
+#     - frontend/src/services/index.ts - Added themeService exports
+#     - frontend/src/contexts/index.ts - Added ThemeContext exports
+#     - frontend/src/App.tsx - Integrated ThemeProvider wrapping AuthProvider
+#     - frontend/src/styles/globals.css - Added dynamic theme CSS variables
+#     - frontend/e2e/theme-system.spec.ts - Playwright E2E tests for theme system
+#     - frontend/playwright.config.ts - Added STORY-017B reference
+#
+#   STORY-017B (Theme-System Frontend) Features:
+#     - ThemeProvider wraps application root for global theme state
+#     - CSS Variables applied to document.documentElement (--color-primary, --color-secondary, etc.)
+#     - Theme fetched from backend API (GET /api/v1/settings/theme) on app start
+#     - Theme cached in localStorage (app_theme_colors) for faster load times
+#     - Default theme fallback (DEFAULT_THEME_COLORS) when API unavailable
+#     - Real-time theme updates without page refresh via useEffect hooks
+#     - useTheme() hook for accessing colors and updateColors function
+#     - useThemeColor() hook for getting specific color values
+#     - Hex color validation utility
+#     - VITE_API_URL environment variable for API base URL (defaults to http://localhost:14102/api/v1)
+#
+#   STORY-007B (Login System Frontend UI) Files Created/Modified:
+#     - frontend/src/components/auth/LoginForm.tsx - Reusable login form with validation, password toggle, loading states
+#     - frontend/src/components/auth/PrivateRoute.tsx - Protected route wrapper with auth check and permission support
+#     - frontend/src/components/auth/LoginForm.test.tsx - Unit tests for LoginForm component
+#     - frontend/src/components/auth/PrivateRoute.test.tsx - Unit tests for PrivateRoute component
+#     - frontend/src/components/auth/index.ts - Auth component exports
+#     - frontend/src/contexts/AuthContext.test.tsx - Unit tests for AuthContext
+#     - frontend/src/pages/LoginPage.tsx - Modified to use LoginForm component
+#     - frontend/src/pages/AuthPages.css - Added private-route-loading styles
+#     - frontend/src/App.tsx - Integrated PrivateRoute for protected routes
+#     - frontend/e2e/login-system.spec.ts - Playwright E2E tests for login flow
+#     - frontend/playwright.config.ts - Added STORY-007B reference
+#
+#   STORY-007B (Login System Frontend UI) Features:
+#     - LoginForm: Email/password inputs with validation, password visibility toggle, loading spinner
+#     - PrivateRoute: Authentication check, permission checking (single/multiple/require all), redirect support
+#     - Error handling: Clear error messages with role="alert" for accessibility
+#     - Loading states: Spinner animation, disabled inputs during submission
+#     - Accessibility: ARIA labels, keyboard navigation, focus management, WCAG 2.1 Level AA
+#     - Responsive design: Mobile, tablet, desktop breakpoints
+#     - Integration: Uses AuthContext for state, authService for API calls
+#     - Return URL: Preserves intended destination for post-login redirect
+#
+#   STORY-007B E2E Test Scenarios (login-system.spec.ts):
+#     - Successful login flow with valid credentials
+#     - Invalid credentials error display
+#     - Password visibility toggle
+#     - Loading state during login request
+#     - Keyboard navigation (Tab between fields)
+#     - Protected route redirect when not authenticated
+#     - Session persistence after page refresh
+#     - Responsive design verification (mobile, tablet, desktop)
+#
+#   Story 39 QA Fixes Applied (Iteration 1):
+#     - Issue #1 (CRITICAL): API URL port changed from 4102 to 14102 in authService.ts, usersService.ts, rolesService.ts
+#     - Issue #2 (CRITICAL): E2E test password changed from 'admin123' to 'TestPassword123!' in login-system.spec.ts
+#     - Issue #3 (MAJOR): Keyboard navigation tab order fixed - "Forgot Password" link moved after password input
+#     - Issue #4 (MAJOR): Error message clearing on input change - added onInputChange callback to LoginForm
+#     - Issue #5 (MINOR): ThemeService test mocking refactored to use top-level mock functions
+#
+#   Story 39 QA Fixes Applied (Iteration 2):
+#     - Issue #1 (MAJOR): Error message full clear - setFieldErrors({}) clears ALL errors when user types in ANY field (LoginForm.tsx:155-159)
+#     - Issue #2 (MAJOR): Keyboard navigation test autoFocus fix - test now accounts for email input having autoFocus (login-system.spec.ts:221-222)
+#     - Issue #3 (MAJOR): Rate limiting test fix - added test.describe.configure({ mode: 'serial' }) to prevent parallel rate limiting (login-system.spec.ts:28-29)
+#
+#   Story 40 QA Fixes Applied (Iteration 1):
+#     - Issue #1 (CRITICAL): Access Token Not Shared Between Services - authService.ts now stores access token in localStorage
+#       alongside refresh token. Updated login(), refreshToken(), and axios interceptor to persist access_token.
+#       clearTokens() now removes access_token from localStorage. Services (usersService, rolesService, themeService)
+#       can now find and use the access token for authenticated API requests.
+#     - Issue #2 (MAJOR): E2E test timing/rate limiting - user-crud.spec.ts updated with:
+#       - loginAsAdmin() helper waits for proper auth indicators (user name in sidebar)
+#       - Retry logic with rate limit detection (5 attempts per 60 seconds backend limit)
+#       - Increased test timeout to 120 seconds to accommodate rate limit delays
+#     - Files Changed: authService.ts, user-crud.spec.ts
+#     - All 29 Playwright E2E tests now pass
+#
+#   Story 41 (STORY-023: User Registration) Files Created/Modified:
+#     - frontend/src/components/auth/RegisterForm.tsx - Registration form component with validation
+#     - frontend/src/pages/RegisterPage.tsx - Registration page
+#     - frontend/src/pages/RegistrationSuccessPage.tsx - "Check your email" confirmation page
+#     - frontend/src/pages/EmailVerificationPage.tsx - Email verification success/error page
+#     - frontend/src/services/authService.ts - Added registrationService methods (register, verifyEmail, resendVerification)
+#     - frontend/src/App.tsx - Added routes for /register, /registration-success, /verify-email
+#     - frontend/e2e/registration.spec.ts - Playwright E2E tests for registration flow
+#     - backend/src/database/migrations/025-add-user-verification-fields.sql - Database migration for verification fields
+#     - backend/src/auth/dto/register.dto.ts - DTOs for registration (RegisterDto, VerifyEmailQueryDto, etc.)
+#     - backend/src/auth/auth.service.ts - Added register(), verifyEmail(), resendVerificationEmail() methods
+#     - backend/src/auth/auth.controller.ts - Added POST /register, GET /verify-email, POST /resend-verification endpoints
+#     - backend/templates/emails/verification-de.hbs - German HTML email template for verification
+#     - backend/templates/emails/verification-de.txt.hbs - German plain text email template for verification
+#
+#   Story 41 Features:
+#     - Registration form with email, name, password, password confirmation fields
+#     - Password strength indicator component
+#     - Email verification flow with 24-hour token expiry
+#     - Rate limiting: 3 registrations per IP per hour
+#     - German email templates for verification
+#     - User status: pending (unverified) / active (verified) / inactive
+#     - Login blocked for unverified users with "Please verify your email first" message
+#     - Resend verification email functionality
+#
+#   Story 41 QA Fixes Applied (Iteration 1):
+#     - Issue #1 (CRITICAL): Missing 'pending' status in UserRepository.countByStatus() - Added 'pending: 0' to initialization object
+#       File: backend/src/users/user.repository.ts (line 381)
+#     - Issue #2 (CRITICAL): Missing data-testid="password-strength" in PasswordStrengthIndicator - Added attribute for E2E test compatibility
+#       File: frontend/src/components/auth/PasswordStrengthIndicator.tsx (line 188)
+#     - Issue #3 (CRITICAL): Special character regex mismatch (frontend vs backend) - Aligned to [@$!%*?&] matching backend's register.dto.ts
+#       File: frontend/src/components/auth/PasswordStrengthIndicator.tsx (lines 86-88)
+#
+#   Story 41 QA Fixes Applied (Iteration 2):
+#     - Issue #1 (CRITICAL): Wrong BASE_URL in registration.spec.ts - Changed hardcoded port from 3001 to 3000
+#       File: frontend/e2e/registration.spec.ts (line 12)
+#       Root Cause: Test file had `const BASE_URL = 'http://localhost:3001';` but frontend dev server runs on port 3000
+#       (as specified in playwright.config.ts line 49: `baseURL: process.env.FRONTEND_URL || 'http://localhost:3000'`)
+#       This caused all 115 registration E2E tests to fail with `net::ERR_CONNECTION_REFUSED`
+#
+#   Story 42 (STORY-025B: Roles Management Frontend UI) Files Created/Modified:
+#     - frontend/src/services/rolesService.ts - Added CRUD methods (createRole, updateRole, deleteRole, assignPermissions, removePermissions, getPermissionCategories)
+#     - frontend/src/pages/RolesPage.tsx - Complete rewrite with full CRUD functionality, modal integration, permission-based rendering
+#     - frontend/src/components/roles/PermissionCheckboxGroup.tsx - Grouped permission selection with select all/deselect all
+#     - frontend/src/components/roles/PermissionCheckboxGroup.css - Styles for permission checkbox component
+#     - frontend/src/components/roles/CreateRoleModal.tsx - Modal for creating new roles with name, description, permissions
+#     - frontend/src/components/roles/EditRoleModal.tsx - Modal for editing roles with change detection, system role protection
+#     - frontend/src/components/roles/RoleDeleteDialog.tsx - Confirmation dialog with user count warning, system role protection
+#     - frontend/src/components/roles/RoleDeleteDialog.css - Styles for delete confirmation dialog
+#     - frontend/src/components/roles/RoleFormModal.css - Shared styles for create/edit modals
+#     - frontend/src/components/roles/index.ts - Component exports
+#     - frontend/e2e/roles-management.spec.ts - Playwright E2E tests (20+ test cases)
+#
+#   Story 42 (STORY-025B) Features:
+#     - Rollen-Management-Page: Displays all existing roles with edit/delete actions
+#     - Create Role Modal: Name, description fields with validation, permission selection
+#     - Edit Role Modal: Pre-populated form, permission checkboxes, change detection (Save disabled when no changes)
+#     - Delete Confirmation Dialog: Shows role info, user count warning, system role protection
+#     - Permission Checkbox Group: Grouped by category, select all/deselect all per category, indeterminate state
+#     - Integration: Uses existing roles API (STORY-025A), ResponsiveModal, AuthContext for permission-based rendering
+#     - German Localization: All UI text in German consistent with application
+#     - Accessibility: WCAG 2.1 Level AA, ARIA labels, dialog roles, keyboard navigation
+#
+#   Story 42 E2E Test Scenarios (roles-management.spec.ts):
+#     - Page loading and roles display
+#     - Create role modal functionality with form validation
+#     - Edit role modal with permission checkboxes
+#     - Delete confirmation dialog with system role protection
+#     - Permission checkbox interactions (select all, indeterminate state)
+#     - Accessibility compliance (ARIA labels, dialog roles)
+#     - Error handling and retry functionality
+#
+#   Story 42 QA Fixes Applied (Iteration 1):
+#     - Issue #1 (CRITICAL): Wrong password in E2E test file - Changed 'Admin123!' to 'TestPassword123!' in loginAsAdmin() helper
+#       File: frontend/e2e/roles-management.spec.ts (line 21)
+#       Root Cause: The loginAsAdmin() helper function used 'Admin123!' instead of 'TestPassword123!' (the correct password
+#       used consistently in all other E2E test files), causing all 110 E2E tests to fail because login never succeeded.
+#
+#   Story 42 QA Fixes Applied (Iteration 2):
+#     - Issue #1 (CRITICAL): Incomplete loginAsAdmin() function causing E2E tests to fail - Rewrote with proper authentication verification
+#       File: frontend/e2e/roles-management.spec.ts
+#       Root Cause: Original loginAsAdmin() did not properly verify login completion before proceeding with tests
+#       Fix Applied:
+#         - Added rate limiting detection and retry logic (up to 8 attempts with 10-second delays)
+#         - Changed to wait for URL to NOT include /login (verifies navigation away from login)
+#         - Added waiting for "System Administrator" text in sidebar (confirms auth context loaded)
+#         - Added small delay after login for permissions state propagation
+#         - Added proper error handling with meaningful error messages
+#         - Added test.describe.configure({ mode: 'serial' }) to run tests serially and avoid conflicts
+#         - Added test.setTimeout(120000) to handle longer test durations with rate limiting
+#         - Added environment variable support for credentials with fallback defaults
+#       Test Results: 7 tests PASSED (core functionality), 1 test failed due to environment rate limiting exhaustion
+#
+#   Story 43 (STORY-008B: Permission-System Frontend) Files Created/Modified:
+#     - frontend/src/components/auth/ProtectedRoute.tsx - Route wrapper with permission check, redirects to /forbidden
+#     - frontend/src/components/auth/IfHasPermission.tsx - Conditional rendering component based on permissions
+#     - frontend/src/components/auth/withPermission.tsx - Higher-order component for wrapping components with permission checks
+#     - frontend/src/pages/ForbiddenPage.tsx - Access denied page displayed when user lacks permission
+#     - frontend/src/components/auth/ProtectedRoute.test.tsx - Unit tests for ProtectedRoute component
+#     - frontend/src/components/auth/IfHasPermission.test.tsx - Unit tests for IfHasPermission component
+#     - frontend/src/components/auth/withPermission.test.tsx - Unit tests for withPermission HOC
+#     - frontend/src/hooks/usePermission.test.ts - Unit tests for usePermission hook and auth permission methods
+#     - frontend/src/pages/ForbiddenPage.test.tsx - Unit tests for ForbiddenPage component
+#     - frontend/e2e/permissions-frontend.spec.ts - Playwright E2E tests for permission-based UI
+#     - frontend/src/components/auth/index.ts - Added exports for new permission components
+#     - frontend/src/pages/index.ts - Added export for ForbiddenPage
+#     - frontend/src/App.tsx - Added /forbidden route and import for ForbiddenPage
+#     - frontend/src/hooks/index.ts - Re-exported usePermission from contexts
+#     - frontend/src/components/auth/PrivateRoute.tsx - Changed default unauthorizedRedirectTo from /dashboard to /forbidden
+#
+#   Story 43 (STORY-008B) Features:
+#     - usePermission hook: Check single permission (already in AuthContext), wildcard support (users.*)
+#     - ProtectedRoute: Route wrapper with permission check, redirects unauthorized users to /forbidden
+#     - IfHasPermission: Conditional rendering - only renders children when user has permission
+#     - withPermission HOC: Higher-order component for wrapping components with permission protection
+#     - ForbiddenPage: Access denied page with navigation back to dashboard
+#     - Navigation Filtering: filterNavigationByPermission function (already implemented in navigation.ts)
+#     - Permission Methods in AuthContext: hasPermission, hasAnyPermission, hasAllPermissions
+#
+#   Story 43 E2E Test Scenarios (permissions-frontend.spec.ts):
+#     - Permission-based UI visibility (show/hide based on permissions)
+#     - Protected route redirect to /forbidden for unauthorized users
+#     - Navigation filtering based on user permissions
+#     - User with full permissions sees all UI elements
+#     - User with limited permissions sees filtered UI
+#
+#   Story 43 Integration Notes:
+#     - usePermission hook already existed in AuthContext.tsx with wildcard permission support
+#     - hasPermission, hasAnyPermission, hasAllPermissions methods already existed in AuthContext
+#     - filterNavigationByPermission function already existed in navigation.ts
+#     - PrivateRoute default redirect changed from /dashboard to /forbidden (correct behavior per story)
+#     - Sidebar navigation already uses filterNavigationByPermission for permission-based filtering
+#     - UsersListPage already uses hasPermission('users.create') to show/hide the create button
+#
+#   Story 43 QA Fixes Applied (Iteration 1):
+#     - Issue #1 (CRITICAL): Role Name Mismatch in AuthContext - Admin user's permissions not loading
+#       File: frontend/src/contexts/AuthContext.tsx
+#       Root Cause: Code searched for role 'Administrator' but database has role 'admin' (lowercase)
+#       Fix Applied:
+#         - Changed role lookup in login function to use case-insensitive matching
+#         - Changed role lookup in refreshUserData function to use case-insensitive matching
+#         - Now searches for 'admin' first, then 'Administrator', then falls back to first role
+#       Result: Admin user now correctly loads permissions for all navigation items
+#
+#   Story 43 QA Fixes Applied (Iteration 2):
+#     - Issue #1 (CRITICAL): Sidebar element not found in E2E tests - data-testid mismatch
+#       File: frontend/src/components/layout/AppLayout.tsx
+#       Root Cause: AppLayout passed data-testid={`${testId}-sidebar`} resulting in "app-layout-sidebar", but E2E tests expected "sidebar"
+#       Fix Applied: Changed data-testid prop passed to Sidebar from ${testId}-sidebar to just "sidebar" in both mobile/tablet and desktop layouts
+#     - Issue #2 (CRITICAL): Roles page element not found in E2E tests - data-testid mismatch
+#       File: frontend/e2e/permissions-frontend.spec.ts
+#       Root Cause: RolesPage uses data-testid="roles-management-page" but tests expected "roles-page"
+#       Fix Applied: Updated E2E tests to use correct data-testid="roles-management-page"
+#       Result: All 18 permission frontend E2E tests now pass
+#
+#   Story 44 (STORY-005C: MFA UI Frontend) Files Created/Modified:
+#     - frontend/src/components/auth/MFACodeInput.tsx - 6-digit code input with auto-submit, auto-focus, numeric/alphanumeric support
+#     - frontend/src/components/auth/MFACodeInput.css - Responsive styles for code input
+#     - frontend/src/components/auth/BackupCodesList.tsx - Backup codes display with copy/download functionality
+#     - frontend/src/components/auth/BackupCodesList.css - Styles for backup codes grid
+#     - frontend/src/components/auth/MFALoginPrompt.tsx - MFA verification prompt during login
+#     - frontend/src/components/auth/MFALoginPrompt.css - Styles for MFA login prompt
+#     - frontend/src/pages/MFASetupPage.tsx - Multi-step MFA setup wizard (init → verify → backup → done)
+#     - frontend/src/pages/MFASetup.css - Responsive styles for setup page
+#     - frontend/src/components/auth/MFACodeInput.test.tsx - Unit tests for code input (auto-submit, validation, paste handling, accessibility)
+#     - frontend/src/components/auth/BackupCodesList.test.tsx - Unit tests for backup codes (copy, download, used codes display)
+#     - frontend/e2e/mfa-ui.spec.ts - Playwright E2E tests for MFA setup flow, navigation, responsive design, accessibility
+#     - frontend/src/services/authService.ts - Added MFA service methods:
+#       - mfaService.initiateMFASetup() - Returns QR code, secret, backup codes
+#       - mfaService.verifyMFASetup() - Verifies TOTP code to enable MFA
+#       - mfaService.verifyMFALogin() - Verifies code during login
+#       - mfaService.verifyBackupCode() - Verifies backup code during login
+#       - mfaService.getMFAStatus() - Gets MFA status for user
+#       - mfaService.disableMFA() - Disables MFA
+#       - mfaService.regenerateBackupCodes() - Generates new backup codes
+#     - frontend/src/components/auth/index.ts - Added exports for MFACodeInput, BackupCodesList, MFALoginPrompt
+#     - frontend/src/pages/index.ts - Added MFASetupPage export
+#     - frontend/src/App.tsx - Added route /settings/security/mfa for MFA setup page
+#     - frontend/src/pages/SettingsPage.tsx - Added 2FA setup section in Security settings with link to MFA setup
+#
+#   Story 44 (STORY-005C) Features:
+#     - MFA Setup Flow: Multi-step wizard (Init → Verify → Backup → Done)
+#     - QR Code Display: 300x300px for authenticator apps
+#     - Manual Entry Code: Copy button for manual entry
+#     - 6-Digit Code Verification: Auto-submit when 6 digits entered
+#     - Backup Codes: Grid display, copy all, download as text file, mark used codes
+#     - MFA Code Input: Auto-focus, numeric-only input, paste support, loading/error states
+#     - MFA Login Prompt: TOTP code input, backup code toggle, remaining attempts warning
+#     - Responsive Design: Mobile-first, tested on 375px, 768px, desktop
+#     - Accessibility: ARIA labels, keyboard navigation, WCAG 2.1 Level AA
+#     - German Localization: All UI text in German consistent with application
+#
+#   Story 44 E2E Test Scenarios (mfa-ui.spec.ts):
+#     - MFA setup flow navigation and page display
+#     - QR code and manual entry code display
+#     - 6-digit code input auto-submit behavior
+#     - Backup codes display and download
+#     - Responsive design on mobile/tablet/desktop
+#     - Accessibility compliance
+#
+#   Story 44 Integration Notes:
+#     - MFA setup page accessible at /settings/security/mfa (protected route requiring authentication)
+#     - Settings page has "Zwei-Faktor-Authentifizierung (2FA)" section with "2FA einrichten" button
+#     - MFA service methods connect to backend endpoints at /api/auth/mfa/* (without /v1 prefix)
+#     - Uses existing CSS patterns (auth pages styles) with Tailwind for layout
+#     - Depends on STORY-005A (MFA Setup Backend) and STORY-005B (MFA Login Flow) endpoints
+#
+#   Story 44 QA Fixes Applied (Iteration 1):
+#     - Issue #1 (CRITICAL): API Path Mismatch - Frontend Cannot Reach MFA Endpoints
+#       File: frontend/src/services/authService.ts
+#       Root Cause: mfaService used apiClient with baseURL '/api/v1', but backend MFA endpoints are at '/api/auth/mfa/*' (without /v1 prefix)
+#       Fix Applied:
+#         - Added MFA_API_BASE_URL constant that strips /v1 from API URL
+#         - Modified all mfaService methods to use direct axios calls with MFA_API_BASE_URL
+#         - Each method explicitly includes Authorization header with current access token
+#       Result: MFA setup/verify calls now correctly reach /api/auth/mfa/* endpoints
+#     - Issue #2 (CRITICAL): E2E Test Login Helper Doesn't Handle Rate Limiting
+#       File: frontend/e2e/mfa-ui.spec.ts
+#       Root Cause: login() helper didn't detect rate limiting or implement retry logic, causing test failures
+#       Fix Applied:
+#         - Added test.describe.configure({ mode: 'serial' }) to run tests serially
+#         - Added test.setTimeout(120000) to allow 120s per test for rate limiting delays
+#         - Rewrote login() helper with 8 retry attempts, 10-second delays between retries
+#         - Added rate limit detection checking for "Zu viele Anmeldeversuche" text
+#         - Added fallback selector support (data-testid and name attribute selectors)
+#       Result: E2E tests now handle rate limiting gracefully with retries
+#     - Issue #3 (MAJOR): BackupCodesList Unit Test Failures
+#       File: frontend/src/components/auth/BackupCodesList.test.tsx
+#       Root Cause: DOM cleanup issue - mocks for document.body.appendChild/removeChild broke React Testing Library
+#       Fix Applied:
+#         - Added afterEach hook with cleanup() and vi.restoreAllMocks()
+#         - Fixed download functionality tests to store original DOM methods
+#         - Selectively mock only HTMLAnchorElement operations while allowing React containers through
+#       Result: All BackupCodesList unit tests now pass with proper DOM cleanup
+#
+#   Story 44 QA Fixes Applied (Iteration 2):
+#     - Issue #1 (MAJOR): E2E Test Strict Mode Violation
+#       File: frontend/e2e/mfa-ui.spec.ts (line 143)
+#       Root Cause: `getByText('Zwei-Faktor-Authentifizierung')` matched both the h1 title and a paragraph description,
+#         causing Playwright's strict mode to fail with "strict mode violation"
+#       Fix Applied: Changed selector from `getByText('Zwei-Faktor-Authentifizierung')` to
+#         `getByRole('heading', { name: 'Zwei-Faktor-Authentifizierung' })` to specifically target the heading element
+#       Result: E2E test now correctly targets only the heading element
+#     - Issue #2 (MAJOR): BackupCodesList Unit Test Failures (2 tests)
+#       File: frontend/src/components/auth/BackupCodesList.test.tsx (lines 128-137, 274-291)
+#       Root Cause: The clipboard mock (`navigator.clipboard.writeText`) was not being properly applied in jsdom
+#         because jsdom doesn't have a native clipboard implementation. The component used fallback copy method
+#         (`document.execCommand('copy')`) instead of mocked clipboard API.
+#       Fix Applied: Changed both failing tests to verify UI behavior instead of mocking clipboard:
+#         - "copies codes to clipboard on click" - Now checks for "Kopiert!" success message
+#         - "buttons are keyboard accessible" - Now checks for "Kopiert!" success message after keyboard Enter
+#         This approach tests actual user-visible behavior and works regardless of which copy method is used.
+#       Result: All 23 BackupCodesList unit tests now pass
+#     - Files Changed Summary:
+#       1. frontend/e2e/mfa-ui.spec.ts - Fixed line 143 selector
+#       2. frontend/src/components/auth/BackupCodesList.test.tsx - Fixed clipboard test assertions
+#       3. frontend/src/test/setup.ts - Removed unused clipboard mock export (cleanup)
+#
+#   Story 45 (STORY-013B: In-App Settings Frontend UI) Files Created/Modified:
+#     - frontend/src/services/settingsService.ts - API service for settings CRUD operations
+#     - frontend/src/components/settings/SettingsTabs.tsx - Tab navigation with keyboard accessibility
+#     - frontend/src/components/settings/FormField.tsx - Reusable form field component
+#     - frontend/src/components/settings/GeneralSettings.tsx - General settings form (support email, session timeout)
+#     - frontend/src/components/settings/SecuritySettings.tsx - Security settings form (password policy, login attempts)
+#     - frontend/src/components/settings/EmailSettings.tsx - Email settings form (signature)
+#     - frontend/src/components/settings/index.ts - Component exports
+#     - frontend/src/components/settings/SettingsTabs.test.tsx - 23 unit tests
+#     - frontend/src/components/settings/FormField.test.tsx - 27 unit tests
+#     - frontend/src/components/settings/GeneralSettings.test.tsx - 19 unit tests
+#     - frontend/src/components/settings/SecuritySettings.test.tsx - 18 unit tests
+#     - frontend/src/components/settings/EmailSettings.test.tsx - 18 unit tests
+#     - frontend/e2e/settings-ui.spec.ts - Playwright E2E tests for settings navigation, validation, save/reset, responsive, accessibility
+#     - frontend/src/pages/SettingsPage.tsx - Updated with admin settings section and tab navigation
+#     - frontend/src/services/index.ts - Added settingsService export
+#
+#   Story 45 QA Fixes Applied (Iteration 1):
+#     - Issue #1 (CRITICAL): E2E Test Login Helper Missing Rate Limiting and Auth Verification
+#       File: frontend/e2e/settings-ui.spec.ts
+#       Root Cause: The loginAsAdmin() function was a simplified implementation that didn't handle rate limiting
+#         scenarios or verify authentication state, causing 403 Forbidden redirects when tests ran
+#       Fix Applied:
+#         - Added rate limiting retry logic with 8 attempts and 10-second delays
+#         - Added detection for "Zu viele Anmeldeversuche" (rate limit error) text
+#         - Changed to wait for navigation away from /login page
+#         - Added wait for "System Administrator" text in sidebar to verify auth context loaded
+#         - Added 500ms delay for permissions state propagation
+#         - Updated input selectors to use input[name="email"] and input[name="password"] for consistency
+#         - Imported Page type from @playwright/test
+#         - Added BASE_URL constant for consistent URL handling
+#         - Added environment variable support for credentials (TEST_ADMIN_EMAIL, TEST_ADMIN_PASSWORD)
+#       Result: E2E tests now handle rate limiting gracefully with robust authentication verification
+#     - Issue #2 (MINOR): Missing test.setTimeout() in E2E spec
+#       File: frontend/e2e/settings-ui.spec.ts
+#       Root Cause: No extended timeout was configured to handle potential rate limiting delays during login
+#       Fix Applied: Added test.setTimeout(120000) (120 seconds per test) after test.describe.configure({ mode: 'serial' })
+#       Result: Tests have adequate time to complete even with rate limiting retry delays
+#
+#   Story 45 (STORY-013B) Features:
+#     - Tab Navigation: General, Security, Email tabs with ARIA accessibility and keyboard navigation
+#     - Settings Display: Label, description, input field per setting with appropriate input types
+#     - Form Validation: Client-side validation with clear error messages
+#     - Save Functionality: Save button per category with visual feedback
+#     - Reset Functionality: Reset to Default button with confirmation dialog
+#     - Unsaved Changes Indicator: Visual warning when leaving with unsaved changes
+#     - WCAG 2.1 Level AA Accessibility: ARIA attributes, focus management, keyboard navigation
+#     - Responsive Design: Works on mobile, tablet, desktop viewports
+#     - German Localization: All UI text in German consistent with application
+#     - Integration: Uses existing Settings API (STORY-013A), settingsService for API calls
+#
+#   Story 45 E2E Test Scenarios (settings-ui.spec.ts):
+#     - Settings Navigation: Tab switching between General, Security, Email
+#     - Settings Update: Modify settings and save successfully
+#     - Reset to Default: Reset settings with confirmation dialog
+#     - Form Validation: Validation errors display for invalid inputs
+#     - Responsive Design: Layout on mobile, tablet, desktop viewports
+#     - Accessibility: ARIA labels, keyboard navigation, focus management
+#
+#   Story 45 Integration Notes:
+#     - Settings page accessible at /settings (protected route requiring authentication)
+#     - Admin-only settings section visible only to users with settings.manage permission
+#     - settingsService connects to backend endpoints at /api/v1/settings/* (STORY-013A)
+#     - Depends on STORY-013A (In-App Settings Backend) for API endpoints
+#     - Unit tests: 105 tests passing (SettingsTabs: 23, FormField: 27, GeneralSettings: 19, SecuritySettings: 18, EmailSettings: 18)
+#
+#   STORY-006B (User CRUD Frontend UI) Files Created/Modified:
+#     - frontend/src/components/users/UserCreateModal.tsx - Modal form for creating new users with validation
+#     - frontend/src/components/users/UserEditModal.tsx - Modal form for editing existing users with change tracking
+#     - frontend/src/components/users/UserDeleteDialog.tsx - Confirmation dialog for user deletion
+#     - frontend/src/components/users/UserFormModal.css - Shared styles for create/edit modals
+#     - frontend/src/components/users/UserDeleteDialog.css - Styles for delete confirmation dialog
+#     - frontend/src/components/users/index.ts - Added exports for new modal components
+#     - frontend/src/components/feedback/Toast.tsx - Toast notification component with auto-dismiss
+#     - frontend/src/components/feedback/Toast.css - Toast styling with type variants (success/error/info/warning)
+#     - frontend/src/components/feedback/index.ts - Exports for feedback components
+#     - frontend/src/pages/UsersListPage.tsx - Enhanced with modal integration, toast notifications, permission-based actions
+#     - frontend/src/pages/UsersPage.css - Added toast container, action button variants, responsive adjustments
+#     - frontend/e2e/user-crud.spec.ts - Comprehensive Playwright E2E tests for all CRUD operations (30+ tests)
+#     - frontend/e2e/user-role-assignment.spec.ts - Updated URL paths from /admin/users to /users
+#     - frontend/playwright.config.ts - Updated with STORY-006B reference
+#
+#   STORY-006B (User CRUD Frontend UI) Features:
+#     - User Management Page (/users): Responsive table, search, status/role filters, pagination, permission-based actions
+#     - Create User Modal: Email, name, password fields with validation, password confirmation, status selection, multi-select role assignment
+#     - Edit User Modal: Pre-filled form, optional password change, role management, change tracking (Save disabled when no changes)
+#     - Delete User Dialog: Confirmation dialog with user info, soft delete with success notification, German localization
+#     - Toast Notifications: Success/error/info/warning variants, 5-second auto-dismiss, manual close, ARIA accessible
+#     - German Localization: All UI text in German consistent with application
+#     - Integration: Uses existing usersService (STORY-006A), ResponsiveModal, AuthContext for permissions
+#
+#   STORY-006B E2E Test Scenarios (user-crud.spec.ts):
+#     - Page display and elements verification
+#     - Search and filtering functionality
+#     - Create user flow with form validation
+#     - Edit user flow with change detection
+#     - Delete user with confirmation dialog
+#     - Pagination navigation
+#     - Responsive design (tablet/mobile viewports)
+#     - Toast notifications display and dismiss
+#     - Accessibility (ARIA attributes, keyboard navigation)
+#
+#   IMPORTANT: Frontend services connect to backend API at http://localhost:14102/api/v1
+#   The fallback API URL in frontend services MUST match the resource-api port (14102)
+#
+#   STORY-018B Features:
+#     - Desktop (≥1024px): Fixed sidebar, 280px width, always visible
+#     - Tablet (768-1023px): Collapsible overlay menu with backdrop
+#     - Mobile (<768px): Hamburger menu with full overlay
+#     - Smooth CSS transitions (200-300ms)
+#     - Body scroll lock when menu open
+#     - Escape key to close menu
+#     - Touch-friendly 44px minimum tap targets
+#     - WCAG 2.1 Level AA accessibility compliant
+#
+#   STORY-016A Features:
+#     - Sidebar: 280px desktop, collapsible to 64px, state persisted in localStorage
+#     - Menu Items: Dashboard, User Management, Roles & Permissions, Sessions, Settings, Help
+#     - Permission Filtering: hasPermission hook filters menu items based on user permissions
+#     - Responsive: Desktop (≥1024px) fixed sidebar, Tablet (768-1023px) overlay, Mobile (<768px) hamburger
+#     - Accessibility: ARIA labels, keyboard navigation, focus management, 44px touch targets
+#     - Sub-Navigation: Nested menu items with expand/collapse
+#     - User Profile: Footer section with avatar and logout button
+#
+#   STORY-016A Test Coverage (161 tests total):
+#     - Sidebar.test.tsx: 22 tests (collapse/expand, permission filtering, mobile toggle)
+#     - NavItem.test.tsx: 26 tests (rendering, active state, badges, icons, click handling)
+#     - SubNavigation.test.tsx: 32 tests (nested items, keyboard nav, disabled state, accessibility)
+#     - UserProfile.test.tsx: 30 tests (expanded/collapsed modes, initials, logout, accessibility)
+#     - Logo.test.tsx: 27 tests (logo mark, company name, collapsed mode, edge cases, accessibility)
+#     - navigation.test.ts: 24 tests (configuration validation, permission filtering)
+#
+#   STORY-017B Test Viewports:
+#     - iPhone SE: 375x667
+#     - iPhone 12 Pro: 390x844
+#     - iPad: 768x1024
+#     - Desktop: 1280x720, 1920x1080
+#
+#   Responsive Demo Page: http://localhost:3000/responsive-demo
+#
+#   STORY-018B E2E Test Scenarios (responsive-sidebar.spec.ts):
+#     - Desktop sidebar always visible at ≥1024px
+#     - Tablet overlay menu toggles at 768-1023px
+#     - Mobile hamburger menu at <768px
+#     - Navigation between pages on all device sizes
+#     - Smooth transitions between states
+#     - Overlay dismiss on backdrop click
+#     - Accessibility compliance
+#
+#   Run frontend commands:
+#     npm run dev          - Start dev server on http://localhost:3000
+#     npm run build        - Build for production
+#     npm run test         - Run unit tests (Vitest, includes LoginForm, PrivateRoute, AuthContext tests)
+#     npm run test:e2e     - Run Playwright E2E tests (includes login-system.spec.ts, responsive-sidebar.spec.ts, user-crud.spec.ts, roles-management.spec.ts, permissions-frontend.spec.ts, registration.spec.ts, mfa-ui.spec.ts, settings-ui.spec.ts)
+#     npm run test:coverage - Run tests with coverage (≥80% required)
+#
+#   Frontend Pages:
+#     Login: http://localhost:3000/login (STORY-007B: Login form with validation)
+#     Grid Demo: http://localhost:3000/grid-demo
+#     Responsive Demo: http://localhost:3000/responsive-demo
+#     Dashboard: http://localhost:3000/dashboard (Protected route)
+#     Users: http://localhost:3000/users (Protected route, STORY-006B: User CRUD UI with Create/Edit/Delete modals)
+#     Roles: http://localhost:3000/roles (Protected route, Story 42/STORY-025B: Roles Management UI with Create/Edit/Delete modals, Permission checkboxes)
+#     Settings: http://localhost:3000/settings (Protected route, Story 45/STORY-013B: Settings UI with tabs for General, Security, Email)
+#     MFA Setup: http://localhost:3000/settings/security/mfa (Protected route, Story 44/STORY-005C: MFA setup wizard)
+#     Help: http://localhost:3000/help (Protected route)
+#     Forbidden: http://localhost:3000/forbidden (Story 43/STORY-008B: Access denied page for unauthorized users)
+#     Register: http://localhost:3000/register (Story 41: User registration form)
+#     Registration Success: http://localhost:3000/registration-success (Story 41: "Check your email" confirmation)
+#     Email Verification: http://localhost:3000/verify-email?token=... (Story 41: Email verification result)
+#
+#   Grid Demo Page (deprecated, use Frontend Pages above): http://localhost:3000/grid-demo
+#   Tailwind breakpoints: sm (640px), md (768px), lg (1024px), xl (1280px)
+#
+# MinIO Object Storage (STORY-026A):
+#   Console: http://localhost:14105 (login with MINIO_ROOT_USER/MINIO_ROOT_PASSWORD)
+#   API:     http://localhost:14104
+#
+# Usage:
+#   docker-compose up -d
+#   docker-compose logs -f resource-api
+#
+# Health Check (STORY-029):
+#   Legacy:   curl http://localhost:14102/health
+#   Full:     curl http://localhost:14102/api/health
+#
+# API Endpoints (STORY-021B Resource Endpoints + STORY-003A User CRUD + STORY-001A Login + STORY-008 Sessions):
+#   Users:     GET/POST/PUT/DELETE http://localhost:14102/api/v1/users
+#   Users:     PATCH http://localhost:14102/api/v1/users/:id/restore (soft delete restore)
+#   Users:     POST http://localhost:14102/api/v1/users/:id/reset-password (admin password reset)
+#   Users:     POST/DELETE http://localhost:14102/api/v1/users/:id/roles (STORY-007B: role assignment/removal)
+#   Users:     GET http://localhost:14102/api/v1/users/:id/permissions (STORY-007B: aggregated permissions)
+#   Auth:      POST http://localhost:14102/api/v1/auth/login (STORY-001A: 5 req/min, STORY-008: rememberMe, STORY-005B: MFA detection)
+#   Auth:      POST http://localhost:14102/api/v1/auth/logout|refresh
+#   Auth:      POST http://localhost:14102/api/v1/auth/forgot-password (STORY-009: 5 req/min, no email enumeration)
+#   Auth:      POST http://localhost:14102/api/v1/auth/reset-password (STORY-009: 10 req/min, token validation)
+#   Auth:      POST http://localhost:14102/api/v1/auth/register (Story 41: 3 req/hour, user registration)
+#   Auth:      GET http://localhost:14102/api/v1/auth/verify-email?token=... (Story 41: email verification)
+#   Auth:      POST http://localhost:14102/api/v1/auth/resend-verification (Story 41: 3 req/hour, resend verification email)
+#   MFA:       POST http://localhost:14102/api/auth/mfa/setup (STORY-005A: 10 req/min, JWT required)
+#   MFA:       POST http://localhost:14102/api/auth/mfa/verify-setup (STORY-005A: 5 req/min, JWT required)
+#   MFA:       POST http://localhost:14102/api/auth/mfa/verify-login (STORY-005B: TOTP verification, temp token required)
+#   MFA:       POST http://localhost:14102/api/auth/mfa/verify-backup-code (STORY-005B: Backup code verification, temp token required)
+#   Sessions:  GET http://localhost:14102/api/v1/auth/sessions (STORY-008: list active sessions)
+#   Sessions:  DELETE http://localhost:14102/api/v1/auth/sessions/:id (STORY-008: terminate session)
+#   Sessions:  DELETE http://localhost:14102/api/v1/auth/sessions/all (STORY-008: logout all devices)
+#   Settings:  GET/PUT http://localhost:14102/api/v1/settings
+#   General:   GET/PUT http://localhost:14102/api/v1/settings/general (STORY-035: admin only)
+#   General:   GET http://localhost:14102/api/v1/settings/general/timeout-config (STORY-035: public)
+#   General:   GET http://localhost:14102/api/v1/settings/general/support-email (STORY-035: public)
+#   Theme:     GET http://localhost:14102/api/v1/settings/theme (STORY-017: retrieve theme colors)
+#   Theme:     PUT http://localhost:14102/api/v1/settings/theme (STORY-017: update theme colors)
+#
+# Feature Toggles API Endpoints (STORY-014A - Feature Toggles Backend):
+#   Features:  GET http://localhost:14102/api/v1/features (authenticated: get all features)
+#   Features:  GET http://localhost:14102/api/v1/features/public (public: get public features)
+#   Features:  GET http://localhost:14102/api/v1/features/:key (authenticated: get single feature)
+#   Features:  PUT http://localhost:14102/api/v1/features/:key (admin only: toggle feature on/off)
+#   Features:  GET http://localhost:14102/api/v1/features/:key/enabled (public: check if feature enabled)
+#
+# Settings API Endpoints (STORY-013A - In-App Settings Backend):
+#   Security:  GET http://localhost:14102/api/v1/settings/security (admin only: get security settings)
+#   Security:  PUT http://localhost:14102/api/v1/settings/security (admin only: update security settings)
+#   Security:  POST http://localhost:14102/api/v1/settings/security/reset (admin only: reset to defaults)
+#   Security:  GET http://localhost:14102/api/v1/settings/security/password-policy (public: password requirements)
+#   All:       GET http://localhost:14102/api/v1/settings/all (admin only: all settings categories)
+#   Category:  GET http://localhost:14102/api/v1/settings/category/:category (admin only: get category)
+#   Category:  PUT http://localhost:14102/api/v1/settings/category/:category (admin only: update category)
+#   Category:  POST http://localhost:14102/api/v1/settings/category/:category/reset (admin only: reset category)
+#
+# Language/i18n API Endpoints (STORY-018A - Standard-Sprache Backend):
+#   Language:  GET http://localhost:14102/api/v1/language/supported (public: list supported languages)
+#   Language:  GET http://localhost:14102/api/v1/language/translations/:lang (public: get all translations for a language)
+#   Language:  GET http://localhost:14102/api/v1/language/translations/:lang/:namespace (public: get namespace translations)
+#   Language:  GET http://localhost:14102/api/v1/language/translate (public: translate a single key)
+#   Language:  GET http://localhost:14102/api/v1/language/user/preference (authenticated: get user language preference)
+#   Language:  PUT http://localhost:14102/api/v1/language/user/preference (authenticated: update user language preference)
+#   Language:  GET http://localhost:14102/api/v1/language/admin/settings (admin only: get admin language settings)
+#   Language:  PUT http://localhost:14102/api/v1/language/admin/settings (admin only: update admin language settings)
+#   Language:  PUT http://localhost:14102/api/v1/language/admin/cache/clear (admin only: clear translation cache)
+#   Language:  GET http://localhost:14102/api/v1/language/admin/cache/stats (admin only: get cache statistics)
+#
+# Roles & Permissions API Endpoints (STORY-007A):
+#   Roles:       GET/POST http://localhost:14102/api/v1/roles
+#   Roles:       GET/PUT/DELETE http://localhost:14102/api/v1/roles/:id
+#   Roles:       POST/DELETE http://localhost:14102/api/v1/roles/:id/permissions (assign/remove)
+#   Permissions: GET http://localhost:14102/api/v1/permissions
+#   Permissions: GET http://localhost:14102/api/v1/permissions/grouped
+#   Permissions: GET http://localhost:14102/api/v1/permissions/categories
+#   Permissions: GET http://localhost:14102/api/v1/permissions/:id
+#   Permissions: GET http://localhost:14102/api/v1/permissions/category/:category
+#
+# Email Endpoints (STORY-023B):
+#   Email:     POST http://localhost:14102/api/v1/email/send (queue email)
+#   Templates: GET/POST/PUT/DELETE http://localhost:14102/api/v1/email/templates
+#   Queue:     GET http://localhost:14102/api/v1/email/queue/status
+#   Queue:     GET http://localhost:14102/api/v1/email/queue
+#   Logs:      GET http://localhost:14102/api/v1/email/logs
+#
+# Feedback Endpoints (STORY-038A, STORY-038B):
+#   Feedback:  POST http://localhost:14102/api/feedback (Submit feedback with screenshot, 5 req/hour rate limit, JWT required)
+#              - STORY-038A: Base feedback submission with screenshot attachment
+#              - STORY-038B: Rate limiting (5/hour), async email queue, browser info capture, route tracking
+#
+# File Storage API Endpoints (STORY-026A - MinIO Setup, STORY-026B - Pagination):
+#   Files:     POST http://localhost:14102/api/v1/files/upload (Upload file to MinIO, authenticated)
+#   Files:     GET http://localhost:14102/api/v1/files/:fileName (Download file from MinIO)
+#   Files:     GET http://localhost:14102/api/v1/files (List files in bucket)
+#              Query params (STORY-026B): ?page=1&limit=20&bucket=uploads&prefix=users/123/
+#              Response includes pagination metadata: {page, limit, total, pages}
+#   Files:     DELETE http://localhost:14102/api/v1/files/:fileName (Delete file from MinIO)
+#   Files:     GET http://localhost:14102/api/v1/files/:fileName/presigned (Get presigned URL for download)
+#
+# Version API Endpoint (STORY-030 - Application Versioning):
+#   Version:   GET http://localhost:14102/api/version (Returns application version info)
+#              Response: {version, name, description, timestamp, build?, commit?}
+#
+# MFA Login Flow (STORY-005B):
+#   1. POST /api/v1/auth/login with MFA-enabled user returns {mfaRequired: true, tempToken: "..."}
+#   2. POST /api/auth/mfa/verify-login with {tempToken, code} returns final JWT
+#   3. POST /api/auth/mfa/verify-backup-code with {tempToken, backupCode} returns final JWT + remaining count
+#   - Temp tokens expire after 5 minutes (MFA_TEMP_TOKEN_EXPIRY)
+#   - Max 5 MFA attempts before 15-minute lockout (MFA_LOCKOUT_DURATION)
+#
+# Swagger Documentation (STORY-022):
+#   Swagger UI:  http://localhost:14102/api/docs
+#   OpenAPI JSON: http://localhost:14102/api/docs-json
+#
+# Query Parameters:
+#   Pagination: ?page=1&limit=20
+#   Filtering:  ?status=active&search=john
+#   Sorting:    ?sort=createdAt:desc
+#
+# Database Migrations (Production - use :prod commands in containers):
+#   docker-compose exec resource-api npm run db:migrate:prod
+#   docker-compose exec resource-api npm run db:seed:prod
+#   docker-compose exec resource-api npm run db:status:prod
+#   docker-compose exec resource-api npm run db:rollback:prod
+#   docker-compose exec resource-api npm run db:reset:prod
+#   docker-compose exec resource-api npm run db:fresh:prod
+#
+# Or directly via node:
+#   docker-compose exec resource-api node dist/database/cli.js migrate
+#   docker-compose exec resource-api node dist/database/cli.js seed
+#
+# ======================================
+
+services:
+  # ----------------
+  # Resource API Service (NestJS - STORY-001A, STORY-003A, STORY-005A, STORY-005B, STORY-007B, STORY-009, STORY-013A, STORY-014A, STORY-017, STORY-018A, STORY-021A, STORY-021B, STORY-022, STORY-023B, STORY-025, STORY-026A, STORY-026B, STORY-027, STORY-028, STORY-029, STORY-030, STORY-035, STORY-038A, STORY-038B, Story-41/STORY-023)
+  # STORY-001A: Login System Backend - JWT Auth, bcrypt 12 rounds, Rate Limiting 5 req/min/IP, Audit Logging
+  # STORY-003A: User CRUD Backend API with JWT Auth Guards, Roles Guard, Soft Delete, Role Management
+  # STORY-005A: MFA Setup Backend - TOTP secret generation (otplib), QR code URLs, backup codes (bcrypt hashed), ±1 window drift
+  # STORY-005B: MFA Login-Flow Backend - Temp token generation (5-min expiry), TOTP/backup code verification, rate limiting (max 5 attempts), 15-min lockout
+  # STORY-009: Password Reset - Forgot/Reset password endpoints, German email templates, rate limiting
+  # STORY-021B Resource Endpoints: Users CRUD, Auth (login/logout/refresh/password-reset), Settings (GET/PUT)
+  # STORY-022: Swagger/OpenAPI Documentation at /api/docs
+  # STORY-023B: Email Templates & Queue - Database-stored templates, async queue processing, retry mechanism
+  # STORY-025: User Data Storage - UserRepository, PasswordService, bcrypt password hashing
+  # STORY-029: Health Status Endpoints at /health (legacy) and /api/health (full)
+  # STORY-035: Support-E-Mail & Session-Timeout - Support email config, session idle timeout, auto-logout
+  # STORY-007A: Rollen-Management Backend - Roles & Permissions CRUD, PermissionsGuard, RequirePermission decorator
+  # STORY-007B: User Role Assignment - User-Role many-to-many, PermissionAggregationService, Token invalidation on role change
+  # STORY-027-PERM: Permission-System Core - Granular permission checks, OR/AND logic, wildcard patterns, data-level filtering
+  # STORY-027B: Permission Guards & Data Filtering - Route permission guards, data-level filtering, permission hierarchy
+  # STORY-017: Theme-System Backend - Theme colors JSONB in app_settings, GET/PUT /api/v1/settings/theme, default theme fallback
+  # STORY-013A: In-App Settings Backend - SecuritySettingsService with caching, settings_history audit table, category-based settings management
+  # STORY-014A: Feature Toggles Backend - FeatureTogglesService with 60s cache, FeatureGuard middleware, features JSONB in app_settings
+  # STORY-018A: Standard-Sprache Backend (i18n) - LanguageService with 60s cache, JSON translation files (en/de), localization utils, user/admin language settings
+  # STORY-038A: Feedback-Backend API - POST /api/feedback with screenshot (Base64), email with attachment via Resend, 5 req/hour rate limit
+  # STORY-038B: Feedback Rate Limiting & Email Queue - Rate limiting (5/hour per user), async email queue, browser info extraction, route/URL capture, feedback_submissions table
+  # STORY-026A: MinIO Setup - S3-compatible object storage, file upload/download API, presigned URLs, bucket management (uploads, logos, feedback)
+  # STORY-026B: MinIO File API - File listing pagination (page/limit query params, pagination metadata in response)
+  # STORY-030: Application Versioning - GET /api/version endpoint, version from package.json, optional build number and git commit hash
+  # Story 41 (STORY-023): User Registration - POST /register, GET /verify-email, POST /resend-verification, German email templates, 3 req/hour rate limit
+  # Includes: API setup, Rate Limiting, Request Logging, Error Handling, Structured Error Logging, Audit Trail
+  # Security: JWT Authentication Guard, Roles Authorization Guard, Permissions Guard (Admin-only for User CRUD)
+  # ----------------
+  resource-api:
+    build: ./backend
+    container_name: app-resource-endpoints
+    ports:
+      - "14102:14102"
+    environment:
+      - NODE_ENV=${NODE_ENV:-development}
+      - APP_PORT=14102
+      - APP_HOST=0.0.0.0
+      - APP_URL=http://localhost:14102
+      - FRONTEND_URL=${FRONTEND_URL:-http://localhost:14100}
+      # STORY-021B: API Version
+      - API_VERSION=v1
+      # Database configuration (STORY-024A, STORY-001A)
+      - DATABASE_URL=postgresql://${DB_USER:-postgres}:${DB_PASSWORD:-your_secure_password_here}@postgres:5432/${DB_NAME:-core_app}
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=${DB_USER:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-your_secure_password_here}
+      - DB_NAME=${DB_NAME:-core_app}
+      - DB_SSL=false
+      - DB_POOL_MAX=${DB_POOL_MAX:-20}
+      - DB_POOL_IDLE_TIMEOUT_MS=${DB_POOL_IDLE_TIMEOUT_MS:-30000}
+      - DB_POOL_CONNECTION_TIMEOUT_MS=${DB_POOL_CONNECTION_TIMEOUT_MS:-2000}
+      # Redis configuration (STORY-023B: Email Queue, STORY-005B: MFA Rate Limiting, STORY-038B: Feedback Queue)
+      - REDIS_URL=redis://redis:6379
+      # JWT configuration (STORY-001A: JWT Auth with 24h expiry, STORY-008: Session Management)
+      - JWT_SECRET=${JWT_SECRET:-your_super_secret_jwt_key_here_min_32_chars}
+      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN:-24h}
+      - JWT_REFRESH_EXPIRES_IN=${JWT_REFRESH_EXPIRES_IN:-30d}
+      # STORY-008: Session Management Token Configuration
+      - JWT_ACCESS_EXPIRY=${JWT_ACCESS_EXPIRY:-15m}
+      - JWT_REFRESH_EXPIRY_SHORT=${JWT_REFRESH_EXPIRY_SHORT:-24h}
+      - JWT_REFRESH_EXPIRY_LONG=${JWT_REFRESH_EXPIRY_LONG:-30d}
+      - TOKEN_CLEANUP_INTERVAL_MS=${TOKEN_CLEANUP_INTERVAL_MS:-3600000}
+      # Password hashing (STORY-001A: bcrypt 12 rounds)
+      - BCRYPT_ROUNDS=${BCRYPT_ROUNDS:-12}
+      # Email configuration (STORY-023A, STORY-023B)
+      - RESEND_API_KEY=${RESEND_API_KEY:-re_placeholder}
+      - EMAIL_FROM_NAME=${EMAIL_FROM_NAME:-Core Application}
+      - EMAIL_FROM_ADDRESS=${EMAIL_FROM_ADDRESS:-noreply@yourdomain.com}
+      - SUPPORT_EMAIL=${SUPPORT_EMAIL:-}
+      - EMAIL_MAX_RETRIES=${EMAIL_MAX_RETRIES:-3}
+      - EMAIL_RETRY_DELAY_MS=${EMAIL_RETRY_DELAY_MS:-1000}
+      # Email Queue configuration (STORY-023B, STORY-038B)
+      - EMAIL_QUEUE_ENABLED=${EMAIL_QUEUE_ENABLED:-true}
+      - EMAIL_QUEUE_PROCESS_INTERVAL=${EMAIL_QUEUE_PROCESS_INTERVAL:-5000}
+      - EMAIL_RETRY_MAX=${EMAIL_RETRY_MAX:-3}
+      - EMAIL_RETRY_DELAY=${EMAIL_RETRY_DELAY:-5000}
+      - EMAIL_RATE_LIMIT=${EMAIL_RATE_LIMIT:-60}
+      # Email Branding (STORY-023B)
+      - COMPANY_LOGO_URL=${COMPANY_LOGO_URL:-}
+      # Rate limiting configuration (STORY-001A: Login uses 5 req/min via code decorator)
+      - RATE_LIMIT_TTL=${RATE_LIMIT_TTL:-60}
+      - RATE_LIMIT_WINDOW_MS=${RATE_LIMIT_WINDOW_MS:-60000}
+      - RATE_LIMIT_MAX=${RATE_LIMIT_MAX:-100}
+      - RATE_LIMIT_MAX_REQUESTS=${RATE_LIMIT_MAX_REQUESTS:-100}
+      # Feedback Rate Limiting & Queue Configuration (STORY-038B)
+      # FEEDBACK_USE_QUEUE: Enable async email queue for feedback (default: true)
+      - FEEDBACK_USE_QUEUE=${FEEDBACK_USE_QUEUE:-true}
+      # FEEDBACK_QUEUE_PRIORITY: Queue priority for feedback emails (default: normal)
+      - FEEDBACK_QUEUE_PRIORITY=${FEEDBACK_QUEUE_PRIORITY:-normal}
+      # FEEDBACK_RATE_LIMIT_MAX: Maximum feedback submissions per window (default: 5)
+      - FEEDBACK_RATE_LIMIT_MAX=${FEEDBACK_RATE_LIMIT_MAX:-5}
+      # FEEDBACK_RATE_LIMIT_WINDOW_SECONDS: Rate limit window in seconds (default: 3600 = 1 hour)
+      - FEEDBACK_RATE_LIMIT_WINDOW_SECONDS=${FEEDBACK_RATE_LIMIT_WINDOW_SECONDS:-3600}
+      # EMAIL_QUEUE_RETRY_ATTEMPTS: Max retry attempts for queued feedback emails (default: 3)
+      - EMAIL_QUEUE_RETRY_ATTEMPTS=${EMAIL_QUEUE_RETRY_ATTEMPTS:-3}
+      # Logging configuration (STORY-027)
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - LOG_FILE_PATH=./logs/app.log
+      - LOG_DIR=/app/logs
+      - LOG_MAX_FILES=${LOG_MAX_FILES:-14d}
+      - LOG_MAX_SIZE=${LOG_MAX_SIZE:-20m}
+      # Optional external logging integration (STORY-027)
+      - SENTRY_DSN=${SENTRY_DSN:-}
+      # Audit logging configuration (STORY-028, STORY-001A: Login attempts logged, STORY-005B: MFA events logged)
+      - AUDIT_LOG_ENABLED=${AUDIT_LOG_ENABLED:-true}
+      - AUDIT_LOG_API_REQUESTS=${AUDIT_LOG_API_REQUESTS:-false}
+      - AUDIT_LOG_READ_ONLY=${AUDIT_LOG_READ_ONLY:-true}
+      # Swagger/OpenAPI Documentation (STORY-022)
+      - SWAGGER_ENABLED=${SWAGGER_ENABLED:-true}
+      # SMTP Health Check Configuration (STORY-029)
+      # Leave SMTP_HOST empty to skip SMTP health check (graceful degradation)
+      - SMTP_HOST=${SMTP_HOST:-}
+      - SMTP_PORT=${SMTP_PORT:-587}
+      - SMTP_CHECK_TIMEOUT=${SMTP_CHECK_TIMEOUT:-5000}
+      # Storage Health Check Configuration (STORY-029)
+      # Leave MINIO_ENDPOINT empty to skip storage health check (graceful degradation)
+      - MINIO_ENDPOINT=${MINIO_ENDPOINT:-minio}
+      - MINIO_PORT=${MINIO_PORT:-9000}
+      - MINIO_USE_SSL=${MINIO_USE_SSL:-false}
+      - STORAGE_CHECK_TIMEOUT=${STORAGE_CHECK_TIMEOUT:-5000}
+      # MinIO Object Storage Configuration (STORY-026A)
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY:-minioadmin}
+      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY:-minioadmin}
+      - MINIO_BUCKET_UPLOADS=${MINIO_BUCKET_UPLOADS:-uploads}
+      - MINIO_BUCKET_LOGOS=${MINIO_BUCKET_LOGOS:-logos}
+      - MINIO_BUCKET_FEEDBACK=${MINIO_BUCKET_FEEDBACK:-feedback}
+      # Session Timeout Configuration (STORY-035)
+      - DEFAULT_SESSION_TIMEOUT_MINUTES=${DEFAULT_SESSION_TIMEOUT_MINUTES:-30}
+      - DEFAULT_SHOW_TIMEOUT_WARNING=${DEFAULT_SHOW_TIMEOUT_WARNING:-true}
+      - DEFAULT_WARNING_BEFORE_TIMEOUT_MINUTES=${DEFAULT_WARNING_BEFORE_TIMEOUT_MINUTES:-5}
+      # Permission System Configuration (STORY-027-PERM, STORY-027B)
+      - PERMISSION_CACHE_TTL_MS=${PERMISSION_CACHE_TTL_MS:-300000}
+      - PERMISSION_HIERARCHY_CACHE_TTL_MS=${PERMISSION_HIERARCHY_CACHE_TTL_MS:-600000}
+      # Settings Cache Configuration (STORY-013A: In-App Settings Backend)
+      - SETTINGS_CACHE_TTL_MS=${SETTINGS_CACHE_TTL_MS:-60000}
+      # Feature Toggles Cache Configuration (STORY-014A: Feature Toggles Backend)
+      - FEATURE_CACHE_TTL_MS=${FEATURE_CACHE_TTL_MS:-60000}
+      # Data-Level Filtering (STORY-027B)
+      # - Admin: full access (1=1)
+      # - Manager: team-scoped access (team_members table)
+      # - User: own data only (user_id filter)
+      # MFA Configuration (STORY-005A: MFA Setup Backend)
+      - MFA_ISSUER=${MFA_ISSUER:-CoreApp}
+      # MFA Login-Flow Configuration (STORY-005B: MFA Login-Flow Backend)
+      # MFA_TEMP_TOKEN_SECRET: Separate secret for temporary MFA tokens (defaults to JWT_SECRET if not set)
+      - MFA_TEMP_TOKEN_SECRET=${MFA_TEMP_TOKEN_SECRET:-}
+      # MFA_TEMP_TOKEN_EXPIRY: Temp token expiry in seconds (default: 300 = 5 minutes)
+      - MFA_TEMP_TOKEN_EXPIRY=${MFA_TEMP_TOKEN_EXPIRY:-300}
+      # MFA_LOCKOUT_DURATION: Lockout duration in seconds after max failed attempts (default: 900 = 15 minutes)
+      - MFA_LOCKOUT_DURATION=${MFA_LOCKOUT_DURATION:-900}
+      # MFA_MAX_ATTEMPTS: Maximum MFA verification attempts before lockout (default: 5)
+      - MFA_MAX_ATTEMPTS=${MFA_MAX_ATTEMPTS:-5}
+      # Language/i18n Configuration (STORY-018A: Standard-Sprache Backend)
+      # DEFAULT_LANGUAGE: Default language for new users and fallback (default: en)
+      - DEFAULT_LANGUAGE=${DEFAULT_LANGUAGE:-en}
+      # SUPPORTED_LANGUAGES: Comma-separated list of supported language codes (default: en,de)
+      - SUPPORTED_LANGUAGES=${SUPPORTED_LANGUAGES:-en,de}
+      # FALLBACK_LANGUAGE: Language to use when translation is missing (default: en)
+      - FALLBACK_LANGUAGE=${FALLBACK_LANGUAGE:-en}
+      # Version Configuration (STORY-030: Application Versioning)
+      # BUILD_NUMBER: Optional build number for CI/CD (displayed as v1.0.0-12345)
+      - BUILD_NUMBER=${BUILD_NUMBER:-}
+      # GIT_COMMIT: Optional git commit hash for traceability (truncated to 12 chars)
+      - GIT_COMMIT=${GIT_COMMIT:-}
+      # User Registration Configuration (Story 41 - STORY-023: User Registration)
+      # VERIFICATION_TOKEN_EXPIRY: Token expiry for email verification links (default: 24h)
+      - VERIFICATION_TOKEN_EXPIRY=${VERIFICATION_TOKEN_EXPIRY:-24h}
+      # REGISTRATION_RATE_LIMIT_MAX: Maximum registrations per IP per hour (default: 3)
+      - REGISTRATION_RATE_LIMIT_MAX=${REGISTRATION_RATE_LIMIT_MAX:-3}
+      # REGISTRATION_RATE_LIMIT_WINDOW_SECONDS: Rate limit window in seconds (default: 3600 = 1 hour)
+      - REGISTRATION_RATE_LIMIT_WINDOW_SECONDS=${REGISTRATION_RATE_LIMIT_WINDOW_SECONDS:-3600}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    volumes:
+      # STORY-027: Persist logs outside container for easy access
+      - ./logs:/app/logs
+    networks:
+      - core-app-network
+    restart: unless-stopped
+    # HTTP healthcheck using /api/health endpoint (STORY-029)
+    # Uses Node.js instead of curl since Alpine image doesn't include curl
+    # Accepts 200 (healthy/degraded) as success; 503 (unhealthy) triggers restart
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:14102/api/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # ----------------
+  # PostgreSQL Database (STORY-024A, STORY-024B, STORY-025, STORY-001A, STORY-005A, STORY-005B, STORY-009, STORY-007B, STORY-013A, STORY-014A, STORY-017, STORY-018A, STORY-038B)
+  # STORY-001A: Stores users table with hashed passwords, audit_logs for login tracking
+  # STORY-005A: users.mfa_enabled, users.mfa_secret columns; user_backup_codes table (hashed codes)
+  # STORY-005B: user_backup_codes.used column for tracking consumed backup codes
+  # STORY-009: Stores reset_token_hash, reset_token_expires in users table (via refresh_tokens)
+  # STORY-025: User data storage with bcrypt hashed passwords, unique email constraint, indexes
+  # STORY-007B: user_roles junction table with assigned_by tracking
+  # STORY-013A: settings_history table for audit trail, security settings columns in app_settings (migrations 019, 020)
+  # STORY-014A: app_settings.features JSONB column for feature toggles (migration 021)
+  # STORY-017: app_settings.theme_colors JSONB column for theme storage (migration 018)
+  # STORY-018A: users.language, users.date_format, users.number_format columns; app_settings language settings (migration 022)
+  # STORY-038B: feedback_submissions table for storing feedback with metadata (migration 024), feedback_notification email template (migration 023)
+  # Story 41: users.status (pending/active/inactive), verification_token_hash, verification_token_expires, email_verified_at (migration 025)
+  # ----------------
+  postgres:
+    image: postgres:15-alpine
+    container_name: core-app-postgres
+    ports:
+      - "14101:5432"
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-your_secure_password_here}
+      - POSTGRES_DB=${POSTGRES_DB:-core_app}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./migrations:/docker-entrypoint-initdb.d
+    networks:
+      - core-app-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-core_app}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # ----------------
+  # Redis Cache/Queue (STORY-023B: Email Queue, STORY-009: Rate Limiting, STORY-007B: Permission Cache, STORY-005B: MFA Rate Limiting, STORY-013A: Settings Cache, STORY-018A: Translation Cache, STORY-038A: Feedback Rate Limiting, STORY-038B: Feedback Email Queue)
+  # Used for email queue processing, rate limiting, and optional caching
+  # STORY-009: Rate limiting for password reset endpoints (5 req/min forgot-password, 10 req/min reset-password)
+  # STORY-007B: Permission aggregation caching for role changes
+  # STORY-005B: MFA attempt tracking and lockout management (max 5 attempts, 15-min lockout)
+  # STORY-013A: Settings caching with 1-minute TTL for security settings
+  # STORY-018A: Translation caching with 60-second TTL for language service
+  # STORY-038A: Feedback submission rate limiting (5 req/hour per user)
+  # STORY-038B: Async email queue for feedback notifications, rate limit tracking per user
+  # Story 41: Registration rate limiting (3 req/hour per IP), verification token storage
+  # ----------------
+  redis:
+    image: redis:7-alpine
+    container_name: core-app-redis
+    ports:
+      - "14103:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - core-app-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+
+  # ----------------
+  # MinIO Object Storage (STORY-026A: MinIO Setup)
+  # S3-compatible object storage for file uploads
+  # Console accessible at http://localhost:14105
+  # API endpoint at http://localhost:14104
+  # ----------------
+  minio:
+    image: minio/minio:latest
+    container_name: core-app-minio
+    ports:
+      - "14104:9000"
+      - "14105:9001"
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER:-minioadmin}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD:-minioadmin}
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_data:/data
+    networks:
+      - core-app-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  # ----------------
+  # Frontend Service (React/Vite with Nginx)
+  # Serves the React frontend application
+  # Port 14100 follows the project port range (14100-14105)
+  # ----------------
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        # API URL for the frontend to connect to backend
+        VITE_API_URL: http://localhost:14102/api/v1
+    container_name: core-app-frontend
+    ports:
+      - "14100:80"
+    depends_on:
+      resource-api:
+        condition: service_healthy
+    networks:
+      - core-app-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:80/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+# ----------------
+# Networks
+# ----------------
+networks:
+  core-app-network:
+    driver: bridge
+
+# ----------------
+# Volumes
+# ----------------
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  minio_data:
+    driver: local

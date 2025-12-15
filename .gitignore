@@ -1,0 +1,116 @@
+# ======================================
+# Core API Infrastructure - .gitignore
+# ======================================
+
+# ----------------
+# Environment Variables
+# SECURITY: Never commit sensitive configuration
+# ----------------
+.env
+.env.local
+.env.development
+.env.production
+.env.staging
+.env.test
+**/.env
+**/.env.local
+**/.env.development
+**/.env.production
+**/.env.staging
+
+# Keep example files for reference
+!**/.env.example
+
+# ----------------
+# Dependencies
+# ----------------
+**/node_modules/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# ----------------
+# Build Output
+# ----------------
+**/dist/
+**/build/
+**/out/
+**/.tsbuildinfo
+
+# ----------------
+# IDE & Editor
+# ----------------
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# ----------------
+# Logs
+# ----------------
+**/logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ----------------
+# Testing
+# ----------------
+**/coverage/
+**/.nyc_output/
+junit.xml
+**/test-results/
+
+# ----------------
+# Temporary Files
+# ----------------
+tmp/
+temp/
+.tmp/
+.temp/
+.cache/
+
+# ----------------
+# OS Generated
+# ----------------
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# ----------------
+# Docker
+# ----------------
+.docker/
+
+# Docker SSL certificates (keep README)
+docker/ssl/*.pem
+docker/ssl/*.key
+docker/ssl/*.cert
+!docker/ssl/README.md
+!docker/ssl/generate-ssl.sh
+
+# Docker backups
+backups/postgres/*.sql
+backups/postgres/*.sql.gz
+backups/minio/*.tar
+backups/minio/*.tar.gz
+
+# ----------------
+# Secrets & Keys
+# Never commit these!
+# ----------------
+*.pem
+*.key
+*.cert
+*.p12
+secrets/
+credentials/
+
+# Keep example environment file
+!.env.docker.example

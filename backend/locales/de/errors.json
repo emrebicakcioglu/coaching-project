@@ -1,0 +1,78 @@
+{
+  "general": {
+    "unexpected": "Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es später erneut.",
+    "serverError": "Interner Serverfehler",
+    "notFound": "Die angeforderte Ressource wurde nicht gefunden",
+    "forbidden": "Sie haben keine Berechtigung, diese Aktion durchzuführen",
+    "unauthorized": "Bitte melden Sie sich an, um fortzufahren",
+    "badRequest": "Ungültige Anfrage",
+    "conflict": "Ein Konflikt mit dem aktuellen Status ist aufgetreten",
+    "tooManyRequests": "Zu viele Anfragen. Bitte versuchen Sie es später erneut.",
+    "serviceUnavailable": "Dienst vorübergehend nicht verfügbar. Bitte versuchen Sie es später erneut.",
+    "timeout": "Zeitüberschreitung bei der Anfrage. Bitte versuchen Sie es erneut."
+  },
+  "auth": {
+    "invalidCredentials": "Ungültige E-Mail oder Passwort",
+    "accountLocked": "Ihr Konto wurde gesperrt. Bitte versuchen Sie es später erneut.",
+    "accountSuspended": "Ihr Konto wurde suspendiert. Bitte kontaktieren Sie den Support.",
+    "accountInactive": "Ihr Konto ist inaktiv. Bitte kontaktieren Sie den Support.",
+    "sessionExpired": "Ihre Sitzung ist abgelaufen. Bitte melden Sie sich erneut an.",
+    "tokenInvalid": "Ungültiger oder abgelaufener Token",
+    "tokenExpired": "Token ist abgelaufen",
+    "refreshTokenInvalid": "Ungültiger Aktualisierungstoken",
+    "mfaRequired": "Zwei-Faktor-Authentifizierung erforderlich",
+    "mfaInvalid": "Ungültiger MFA-Code"
+  },
+  "user": {
+    "notFound": "Benutzer nicht gefunden",
+    "emailExists": "Ein Benutzer mit dieser E-Mail existiert bereits",
+    "updateFailed": "Benutzer konnte nicht aktualisiert werden",
+    "deleteFailed": "Benutzer konnte nicht gelöscht werden",
+    "cannotDeleteSelf": "Sie können Ihr eigenes Konto nicht löschen",
+    "cannotSuspendSelf": "Sie können Ihr eigenes Konto nicht suspendieren"
+  },
+  "role": {
+    "notFound": "Rolle nicht gefunden",
+    "nameExists": "Eine Rolle mit diesem Namen existiert bereits",
+    "cannotDeleteSystem": "Systemrollen können nicht gelöscht werden",
+    "cannotModifySystem": "Systemrollen können nicht geändert werden",
+    "inUse": "Diese Rolle ist derzeit Benutzern zugewiesen und kann nicht gelöscht werden"
+  },
+  "permission": {
+    "notFound": "Berechtigung nicht gefunden",
+    "denied": "Sie haben keine Berechtigung, diese Aktion durchzuführen"
+  },
+  "settings": {
+    "updateFailed": "Einstellungen konnten nicht aktualisiert werden",
+    "resetFailed": "Einstellungen konnten nicht zurückgesetzt werden",
+    "invalidValue": "Ungültiger Einstellungswert"
+  },
+  "email": {
+    "sendFailed": "E-Mail konnte nicht gesendet werden",
+    "templateNotFound": "E-Mail-Vorlage nicht gefunden",
+    "invalidRecipient": "Ungültiger E-Mail-Empfänger"
+  },
+  "file": {
+    "uploadFailed": "Datei konnte nicht hochgeladen werden",
+    "downloadFailed": "Datei konnte nicht heruntergeladen werden",
+    "deleteFailed": "Datei konnte nicht gelöscht werden",
+    "notFound": "Datei nicht gefunden",
+    "tooLarge": "Dateigröße überschreitet das Maximum",
+    "invalidType": "Ungültiger Dateityp"
+  },
+  "database": {
+    "connectionFailed": "Datenbankverbindung fehlgeschlagen",
+    "queryFailed": "Datenbankabfrage fehlgeschlagen",
+    "transactionFailed": "Datenbanktransaktion fehlgeschlagen"
+  },
+  "validation": {
+    "failed": "Validierung fehlgeschlagen",
+    "requiredField": "{{field}} ist erforderlich",
+    "invalidFormat": "Ungültiges {{field}} Format",
+    "outOfRange": "{{field}} liegt außerhalb des gültigen Bereichs"
+  },
+  "feature": {
+    "disabled": "Diese Funktion ist derzeit deaktiviert",
+    "notAvailable": "Diese Funktion ist in Ihrem Plan nicht verfügbar"
+  }
+}

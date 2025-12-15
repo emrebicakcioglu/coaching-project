@@ -1,0 +1,57 @@
+{
+  "title": "User Management",
+  "newUser": "New User",
+  "search": {
+    "placeholder": "Search users...",
+    "label": "Search users"
+  },
+  "filter": {
+    "statusLabel": "Filter by status",
+    "roleLabel": "Filter by role",
+    "allStatus": "All Status",
+    "allRoles": "All Roles"
+  },
+  "status": {
+    "active": "Active",
+    "inactive": "Inactive",
+    "suspended": "Suspended",
+    "deleted": "Deleted"
+  },
+  "roles": {
+    "admin": "Admin",
+    "user": "User",
+    "editor": "Editor",
+    "viewer": "Viewer"
+  },
+  "table": {
+    "name": "Name",
+    "email": "Email",
+    "status": "Status",
+    "roles": "Roles",
+    "lastLogin": "Last Login",
+    "actions": "Actions",
+    "noRoles": "No Roles",
+    "never": "Never"
+  },
+  "actions": {
+    "details": "Details",
+    "edit": "Edit",
+    "delete": "Delete",
+    "detailsTitle": "View details",
+    "editTitle": "Edit user",
+    "deleteTitle": "Delete user"
+  },
+  "pagination": {
+    "previous": "Previous",
+    "next": "Next",
+    "pageInfo": "Page {{page}} of {{pages}} ({{total}} users)"
+  },
+  "loading": "Loading users...",
+  "empty": "No users found",
+  "error": "Failed to load users. Please try again.",
+  "toast": {
+    "created": "User \"{{name}}\" was successfully created.",
+    "updated": "User \"{{name}}\" was successfully updated.",
+    "deleted": "User \"{{name}}\" was successfully deleted."
+  }
+}

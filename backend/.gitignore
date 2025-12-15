@@ -1,0 +1,97 @@
+# ======================================
+# Core Application Backend - .gitignore
+# ======================================
+
+# ----------------
+# Environment Variables
+# SECURITY: Never commit sensitive configuration
+# ----------------
+.env
+.env.local
+.env.development
+.env.production
+.env.staging
+.env.test
+
+# Keep example file for reference
+!.env.example
+
+# ----------------
+# Dependencies
+# ----------------
+node_modules/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# ----------------
+# Build Output
+# ----------------
+dist/
+build/
+out/
+.tsbuildinfo
+
+# ----------------
+# IDE & Editor
+# ----------------
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# ----------------
+# Logs
+# ----------------
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ----------------
+# Testing
+# ----------------
+coverage/
+.nyc_output/
+junit.xml
+test-results/
+
+# ----------------
+# Temporary Files
+# ----------------
+tmp/
+temp/
+.tmp/
+.temp/
+.cache/
+
+# ----------------
+# OS Generated
+# ----------------
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# ----------------
+# Docker
+# ----------------
+.docker/
+
+# ----------------
+# Secrets & Keys
+# Never commit these!
+# ----------------
+*.pem
+*.key
+*.cert
+*.p12
+secrets/
+credentials/

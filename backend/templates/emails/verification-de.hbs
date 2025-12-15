@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>E-Mail-Adresse bestätigen - {{companyName}}</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #f5f5f5;
+    }
+    .container {
+      background-color: #ffffff;
+      border-radius: 8px;
+      padding: 40px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .logo {
+      font-size: 28px;
+      font-weight: bold;
+      color: #2563eb;
+    }
+    h1 {
+      color: #1f2937;
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+    p {
+      margin-bottom: 16px;
+      color: #4b5563;
+    }
+    .button {
+      display: inline-block;
+      background-color: #10b981;
+      color: #ffffff !important;
+      padding: 14px 28px;
+      text-decoration: none;
+      border-radius: 6px;
+      font-weight: 600;
+      margin: 20px 0;
+    }
+    .button:hover {
+      background-color: #059669;
+    }
+    .cta-container {
+      text-align: center;
+      margin: 30px 0;
+    }
+    .footer {
+      text-align: center;
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 1px solid #e5e7eb;
+      color: #9ca3af;
+      font-size: 12px;
+    }
+    .info-box {
+      background-color: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 6px;
+      padding: 16px;
+      margin: 20px 0;
+    }
+    .info-box p {
+      color: #1e40af;
+      margin: 0;
+    }
+    .warning-box {
+      background-color: #fef3c7;
+      border: 1px solid #fcd34d;
+      border-radius: 6px;
+      padding: 16px;
+      margin: 20px 0;
+    }
+    .warning-box p {
+      color: #92400e;
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="logo">{{companyName}}</div>
+    </div>
+
+    <h1>Bitte bestätigen Sie Ihre E-Mail-Adresse</h1>
+
+    <p>Hallo {{name}},</p>
+
+    <p>Willkommen bei {{companyName}}! Bitte bestätigen Sie Ihre E-Mail-Adresse, um Ihre Registrierung abzuschließen und alle Funktionen nutzen zu können.</p>
+
+    <div class="cta-container">
+      <a href="{{verificationLink}}" class="button">E-Mail-Adresse bestätigen</a>
+    </div>
+
+    <p style="font-size: 12px; color: #6b7280;">
+      Falls der Button nicht funktioniert, kopieren Sie bitte diesen Link in Ihren Browser:<br>
+      <a href="{{verificationLink}}" style="color: #2563eb;">{{verificationLink}}</a>
+    </p>
+
+    <div class="warning-box">
+      <p><strong>Wichtig:</strong> Dieser Link ist 24 Stunden gültig. Nach Ablauf müssen Sie eine neue Bestätigungs-E-Mail anfordern.</p>
+    </div>
+
+    <div class="info-box">
+      <p><strong>Warum bestätigen?</strong> Die Verifizierung Ihrer E-Mail-Adresse hilft uns, die Sicherheit Ihres Kontos zu gewährleisten und wichtige Benachrichtigungen zu senden.</p>
+    </div>
+
+    <p>Falls Sie sich nicht bei {{companyName}} registriert haben, können Sie diese E-Mail ignorieren.</p>
+
+    <p>Viele Grüße,<br>
+    Ihr {{companyName}} Team</p>
+
+    <div class="footer">
+      <p>&copy; {{year}} {{companyName}}. Alle Rechte vorbehalten.</p>
+      <p>Diese E-Mail wurde zur Verifizierung Ihrer E-Mail-Adresse gesendet.</p>
+    </div>
+  </div>
+</body>
+</html>

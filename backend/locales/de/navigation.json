@@ -1,0 +1,25 @@
+{
+  "dashboard": "Dashboard",
+  "users": "Benutzerverwaltung",
+  "usersList": "Alle Benutzer",
+  "usersCreate": "Benutzer erstellen",
+  "roles": "Rollen & Berechtigungen",
+  "sessions": "Sitzungen",
+  "design": "Design System",
+  "settings": "Einstellungen",
+  "help": "Hilfe",
+  "languages": "Sprachen",
+  "sidebar": {
+    "collapse": "Einklappen",
+    "expand": "Ausklappen",
+    "openMenu": "Menü öffnen",
+    "closeMenu": "Menü schließen",
+    "closeSidebar": "Seitenleiste schließen"
+  },
+  "theme": {
+    "lightMode": "Hellmodus",
+    "darkMode": "Dunkelmodus",
+    "switchToLight": "Zu Hellmodus wechseln",
+    "switchToDark": "Zu Dunkelmodus wechseln"
+  }
+}

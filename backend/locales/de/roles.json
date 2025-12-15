@@ -1,0 +1,32 @@
+{
+  "title": "Rollen & Berechtigungen",
+  "subtitle": "Verwalten Sie Benutzerrollen und ihre zugehörigen Berechtigungen.",
+  "newRole": "Neue Rolle",
+  "table": {
+    "role": "Rolle",
+    "description": "Beschreibung",
+    "permissions": "Berechtigungen",
+    "permissionsCount": "{{count}} Berechtigungen",
+    "users": "Benutzer",
+    "usersCount": "{{count}} Benutzer",
+    "actions": "Aktionen"
+  },
+  "actions": {
+    "edit": "Bearbeiten",
+    "delete": "Löschen",
+    "editLabel": "Rolle {{name}} bearbeiten",
+    "deleteLabel": "Rolle {{name}} löschen"
+  },
+  "badges": {
+    "system": "System"
+  },
+  "loading": "Lade Rollen...",
+  "empty": "Keine Rollen gefunden. Erstellen Sie Ihre erste Rolle, um zu beginnen.",
+  "error": "Rollen konnten nicht geladen werden. Bitte versuchen Sie es erneut.",
+  "retry": "Erneut versuchen",
+  "toast": {
+    "created": "Rolle \"{{name}}\" erfolgreich erstellt.",
+    "updated": "Rolle \"{{name}}\" erfolgreich aktualisiert.",
+    "deleted": "Rolle \"{{name}}\" erfolgreich gelöscht."
+  }
+}

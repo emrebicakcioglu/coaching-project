@@ -1,0 +1,78 @@
+{
+  "general": {
+    "unexpected": "An unexpected error occurred. Please try again later.",
+    "serverError": "Internal server error",
+    "notFound": "The requested resource was not found",
+    "forbidden": "You do not have permission to perform this action",
+    "unauthorized": "Please login to continue",
+    "badRequest": "Invalid request",
+    "conflict": "A conflict occurred with the current state",
+    "tooManyRequests": "Too many requests. Please try again later.",
+    "serviceUnavailable": "Service temporarily unavailable. Please try again later.",
+    "timeout": "Request timed out. Please try again."
+  },
+  "auth": {
+    "invalidCredentials": "Invalid email or password",
+    "accountLocked": "Your account has been locked. Please try again later.",
+    "accountSuspended": "Your account has been suspended. Please contact support.",
+    "accountInactive": "Your account is inactive. Please contact support.",
+    "sessionExpired": "Your session has expired. Please login again.",
+    "tokenInvalid": "Invalid or expired token",
+    "tokenExpired": "Token has expired",
+    "refreshTokenInvalid": "Invalid refresh token",
+    "mfaRequired": "Multi-factor authentication required",
+    "mfaInvalid": "Invalid MFA code"
+  },
+  "user": {
+    "notFound": "User not found",
+    "emailExists": "A user with this email already exists",
+    "updateFailed": "Failed to update user",
+    "deleteFailed": "Failed to delete user",
+    "cannotDeleteSelf": "You cannot delete your own account",
+    "cannotSuspendSelf": "You cannot suspend your own account"
+  },
+  "role": {
+    "notFound": "Role not found",
+    "nameExists": "A role with this name already exists",
+    "cannotDeleteSystem": "System roles cannot be deleted",
+    "cannotModifySystem": "System roles cannot be modified",
+    "inUse": "This role is currently assigned to users and cannot be deleted"
+  },
+  "permission": {
+    "notFound": "Permission not found",
+    "denied": "You do not have permission to perform this action"
+  },
+  "settings": {
+    "updateFailed": "Failed to update settings",
+    "resetFailed": "Failed to reset settings",
+    "invalidValue": "Invalid setting value"
+  },
+  "email": {
+    "sendFailed": "Failed to send email",
+    "templateNotFound": "Email template not found",
+    "invalidRecipient": "Invalid email recipient"
+  },
+  "file": {
+    "uploadFailed": "Failed to upload file",
+    "downloadFailed": "Failed to download file",
+    "deleteFailed": "Failed to delete file",
+    "notFound": "File not found",
+    "tooLarge": "File size exceeds the maximum limit",
+    "invalidType": "Invalid file type"
+  },
+  "database": {
+    "connectionFailed": "Failed to connect to database",
+    "queryFailed": "Database query failed",
+    "transactionFailed": "Database transaction failed"
+  },
+  "validation": {
+    "failed": "Validation failed",
+    "requiredField": "{{field}} is required",
+    "invalidFormat": "Invalid {{field}} format",
+    "outOfRange": "{{field}} is out of valid range"
+  },
+  "feature": {
+    "disabled": "This feature is currently disabled",
+    "notAvailable": "This feature is not available in your plan"
+  }
+}

@@ -1,0 +1,231 @@
+/**
+ * Backup Codes List Styles
+ * STORY-005C: MFA UI (Frontend)
+ *
+ * Styles for displaying MFA backup codes with copy/download functionality.
+ */
+
+/* ========================================
+   Container
+   ======================================== */
+
+.backup-codes-list {
+  width: 100%;
+}
+
+/* ========================================
+   Header
+   ======================================== */
+
+.backup-codes-list__header {
+  margin-bottom: 20px;
+}
+
+.backup-codes-list__title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 8px 0;
+}
+
+.backup-codes-list__description {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* ========================================
+   Codes Grid
+   ======================================== */
+
+.backup-codes-list__grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  padding: 20px;
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  margin-bottom: 16px;
+}
+
+/* ========================================
+   Code Item
+   ======================================== */
+
+.backup-codes-list__code {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  transition: background-color 0.2s ease;
+}
+
+.backup-codes-list__code:hover {
+  background-color: #f3f4f6;
+}
+
+.backup-codes-list__code--used {
+  background-color: #fef2f2;
+  border-color: #fecaca;
+  opacity: 0.7;
+}
+
+.backup-codes-list__code-number {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #9ca3af;
+  min-width: 20px;
+}
+
+.backup-codes-list__code-value {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #1f2937;
+  letter-spacing: 0.05em;
+}
+
+.backup-codes-list__code-used {
+  font-style: italic;
+  color: #ef4444;
+  font-family: inherit;
+  font-weight: 400;
+}
+
+/* ========================================
+   Warning
+   ======================================== */
+
+.backup-codes-list__warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 14px 16px;
+  background-color: #fffbeb;
+  border: 1px solid #fcd34d;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 0.875rem;
+  color: #92400e;
+  line-height: 1.5;
+}
+
+.backup-codes-list__warning-icon {
+  flex-shrink: 0;
+  font-size: 1rem;
+}
+
+/* ========================================
+   Actions
+   ======================================== */
+
+.backup-codes-list__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.backup-codes-list__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 20px;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.backup-codes-list__button--primary {
+  background-color: #2563eb;
+  color: #ffffff;
+}
+
+.backup-codes-list__button--primary:hover {
+  background-color: #1d4ed8;
+}
+
+.backup-codes-list__button--secondary {
+  background-color: #ffffff;
+  color: #374151;
+  border: 1px solid #d1d5db;
+}
+
+.backup-codes-list__button--secondary:hover {
+  background-color: #f9fafb;
+  border-color: #9ca3af;
+}
+
+/* ========================================
+   Remaining Count
+   ======================================== */
+
+.backup-codes-list__remaining {
+  margin-top: 16px;
+  padding: 12px 16px;
+  font-size: 0.875rem;
+  color: #6b7280;
+  background-color: #f3f4f6;
+  border-radius: 8px;
+  text-align: center;
+}
+
+/* ========================================
+   Responsive Design
+   ======================================== */
+
+/* Tablet */
+@media (max-width: 768px) {
+  .backup-codes-list__grid {
+    padding: 16px;
+    gap: 10px;
+  }
+
+  .backup-codes-list__code {
+    padding: 8px 12px;
+  }
+
+  .backup-codes-list__code-value {
+    font-size: 0.875rem;
+  }
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  .backup-codes-list__grid {
+    grid-template-columns: 1fr;
+    padding: 14px;
+  }
+
+  .backup-codes-list__actions {
+    gap: 10px;
+  }
+
+  .backup-codes-list__button {
+    padding: 10px 16px;
+    font-size: 0.875rem;
+  }
+}
+
+/* Small Mobile */
+@media (max-width: 360px) {
+  .backup-codes-list__grid {
+    padding: 12px;
+  }
+
+  .backup-codes-list__code {
+    padding: 8px 10px;
+  }
+
+  .backup-codes-list__code-value {
+    font-size: 0.8125rem;
+  }
+}

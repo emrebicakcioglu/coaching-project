@@ -1,0 +1,105 @@
+/**
+ * RememberMeCheckbox Styles
+ * STORY-008: Session Management mit "Remember Me"
+ */
+
+.remember-me-checkbox {
+  margin: 1rem 0 1.5rem 0;
+}
+
+.remember-me-label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+  font-size: 0.875rem;
+  color: #374151;
+}
+
+.remember-me-label--disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.remember-me-input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+.remember-me-checkmark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.125rem;
+  height: 1.125rem;
+  border: 2px solid #d1d5db;
+  border-radius: 0.25rem;
+  margin-right: 1rem;
+  background-color: #fff;
+  transition: all 0.15s ease-in-out;
+}
+
+.remember-me-input:checked + .remember-me-checkmark {
+  background-color: #3b82f6;
+  border-color: #3b82f6;
+}
+
+.remember-me-input:checked + .remember-me-checkmark::after {
+  content: '';
+  display: block;
+  width: 0.375rem;
+  height: 0.625rem;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+  margin-bottom: 0.125rem;
+}
+
+.remember-me-input:focus + .remember-me-checkmark {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+.remember-me-input:disabled + .remember-me-checkmark {
+  background-color: #f3f4f6;
+  border-color: #e5e7eb;
+}
+
+.remember-me-text {
+  font-weight: 500;
+}
+
+.remember-me-description {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin: 0.25rem 0 0 2.125rem;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .remember-me-label {
+    color: #e5e7eb;
+  }
+
+  .remember-me-checkmark {
+    border-color: #4b5563;
+    background-color: #1f2937;
+  }
+
+  .remember-me-input:checked + .remember-me-checkmark {
+    background-color: #2563eb;
+    border-color: #2563eb;
+  }
+
+  .remember-me-input:disabled + .remember-me-checkmark {
+    background-color: #374151;
+    border-color: #4b5563;
+  }
+
+  .remember-me-description {
+    color: #9ca3af;
+  }
+}

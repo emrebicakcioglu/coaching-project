@@ -1,0 +1,26 @@
+{
+  "title": "Manage Sessions",
+  "description": "Here you can see all devices and browsers where you are logged in. You can terminate individual sessions or log out from all devices at once.",
+  "securityTip": {
+    "label": "Security tip:",
+    "text": "If you see an unknown device, terminate the session immediately and change your password."
+  },
+  "list": {
+    "current": "Current",
+    "terminate": "Terminate",
+    "terminateAll": "Terminate all other sessions",
+    "confirmTerminate": "Are you sure you want to terminate this session?",
+    "confirmTerminateAll": "Are you sure you want to terminate all other sessions?"
+  },
+  "device": {
+    "browser": "Browser",
+    "os": "Operating System",
+    "ip": "IP Address",
+    "lastActive": "Last Active",
+    "location": "Location"
+  },
+  "loading": "Loading sessions...",
+  "error": "Error loading sessions. Please try again.",
+  "terminateError": "Error terminating session.",
+  "terminateAllError": "Error terminating all sessions."
+}
