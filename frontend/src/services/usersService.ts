@@ -112,8 +112,9 @@ export interface AssignRolesDto {
 
 /**
  * In-memory token storage
+ * Initialize from localStorage to persist across page refreshes
  */
-let accessToken: string | null = null;
+let accessToken: string | null = localStorage.getItem(ACCESS_TOKEN_KEY);
 
 /**
  * Create Axios instance with auth interceptors
@@ -140,16 +141,43 @@ const createApiClient = (): AxiosInstance => {
     (error) => Promise.reject(error)
   );
 
-  // Response interceptor - handle 401 errors
+  // Response interceptor - handle 401 errors with token refresh
   client.interceptors.response.use(
     (response) => response,
     async (error: AxiosError) => {
-      if (error.response?.status === 401) {
-        // Token expired or invalid - redirect to login
-        localStorage.removeItem(ACCESS_TOKEN_KEY);
-        localStorage.removeItem(REFRESH_TOKEN_KEY);
-        accessToken = null;
-        window.location.href = '/login';
+      const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
+
+      if (error.response?.status === 401 && !originalRequest._retry) {
+        originalRequest._retry = true;
+
+        try {
+          // Try to refresh the token
+          const refreshToken = localStorage.getItem(REFRESH_TOKEN_KEY);
+          if (!refreshToken) {
+            throw new Error('No refresh token');
+          }
+
+          const response = await axios.post(`${API_BASE_URL}/auth/refresh`, {
+            refresh_token: refreshToken,
+          });
+
+          // Store new tokens
+          accessToken = response.data.access_token;
+          localStorage.setItem(ACCESS_TOKEN_KEY, response.data.access_token);
+          localStorage.setItem(REFRESH_TOKEN_KEY, response.data.refresh_token);
+
+          // Retry the original request with new token
+          if (originalRequest.headers) {
+            originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+          }
+          return client(originalRequest);
+        } catch {
+          // Refresh failed - clear tokens and redirect to login
+          localStorage.removeItem(ACCESS_TOKEN_KEY);
+          localStorage.removeItem(REFRESH_TOKEN_KEY);
+          accessToken = null;
+          window.location.href = '/login';
+        }
       }
       return Promise.reject(error);
     }

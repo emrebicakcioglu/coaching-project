@@ -187,15 +187,15 @@ export const MobileSidebar: React.FC<MobileSidebarProps> = ({
 
         {/* Collapse Toggle (desktop only) */}
         {onToggleCollapse && (
-          <div className="p-2 border-t border-neutral-100">
+          <div className="p-2 border-t border-[var(--color-border-default)]">
             <button
               type="button"
               className="
                 w-full
                 min-h-[44px]
                 flex items-center justify-center
-                text-neutral-500 hover:text-neutral-700
-                hover:bg-neutral-100
+                text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]
+                hover:bg-[var(--color-background-surface)]
                 focus:outline-none focus:ring-2 focus:ring-primary-500
                 rounded-md
                 transition-colors duration-[var(--transition-normal,200ms)]
@@ -307,7 +307,7 @@ export const MobileSidebar: React.FC<MobileSidebarProps> = ({
       >
         {/* Header with close button */}
         <div
-          className="flex-shrink-0 p-4 border-b border-neutral-200 flex items-center justify-between"
+          className="flex-shrink-0 p-4 border-b border-[var(--color-border-default)] flex items-center justify-between"
           data-testid={`${testId}-drawer-header`}
         >
           <div className="flex-1">{header}</div>
@@ -316,7 +316,7 @@ export const MobileSidebar: React.FC<MobileSidebarProps> = ({
             className="
               min-w-[44px] min-h-[44px]
               flex items-center justify-center
-              text-neutral-500 hover:text-neutral-700
+              text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]
               focus:outline-none focus:ring-2 focus:ring-primary-500
               rounded-md
               -mr-2

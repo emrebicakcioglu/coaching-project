@@ -94,7 +94,7 @@ export const SubNavigation: React.FC<SubNavigationProps> = ({
                 ${
                   isActive
                     ? 'bg-primary-50 text-primary-700 font-medium'
-                    : 'text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50'
+                    : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-background-surface)]'
                 }
                 ${item.disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
               `}
@@ -111,7 +111,7 @@ export const SubNavigation: React.FC<SubNavigationProps> = ({
                 <span
                   className={`
                     flex-shrink-0 w-4 h-4 mr-2
-                    ${isActive ? 'text-primary-600' : 'text-neutral-400'}
+                    ${isActive ? 'text-primary-600' : 'text-[var(--color-text-tertiary)]'}
                   `}
                   aria-hidden="true"
                 >

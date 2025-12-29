@@ -7,11 +7,27 @@
  * STORY-017B: Theme-System Frontend
  * STORY-018B: Context Menu Responsive & Mobile
  * STORY-030: Application Versioning
+ * STORY-3: Register Page UI Audit - Production testing support
+ * STORY-107: MFA Settings Page UI Audit
  *
  * Configuration for E2E tests using Playwright.
+ *
+ * Testing Modes:
+ * 1. Development (default): Tests run against local dev server (npm run dev)
+ *    Command: npx playwright test
+ *
+ * 2. Production/Docker: Tests run against Docker container at localhost:14100
+ *    Command: FRONTEND_URL=http://localhost:14100 npx playwright test --project=chromium
+ *    Note: Ensure Docker container is running: docker-compose up -d frontend
+ *
+ * The webServer config is disabled when FRONTEND_URL is set, allowing tests
+ * to run against the production Docker container.
  */
 
 import { defineConfig, devices } from '@playwright/test';
+
+// Determine if we're testing against production (Docker container)
+const isProductionTest = !!process.env.FRONTEND_URL;
 
 export default defineConfig({
   // Test directory
@@ -46,6 +62,7 @@ export default defineConfig({
   // Shared settings for all the projects below
   use: {
     // Base URL to use in actions like `await page.goto('/')`
+    // STORY-3: Use FRONTEND_URL for production testing (http://localhost:14100)
     baseURL: process.env.FRONTEND_URL || 'http://localhost:3000',
 
     // Collect trace when retrying the failed test
@@ -88,12 +105,16 @@ export default defineConfig({
   ],
 
   // Run your local dev server before starting the tests
-  webServer: [
-    {
-      command: 'npm run dev',
-      url: 'http://localhost:3000',
-      reuseExistingServer: !process.env.CI,
-      timeout: 120 * 1000,
-    },
-  ],
+  // STORY-3: Disable webServer when testing against production (FRONTEND_URL is set)
+  // This allows tests to run against the Docker container without starting a dev server
+  webServer: isProductionTest
+    ? undefined
+    : [
+        {
+          command: 'npm run dev',
+          url: 'http://localhost:3000',
+          reuseExistingServer: !process.env.CI,
+          timeout: 120 * 1000,
+        },
+      ],
 });

@@ -19,3 +19,13 @@ export type {
 
 // Re-export permission hook from AuthContext for convenience
 export { usePermission } from '../contexts';
+
+// STORY-041F: Feedback Trigger UI
+export {
+  useFeedbackTrigger,
+} from './useFeedbackTrigger';
+
+export type {
+  UseFeedbackTriggerReturn,
+  UseFeedbackTriggerOptions,
+} from './useFeedbackTrigger';

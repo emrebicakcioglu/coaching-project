@@ -18,6 +18,7 @@ import React, { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { User, useAuth } from '../../contexts';
 import { LogoutIcon, UserIcon } from '../icons';
+import { logger } from '../../services/loggerService';
 
 /**
  * UserProfile props
@@ -51,7 +52,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({
       await logout();
       navigate('/login');
     } catch (error) {
-      console.error('Logout failed:', error);
+      logger.error('Logout failed', error);
       // Still navigate to login on error
       navigate('/login');
     }
@@ -100,8 +101,8 @@ export const UserProfile: React.FC<UserProfileProps> = ({
           className="
             min-w-[44px] min-h-[44px]
             flex items-center justify-center
-            text-neutral-500 hover:text-error
-            hover:bg-neutral-100
+            text-[var(--color-text-tertiary)] hover:text-error
+            hover:bg-[var(--color-background-surface)]
             focus:outline-none focus:ring-2 focus:ring-primary-500
             rounded-md
             transition-colors
@@ -142,13 +143,13 @@ export const UserProfile: React.FC<UserProfileProps> = ({
       {/* User info */}
       <div className="flex-1 min-w-0">
         <p
-          className="text-sm font-medium text-neutral-900 truncate"
+          className="text-sm font-medium text-[var(--color-text-primary)] truncate"
           data-testid={`${testId}-name`}
         >
           {user?.name || 'Guest'}
         </p>
         <p
-          className="text-xs text-neutral-500 truncate"
+          className="text-xs text-[var(--color-text-tertiary)] truncate"
           data-testid={`${testId}-email`}
         >
           {user?.email || ''}
@@ -162,8 +163,8 @@ export const UserProfile: React.FC<UserProfileProps> = ({
           flex-shrink-0
           min-w-[44px] min-h-[44px]
           flex items-center justify-center
-          text-neutral-400 hover:text-error
-          hover:bg-neutral-100
+          text-[var(--color-text-tertiary)] hover:text-error
+          hover:bg-[var(--color-background-surface)]
           focus:outline-none focus:ring-2 focus:ring-primary-500
           rounded-md
           transition-colors

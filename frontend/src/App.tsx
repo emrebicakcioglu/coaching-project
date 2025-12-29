@@ -8,6 +8,9 @@
  * STORY-023: User Registration
  * STORY-005C: MFA UI (Frontend)
  * STORY-034: Maintenance Mode
+ * STORY-041F: Feedback Trigger UI
+ * STORY-041G: Feedback Modal UI
+ * STORY-041H: Feedback Admin Page
  *
  * Root component with routing configuration for all pages.
  * Wrapped in ThemeProvider for dynamic theming and AuthProvider for authentication.
@@ -16,10 +19,12 @@
 
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider, ThemeProvider, DarkModeProvider, LanguageProvider } from './contexts';
+import { AuthProvider, ThemeProvider, DarkModeProvider, LanguageProvider, FeedbackProvider } from './contexts';
 import { AppLayout } from './components/layout';
 import { PrivateRoute } from './components/auth';
 import { MaintenanceGuard } from './components/maintenance';
+import { FeedbackButton, FeedbackModal } from './components/feedback';
+import { useFeedback } from './contexts';
 import {
   LoginPage,
   ForgotPasswordPage,
@@ -40,6 +45,7 @@ import {
   ResponsiveDemoPage,
   DesignSystemPage,
   LanguagesPage,
+  FeedbackAdminPage,
 } from './pages';
 
 /**
@@ -65,6 +71,26 @@ const ProtectedRouteWithLayout: React.FC<ProtectedRouteWithLayoutProps> = ({
 };
 
 /**
+ * FeedbackModalWrapper Component
+ * STORY-041G: Feedback Modal UI
+ *
+ * Wrapper component that uses FeedbackContext to show/hide the modal.
+ * Must be rendered inside FeedbackProvider.
+ */
+const FeedbackModalWrapper: React.FC = () => {
+  const { isModalOpen, screenshot, closeModal } = useFeedback();
+
+  return (
+    <FeedbackModal
+      isOpen={isModalOpen}
+      onClose={closeModal}
+      screenshot={screenshot}
+      data-testid="app-feedback-modal"
+    />
+  );
+};
+
+/**
  * App Component
  *
  * Main application component with route definitions.
@@ -77,143 +103,159 @@ const App: React.FC = () => {
       <DarkModeProvider>
         <LanguageProvider>
           <AuthProvider>
-            <MaintenanceGuard>
-          <Routes>
-        {/* Auth Routes (No Layout) */}
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-        <Route path="/reset-password" element={<ResetPasswordPage />} />
+            <FeedbackProvider>
+              <MaintenanceGuard>
+                <Routes>
+                  {/* Auth Routes (No Layout) */}
+                  <Route path="/login" element={<LoginPage />} />
+                  <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                  <Route path="/reset-password" element={<ResetPasswordPage />} />
 
-        {/* Registration Routes (STORY-023 - No Layout) */}
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/registration-success" element={<RegistrationSuccessPage />} />
-        <Route path="/verify-email" element={<EmailVerificationPage />} />
+                  {/* Registration Routes (STORY-023 - No Layout) */}
+                  <Route path="/register" element={<RegisterPage />} />
+                  <Route path="/registration-success" element={<RegistrationSuccessPage />} />
+                  <Route path="/verify-email" element={<EmailVerificationPage />} />
 
-        {/* Permission Denied Route (STORY-008B - No Layout) */}
-        <Route path="/forbidden" element={<ForbiddenPage />} />
+                  {/* Permission Denied Route (STORY-008B - No Layout) */}
+                  <Route path="/forbidden" element={<ForbiddenPage />} />
 
-        {/* Protected Routes (With Sidebar Layout and Auth Check) */}
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRouteWithLayout>
-              <DashboardPage />
-            </ProtectedRouteWithLayout>
-          }
-        />
+                  {/* Protected Routes (With Sidebar Layout and Auth Check) */}
+                  <Route
+                    path="/dashboard"
+                    element={
+                      <ProtectedRouteWithLayout>
+                        <DashboardPage />
+                      </ProtectedRouteWithLayout>
+                    }
+                  />
 
-        {/* Session Management */}
-        <Route
-          path="/sessions"
-          element={
-            <ProtectedRouteWithLayout>
-              <SessionsPage />
-            </ProtectedRouteWithLayout>
-          }
-        />
+                  {/* Session Management */}
+                  <Route
+                    path="/sessions"
+                    element={
+                      <ProtectedRouteWithLayout>
+                        <SessionsPage />
+                      </ProtectedRouteWithLayout>
+                    }
+                  />
 
-        {/* User Management */}
-        <Route
-          path="/users"
-          element={
-            <ProtectedRouteWithLayout permission="users.read">
-              <UsersListPage />
-            </ProtectedRouteWithLayout>
-          }
-        />
-        {/* /users/new redirects to /users - user creation is handled via modal in UsersListPage */}
-        <Route
-          path="/users/new"
-          element={<Navigate to="/users" replace />}
-        />
-        <Route
-          path="/users/:id"
-          element={
-            <ProtectedRouteWithLayout permission="users.read">
-              <UserDetailsPage />
-            </ProtectedRouteWithLayout>
-          }
-        />
+                  {/* User Management */}
+                  <Route
+                    path="/users"
+                    element={
+                      <ProtectedRouteWithLayout permission="users.read">
+                        <UsersListPage />
+                      </ProtectedRouteWithLayout>
+                    }
+                  />
+                  {/* /users/new redirects to /users - user creation is handled via modal in UsersListPage */}
+                  <Route
+                    path="/users/new"
+                    element={<Navigate to="/users" replace />}
+                  />
+                  <Route
+                    path="/users/:id"
+                    element={
+                      <ProtectedRouteWithLayout permission="users.read">
+                        <UserDetailsPage />
+                      </ProtectedRouteWithLayout>
+                    }
+                  />
 
-        {/* Roles & Permissions */}
-        <Route
-          path="/roles"
-          element={
-            <ProtectedRouteWithLayout permission="roles.read">
-              <RolesPage />
-            </ProtectedRouteWithLayout>
-          }
-        />
+                  {/* Roles & Permissions */}
+                  <Route
+                    path="/roles"
+                    element={
+                      <ProtectedRouteWithLayout permission="roles.read">
+                        <RolesPage />
+                      </ProtectedRouteWithLayout>
+                    }
+                  />
 
-        {/* Settings */}
-        <Route
-          path="/settings"
-          element={
-            <ProtectedRouteWithLayout permission="settings.read">
-              <SettingsPage />
-            </ProtectedRouteWithLayout>
-          }
-        />
+                  {/* Settings */}
+                  <Route
+                    path="/settings"
+                    element={
+                      <ProtectedRouteWithLayout permission="settings.read">
+                        <SettingsPage />
+                      </ProtectedRouteWithLayout>
+                    }
+                  />
 
-        {/* Design System */}
-        <Route
-          path="/design"
-          element={
-            <ProtectedRouteWithLayout permission="design.read">
-              <DesignSystemPage />
-            </ProtectedRouteWithLayout>
-          }
-        />
+                  {/* Design System */}
+                  <Route
+                    path="/design"
+                    element={
+                      <ProtectedRouteWithLayout permission="design.read">
+                        <DesignSystemPage />
+                      </ProtectedRouteWithLayout>
+                    }
+                  />
 
-        {/* Languages Management */}
-        <Route
-          path="/languages"
-          element={
-            <ProtectedRouteWithLayout permission="languages.manage">
-              <LanguagesPage />
-            </ProtectedRouteWithLayout>
-          }
-        />
+                  {/* Languages Management */}
+                  <Route
+                    path="/languages"
+                    element={
+                      <ProtectedRouteWithLayout permission="languages.manage">
+                        <LanguagesPage />
+                      </ProtectedRouteWithLayout>
+                    }
+                  />
 
-        {/* MFA Setup (STORY-005C) */}
-        <Route
-          path="/settings/security/mfa"
-          element={
-            <ProtectedRouteWithLayout>
-              <MFASetupPage />
-            </ProtectedRouteWithLayout>
-          }
-        />
+                  {/* MFA Setup (STORY-005C) */}
+                  <Route
+                    path="/settings/security/mfa"
+                    element={
+                      <ProtectedRouteWithLayout>
+                        <MFASetupPage />
+                      </ProtectedRouteWithLayout>
+                    }
+                  />
 
-        {/* Help */}
-        <Route
-          path="/help"
-          element={
-            <ProtectedRouteWithLayout>
-              <HelpPage />
-            </ProtectedRouteWithLayout>
-          }
-        />
+                  {/* Help */}
+                  <Route
+                    path="/help"
+                    element={
+                      <ProtectedRouteWithLayout>
+                        <HelpPage />
+                      </ProtectedRouteWithLayout>
+                    }
+                  />
 
-        {/* Demo Pages (STORY-017A & STORY-017B) */}
-        {/* GridDemo is public to enable E2E testing without authentication */}
-        <Route path="/grid-demo" element={<GridDemoPage />} />
-        <Route
-          path="/responsive-demo"
-          element={
-            <ProtectedRouteWithLayout>
-              <ResponsiveDemoPage />
-            </ProtectedRouteWithLayout>
-          }
-        />
+                  {/* Feedback Admin (STORY-041H) */}
+                  <Route
+                    path="/admin/feedback"
+                    element={
+                      <ProtectedRouteWithLayout permission="feedback.manage">
+                        <FeedbackAdminPage />
+                      </ProtectedRouteWithLayout>
+                    }
+                  />
 
-        {/* Default redirect to dashboard (or login if not authenticated) */}
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                  {/* Demo Pages (STORY-017A & STORY-017B) */}
+                  {/* GridDemo is public to enable E2E testing without authentication */}
+                  <Route path="/grid-demo" element={<GridDemoPage />} />
+                  <Route
+                    path="/responsive-demo"
+                    element={
+                      <ProtectedRouteWithLayout>
+                        <ResponsiveDemoPage />
+                      </ProtectedRouteWithLayout>
+                    }
+                  />
 
-        {/* 404 - Redirect to dashboard */}
-        <Route path="*" element={<Navigate to="/dashboard" replace />} />
-          </Routes>
-          </MaintenanceGuard>
+                  {/* Default redirect to dashboard (or login if not authenticated) */}
+                  <Route path="/" element={<Navigate to="/dashboard" replace />} />
+
+                  {/* 404 - Redirect to dashboard */}
+                  <Route path="*" element={<Navigate to="/dashboard" replace />} />
+                </Routes>
+                {/* STORY-041F: Feedback Trigger UI - Floating Button */}
+                <FeedbackButton />
+                {/* STORY-041G: Feedback Modal UI */}
+                <FeedbackModalWrapper />
+              </MaintenanceGuard>
+            </FeedbackProvider>
           </AuthProvider>
         </LanguageProvider>
       </DarkModeProvider>

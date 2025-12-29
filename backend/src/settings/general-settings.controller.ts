@@ -2,6 +2,7 @@
  * General Settings Controller
  * STORY-035: Support-E-Mail & Session-Timeout
  * STORY-022: Swagger/OpenAPI Documentation
+ * STORY-041: Feedback Feature Flag
  *
  * REST API controller for general settings management.
  * Provides endpoints for getting and updating support email and session timeout.
@@ -11,6 +12,7 @@
  * - PUT  /api/v1/settings/general                - Update general settings (admin)
  * - GET  /api/v1/settings/general/timeout-config - Get session timeout config (public)
  * - GET  /api/v1/settings/general/support-email  - Get support email (public)
+ * - GET  /api/v1/settings/public                 - Get public settings (no auth) (STORY-041)
  */
 
 import {

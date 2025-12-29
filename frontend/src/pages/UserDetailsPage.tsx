@@ -9,8 +9,12 @@
 
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { Container } from '../components/layout';
+import { Button } from '../components/ui';
 import { UserRoleSelector } from '../components/users';
 import { usersService } from '../services/usersService';
+import { logger } from '../services/loggerService';
 import type { UserWithPermissions, Role } from '../services/usersService';
 import './UsersPage.css';
 
@@ -26,6 +30,7 @@ interface UserDetailsPageProps {
  * Shows user permissions aggregated from all assigned roles.
  */
 export const UserDetailsPage: React.FC<UserDetailsPageProps> = ({ userId: propUserId }) => {
+  const { t } = useTranslation('users');
   // BUG-001 FIX: Use React Router's useParams hook instead of manual URL parsing
   const { id } = useParams<{ id: string }>();
 
@@ -38,7 +43,7 @@ export const UserDetailsPage: React.FC<UserDetailsPageProps> = ({ userId: propUs
   // Fetch user details on mount
   useEffect(() => {
     if (!userId) {
-      setError('Invalid user ID');
+      setError(t('details.invalidUserId'));
       setIsLoading(false);
       return;
     }
@@ -50,15 +55,15 @@ export const UserDetailsPage: React.FC<UserDetailsPageProps> = ({ userId: propUs
         const userData = await usersService.getUserWithPermissions(userId);
         setUser(userData);
       } catch (err) {
-        console.error('Failed to load user:', err);
-        setError('Failed to load user details. Please try again.');
+        logger.error('Failed to load user', err);
+        setError(t('details.loadError'));
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchUser();
-  }, [userId]);
+  }, [userId, t]);
 
   /**
    * Handle roles update
@@ -81,7 +86,7 @@ export const UserDetailsPage: React.FC<UserDetailsPageProps> = ({ userId: propUs
    * Format date for display
    */
   const formatDate = (dateString?: string | null): string => {
-    if (!dateString) return 'Never';
+    if (!dateString) return t('details.values.never');
     return new Date(dateString).toLocaleString();
   };
 
@@ -105,89 +110,91 @@ export const UserDetailsPage: React.FC<UserDetailsPageProps> = ({ userId: propUs
 
   if (isLoading) {
     return (
-      <div className="users-page">
-        <div className="users-page__loading">Loading user details...</div>
-      </div>
+      <Container className="py-8">
+        <div className="users-page__loading">{t('details.loading')}</div>
+      </Container>
     );
   }
 
   if (error) {
     return (
-      <div className="users-page">
+      <Container className="py-8">
         <div className="users-page__error" role="alert">
           {error}
         </div>
-        <button type="button" className="users-page__back-btn" onClick={navigateBack}>
-          Back to Users
-        </button>
-      </div>
+        <Button variant="outline" onClick={navigateBack} className="mt-4">
+          {t('details.backToUsers')}
+        </Button>
+      </Container>
     );
   }
 
   if (!user) {
     return (
-      <div className="users-page">
+      <Container className="py-8">
         <div className="users-page__error" role="alert">
-          User not found
+          {t('details.userNotFound')}
         </div>
-        <button type="button" className="users-page__back-btn" onClick={navigateBack}>
-          Back to Users
-        </button>
-      </div>
+        <Button variant="outline" onClick={navigateBack} className="mt-4">
+          {t('details.backToUsers')}
+        </Button>
+      </Container>
     );
   }
 
   return (
-    <div className="users-page">
-      <div className="users-page__header">
-        <button type="button" className="users-page__back-btn" onClick={navigateBack}>
-          &larr; Back to Users
-        </button>
-        <h1 className="users-page__title">User Details</h1>
+    <Container className="py-8">
+      <div className="mb-6">
+        <Button variant="outline" onClick={navigateBack} size="sm">
+          &larr; {t('details.backToUsers')}
+        </Button>
+      </div>
+      <div className="page-header">
+        <h1 className="page-title">{t('details.title')}</h1>
       </div>
 
       <div className="user-details">
         {/* User Info Card */}
         <div className="user-details__card">
-          <h2 className="user-details__card-title">User Information</h2>
+          <h2 className="user-details__card-title">{t('details.cards.userInfo')}</h2>
 
           <div className="user-details__info">
             <div className="user-details__field">
-              <label className="user-details__label">Name</label>
+              <label className="user-details__label">{t('details.fields.name')}</label>
               <span className="user-details__value">{user.name}</span>
             </div>
 
             <div className="user-details__field">
-              <label className="user-details__label">Email</label>
+              <label className="user-details__label">{t('details.fields.email')}</label>
               <span className="user-details__value">{user.email}</span>
             </div>
 
             <div className="user-details__field">
-              <label className="user-details__label">Status</label>
+              <label className="user-details__label">{t('details.fields.status')}</label>
               <span className={`user-details__status ${getStatusClass(user.status)}`}>
-                {user.status}
+                {t(`status.${user.status}`)}
               </span>
             </div>
 
             <div className="user-details__field">
-              <label className="user-details__label">MFA Enabled</label>
+              <label className="user-details__label">{t('details.fields.mfaEnabled')}</label>
               <span className="user-details__value">
-                {user.mfa_enabled ? 'Yes' : 'No'}
+                {user.mfa_enabled ? t('details.values.yes') : t('details.values.no')}
               </span>
             </div>
 
             <div className="user-details__field">
-              <label className="user-details__label">Last Login</label>
+              <label className="user-details__label">{t('details.fields.lastLogin')}</label>
               <span className="user-details__value">{formatDate(user.last_login)}</span>
             </div>
 
             <div className="user-details__field">
-              <label className="user-details__label">Created</label>
+              <label className="user-details__label">{t('details.fields.created')}</label>
               <span className="user-details__value">{formatDate(user.created_at)}</span>
             </div>
 
             <div className="user-details__field">
-              <label className="user-details__label">Updated</label>
+              <label className="user-details__label">{t('details.fields.updated')}</label>
               <span className="user-details__value">{formatDate(user.updated_at)}</span>
             </div>
           </div>
@@ -195,7 +202,7 @@ export const UserDetailsPage: React.FC<UserDetailsPageProps> = ({ userId: propUs
 
         {/* Role Management Card */}
         <div className="user-details__card">
-          <h2 className="user-details__card-title">Role Management</h2>
+          <h2 className="user-details__card-title">{t('details.cards.roleManagement')}</h2>
 
           <UserRoleSelector
             userId={user.id}
@@ -206,9 +213,9 @@ export const UserDetailsPage: React.FC<UserDetailsPageProps> = ({ userId: propUs
 
         {/* Permissions Card */}
         <div className="user-details__card">
-          <h2 className="user-details__card-title">Aggregated Permissions</h2>
+          <h2 className="user-details__card-title">{t('details.cards.permissions')}</h2>
           <p className="user-details__subtitle">
-            Permissions granted through all assigned roles:
+            {t('details.permissions.subtitle')}
           </p>
 
           <div className="user-details__permissions">
@@ -222,13 +229,13 @@ export const UserDetailsPage: React.FC<UserDetailsPageProps> = ({ userId: propUs
               </ul>
             ) : (
               <p className="user-details__no-permissions">
-                No permissions assigned. Assign roles to grant permissions.
+                {t('details.permissions.none')}
               </p>
             )}
           </div>
         </div>
       </div>
-    </div>
+    </Container>
   );
 };
 

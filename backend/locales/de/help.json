@@ -36,9 +36,11 @@
     "gettingStarted": "Erste Schritte",
     "userManagement": "Benutzerverwaltung",
     "rolesPermissions": "Rollen & Berechtigungen",
-    "apiDocs": "API-Dokumentation"
+    "api": "API-Dokumentation"
   },
   "version": {
-    "title": "Anwendungsversion"
+    "title": "Anwendungsversion",
+    "current": "Version {{version}}",
+    "buildDate": "Build: {{date}}"
   }
 }

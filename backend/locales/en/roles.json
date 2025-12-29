@@ -15,7 +15,9 @@
     "edit": "Edit",
     "delete": "Delete",
     "editLabel": "Edit role {{name}}",
-    "deleteLabel": "Delete role {{name}}"
+    "deleteLabel": "Delete role {{name}}",
+    "protected": "Protected",
+    "protectedRole": "System roles cannot be deleted"
   },
   "badges": {
     "system": "System"
@@ -28,5 +30,12 @@
     "created": "Role \"{{name}}\" successfully created.",
     "updated": "Role \"{{name}}\" successfully updated.",
     "deleted": "Role \"{{name}}\" successfully deleted."
+  },
+  "descriptions": {
+    "admin": "Full system administrator with all permissions",
+    "guest": "Read-only access for guests",
+    "manager": "User and content manager",
+    "user": "Standard user with basic permissions",
+    "viewer": "Read-only access to the system"
   }
 }

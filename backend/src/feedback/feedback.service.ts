@@ -2,19 +2,24 @@
  * Feedback Service
  * STORY-038A: Feedback-Backend API
  * STORY-038B: Feedback Rate Limiting & Email Queue
+ * STORY-041B: Feedback Screenshot Storage in MinIO
+ * STORY-002-REWORK-003: Fixed HTTP 500 error - improved error handling
  *
  * Handles feedback submission with screenshot processing and email sending.
  * Features:
- * - Base64 to Buffer conversion for screenshots
- * - Email sending with attachment support via Resend.com
+ * - Base64 to Buffer conversion for screenshots (optional)
+ * - Screenshot storage in MinIO (STORY-041B)
+ * - Email notification without attachment (STORY-041B)
  * - Async email queue processing (STORY-038B)
  * - Enhanced browser info and route capture (STORY-038B)
  * - User context from JWT authentication
+ * - Graceful handling of email failures (STORY-002-REWORK-003)
  *
  * Environment Variables Required:
  * - SUPPORT_EMAIL: Email address to receive feedback
  * - FEEDBACK_USE_QUEUE: Enable async email queue (default: true)
  * - FEEDBACK_QUEUE_PRIORITY: Priority for feedback emails in queue (default: 5)
+ * - ADMIN_URL: Base URL for admin panel (for email links)
  */
 
 import { Injectable, Inject, forwardRef, BadRequestException, Optional } from '@nestjs/common';
@@ -26,7 +31,9 @@ import { Request } from 'express';
 import { WinstonLoggerService } from '../common/services/logger.service';
 import { DatabaseService } from '../database/database.service';
 import { EmailQueueService } from '../email/email-queue.service';
-import { SubmitFeedbackDto, FeedbackResponseDto, EmailAttachment, FeedbackMetadata } from './dto/feedback.dto';
+import { StorageService } from '../storage/storage.service';
+import { BucketName } from '../storage/dto';
+import { SubmitFeedbackDto, FeedbackResponseDto, FeedbackMetadata } from './dto/feedback.dto';
 
 /**
  * User context from JWT authentication
@@ -39,6 +46,7 @@ interface UserContext {
 
 /**
  * Template data for feedback email
+ * STORY-041B: Added feedbackId and adminUrl for linking to admin page
  */
 interface FeedbackTemplateData {
   userName: string;
@@ -49,6 +57,11 @@ interface FeedbackTemplateData {
   browserInfo?: string;
   companyName: string;
   year: number;
+  // STORY-041B: New fields for notification-only emails
+  feedbackId?: number;
+  adminUrl?: string;
+  hasScreenshot?: boolean;
+  route?: string;
 }
 
 /**
@@ -74,6 +87,7 @@ export class FeedbackService {
   private readonly fromName: string;
   private readonly templateDir: string;
   private readonly useQueue: boolean;
+  private readonly adminUrl: string;
   private templateCache: Map<string, HandlebarsTemplateDelegate<FeedbackTemplateData>> = new Map();
 
   constructor(
@@ -84,6 +98,9 @@ export class FeedbackService {
     @Optional()
     @Inject(forwardRef(() => EmailQueueService))
     private readonly emailQueueService: EmailQueueService,
+    @Optional()
+    @Inject(forwardRef(() => StorageService))
+    private readonly storageService: StorageService,
   ) {
     // Initialize Resend client with API key from environment
     const apiKey = process.env.RESEND_API_KEY || '';
@@ -94,34 +111,39 @@ export class FeedbackService {
     this.fromName = process.env.EMAIL_FROM_NAME || 'Core Application';
     this.fromAddress = process.env.EMAIL_FROM_ADDRESS || 'noreply@example.com';
 
+    // STORY-041B: Admin URL for email links
+    this.adminUrl = process.env.ADMIN_URL || 'http://localhost:3000';
+
     // STORY-038B: Queue configuration
-    // Note: Queue priority is configured via FEEDBACK_QUEUE_PRIORITY env var but
-    // currently feedback emails with attachments are sent synchronously (see enqueueFeedbackEmail)
+    // STORY-041B: Now emails are sent without attachments (screenshots in MinIO)
     this.useQueue = process.env.FEEDBACK_USE_QUEUE !== 'false';
 
     // Template directory relative to the app root
     this.templateDir = path.join(process.cwd(), 'templates', 'emails');
 
     this.logger.log(
-      `FeedbackService initialized (queue: ${this.useQueue ? 'enabled' : 'disabled'})`,
+      `FeedbackService initialized (queue: ${this.useQueue ? 'enabled' : 'disabled'}, storage: ${this.storageService ? 'available' : 'unavailable'})`,
       'FeedbackService',
     );
   }
 
   /**
-   * Submit feedback with screenshot
+   * Submit feedback with optional screenshot
+   * STORY-041B: Store screenshot in MinIO, send notification email without attachment
+   * STORY-002-REWORK-003: Made screenshot optional, improved error handling
    *
    * @param feedbackDto - Feedback submission data
    * @param user - Authenticated user context from JWT
    * @param req - Optional Express request for metadata extraction
-   * @returns Response message
+   * @returns Response with feedback ID and storage confirmation
    */
   async submitFeedback(
     feedbackDto: SubmitFeedbackDto,
     user: UserContext,
     req?: Request,
   ): Promise<FeedbackResponseDto> {
-    const { screenshot, comment, url, browserInfo } = feedbackDto;
+    // Extract fields from DTO (browserInfo is accessed via feedbackDto in extractFeedbackMetadata)
+    const { screenshot, comment, url } = feedbackDto;
 
     this.logger.log(
       `Processing feedback submission from user ${user.email} (ID: ${user.id})`,
@@ -129,8 +151,19 @@ export class FeedbackService {
     );
 
     try {
-      // Convert Base64 screenshot to Buffer
-      const imageBuffer = this.convertBase64ToBuffer(screenshot);
+      // STORY-002-REWORK-003: Screenshot is now optional
+      let imageBuffer: Buffer | null = null;
+      if (screenshot) {
+        try {
+          imageBuffer = this.convertBase64ToBuffer(screenshot);
+        } catch (screenshotError) {
+          // Log error but continue - feedback can be submitted without screenshot
+          this.logger.warn(
+            `Failed to process screenshot: ${screenshotError instanceof Error ? screenshotError.message : 'Unknown error'}`,
+            'FeedbackService',
+          );
+        }
+      }
 
       // Get user name from database if not provided
       const userName = user.name || await this.getUserName(user.id) || user.email;
@@ -138,19 +171,65 @@ export class FeedbackService {
       // STORY-038B: Extract metadata from request
       const metadata = this.extractFeedbackMetadata(feedbackDto, req);
 
-      // Prepare attachment
-      const attachment: EmailAttachment = {
-        filename: `screenshot-${Date.now()}.png`,
-        content: imageBuffer,
-      };
+      // STORY-041B: Upload screenshot to MinIO (only if we have a valid image buffer)
+      let screenshotPath: string | null = null;
+      let screenshotStored = false;
 
-      // STORY-038B: Store feedback metadata in database
-      await this.storeFeedbackRecord(user, feedbackDto, metadata);
+      if (imageBuffer && this.storageService && this.storageService.isConfigured()) {
+        try {
+          // Generate filename: feedback-{timestamp}.png
+          const filename = `feedback-${Date.now()}.png`;
 
-      // Send email with attachment (sync or async based on configuration)
+          const uploadResult = await this.storageService.uploadBuffer(
+            imageBuffer,
+            filename,
+            'image/png',
+            BucketName.FEEDBACK,
+          );
+
+          screenshotPath = uploadResult.fileName;
+          screenshotStored = true;
+
+          this.logger.log(
+            `Screenshot uploaded to MinIO: ${screenshotPath}`,
+            'FeedbackService',
+          );
+        } catch (storageError) {
+          // Log error but continue - feedback should still be submitted
+          this.logger.error(
+            `Failed to upload screenshot to MinIO: ${storageError instanceof Error ? storageError.message : 'Unknown error'}`,
+            storageError instanceof Error ? storageError.stack : undefined,
+            'FeedbackService',
+          );
+        }
+      } else if (screenshot && !imageBuffer) {
+        this.logger.warn(
+          'Screenshot provided but could not be processed',
+          'FeedbackService',
+        );
+      } else if (!screenshot) {
+        this.logger.debug(
+          'Feedback submitted without screenshot',
+          'FeedbackService',
+        );
+      } else if (!this.storageService || !this.storageService.isConfigured()) {
+        this.logger.warn(
+          'StorageService not available - screenshot will not be stored in MinIO',
+          'FeedbackService',
+        );
+      }
+
+      // STORY-041B: Store feedback record with screenshot_path
+      const feedbackId = await this.storeFeedbackRecordWithScreenshot(
+        user,
+        feedbackDto,
+        metadata,
+        screenshotPath,
+      );
+
+      // STORY-041B: Send notification email WITHOUT attachment
       if (this.useQueue && this.emailQueueService) {
-        // STORY-038B: Use async queue for email processing
-        await this.enqueueFeedbackEmail(
+        await this.sendFeedbackNotification(
           {
             userName,
             userEmail: user.email,
@@ -159,39 +238,48 @@ export class FeedbackService {
             url,
             route: metadata.route,
             metadata,
+            feedbackId,
+            hasScreenshot: screenshotStored,
           },
-          attachment,
         );
 
         this.logger.log(
-          `Feedback queued for processing from user ${user.email}`,
+          `Feedback ${feedbackId} submitted and notification sent from user ${user.email}`,
           'FeedbackService',
         );
 
         return {
           message: 'Feedback submitted successfully. Our team will review it shortly.',
+          id: feedbackId,
           queued: true,
+          screenshotStored,
         };
       } else {
-        // Legacy synchronous email sending
-        await this.sendFeedbackEmail(
+        // Synchronous notification email
+        await this.sendFeedbackNotification(
           {
             userName,
             userEmail: user.email,
             userId: user.id,
             comment,
             url,
-            browserInfo,
+            route: metadata.route,
+            metadata,
+            feedbackId,
+            hasScreenshot: screenshotStored,
           },
-          attachment,
         );
 
         this.logger.log(
-          `Feedback submitted successfully from user ${user.email}`,
+          `Feedback ${feedbackId} submitted successfully from user ${user.email}`,
           'FeedbackService',
         );
 
-        return { message: 'Feedback submitted successfully' };
+        return {
+          message: 'Feedback submitted successfully',
+          id: feedbackId,
+          screenshotStored,
+        };
       }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -326,26 +414,29 @@ export class FeedbackService {
   }
 
   /**
-   * Store feedback record in database for tracking
-   * STORY-038B: Feedback persistence with metadata
+   * Store feedback record with screenshot path
+   * STORY-041B: Enhanced feedback persistence with MinIO screenshot path
    *
    * @param user - User context
    * @param feedbackDto - Feedback data
    * @param metadata - Extracted metadata
+   * @param screenshotPath - Path to screenshot in MinIO (null if not stored)
+   * @returns Feedback ID from database
    */
-  private async storeFeedbackRecord(
+  private async storeFeedbackRecordWithScreenshot(
     user: UserContext,
     feedbackDto: SubmitFeedbackDto,
     metadata: FeedbackMetadata,
-  ): Promise<void> {
-    try {
-      const pool = this.databaseService.getPool();
-      if (!pool) {
-        this.logger.warn('Database not available for feedback storage', 'FeedbackService');
-        return;
-      }
+    screenshotPath: string | null,
+  ): Promise<number> {
+    const pool = this.databaseService.getPool();
+    if (!pool) {
+      this.logger.warn('Database not available for feedback storage', 'FeedbackService');
+      throw new Error('Database not available');
+    }
 
-      // Check if feedback_submissions table exists (it may be created in a future migration)
+    try {
+      // Check if feedback_submissions table exists
       const tableExists = await pool.query(`
         SELECT EXISTS (
           SELECT FROM information_schema.tables
@@ -355,54 +446,101 @@ export class FeedbackService {
       `);
 
       if (!tableExists.rows[0].exists) {
-        this.logger.debug('feedback_submissions table not yet created, skipping storage', 'FeedbackService');
-        return;
+        throw new Error('feedback_submissions table not yet created');
       }
 
-      await pool.query(
-        `INSERT INTO feedback_submissions
-         (user_id, user_email, comment, url, route, browser_info, user_agent,
-          browser_name, browser_version, os_name, os_version, device_type,
-          screen_resolution, language, timezone, has_screenshot, created_at)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, NOW())`,
-        [
-          user.id,
-          user.email,
-          feedbackDto.comment,
-          metadata.url,
-          metadata.route,
-          metadata.browserInfo,
-          metadata.userAgent,
-          metadata.browserName,
-          metadata.browserVersion,
-          metadata.osName,
-          metadata.osVersion,
-          metadata.deviceType,
-          metadata.screenResolution,
-          metadata.language,
-          metadata.timezone,
-          !!feedbackDto.screenshot,
-        ],
-      );
+      // Check if screenshot_path column exists
+      const columnExists = await pool.query(`
+        SELECT EXISTS (
+          SELECT FROM information_schema.columns
+          WHERE table_schema = 'public'
+          AND table_name = 'feedback_submissions'
+          AND column_name = 'screenshot_path'
+        )
+      `);
 
-      this.logger.debug('Feedback record stored in database', 'FeedbackService');
+      let result;
+      if (columnExists.rows[0].exists) {
+        // STORY-041B: Insert with screenshot_path
+        result = await pool.query<{ id: number }>(
+          `INSERT INTO feedback_submissions
+           (user_id, user_email, comment, url, route, browser_info, user_agent,
+            browser_name, browser_version, os_name, os_version, device_type,
+            screen_resolution, language, timezone, has_screenshot, screenshot_path, created_at)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, NOW())
+           RETURNING id`,
+          [
+            user.id,
+            user.email,
+            feedbackDto.comment,
+            metadata.url,
+            metadata.route,
+            metadata.browserInfo,
+            metadata.userAgent,
+            metadata.browserName,
+            metadata.browserVersion,
+            metadata.osName,
+            metadata.osVersion,
+            metadata.deviceType,
+            metadata.screenResolution,
+            metadata.language,
+            metadata.timezone,
+            !!feedbackDto.screenshot,
+            screenshotPath,
+          ],
+        );
+      } else {
+        // Fallback: Insert without screenshot_path (migration not yet applied)
+        this.logger.warn('screenshot_path column not found, storing without path', 'FeedbackService');
+        result = await pool.query<{ id: number }>(
+          `INSERT INTO feedback_submissions
+           (user_id, user_email, comment, url, route, browser_info, user_agent,
+            browser_name, browser_version, os_name, os_version, device_type,
+            screen_resolution, language, timezone, has_screenshot, created_at)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, NOW())
+           RETURNING id`,
+          [
+            user.id,
+            user.email,
+            feedbackDto.comment,
+            metadata.url,
+            metadata.route,
+            metadata.browserInfo,
+            metadata.userAgent,
+            metadata.browserName,
+            metadata.browserVersion,
+            metadata.osName,
+            metadata.osVersion,
+            metadata.deviceType,
+            metadata.screenResolution,
+            metadata.language,
+            metadata.timezone,
+            !!feedbackDto.screenshot,
+          ],
+        );
+      }
+
+      const feedbackId = result.rows[0].id;
+      this.logger.debug(`Feedback record ${feedbackId} stored in database`, 'FeedbackService');
+      return feedbackId;
     } catch (error) {
-      // Don't fail feedback submission if storage fails
-      this.logger.warn(
-        `Failed to store feedback record: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      this.logger.error(
+        `Failed to store feedback record: ${errorMessage}`,
+        error instanceof Error ? error.stack : undefined,
         'FeedbackService',
       );
+      throw error;
     }
   }
 
   /**
-   * Enqueue feedback email for async processing
-   * STORY-038B: Email queue integration
+   * Send feedback notification email WITHOUT attachment
+   * STORY-041B: Email notification only - screenshots are stored in MinIO
    *
-   * @param data - Feedback data for email
-   * @param attachment - Screenshot attachment
+   * @param data - Feedback data for notification
    */
-  private async enqueueFeedbackEmail(
+  private async sendFeedbackNotification(
     data: {
       userName: string;
       userEmail: string;
@@ -411,22 +549,13 @@ export class FeedbackService {
       url?: string;
       route?: string;
       metadata: FeedbackMetadata;
+      feedbackId: number;
+      hasScreenshot: boolean;
     },
-    attachment: EmailAttachment,
   ): Promise<void> {
-    if (!this.emailQueueService) {
-      throw new Error('Email queue service not available');
-    }
-
     try {
-      // Note: The current EmailQueueService uses templates from the database,
-      // but feedback emails need attachments which the queue doesn't support directly.
-      // For now, we'll still send synchronously but log to the queue for tracking.
-      // In a production environment, you might want to store the screenshot in object storage
-      // and include a link in the email instead.
-
-      // Send immediately with attachment (queue doesn't support attachments yet)
-      const html = await this.renderFeedbackTemplate({
+      // Render notification template
+      const html = await this.renderFeedbackNotificationTemplate({
         userName: data.userName,
         userEmail: data.userEmail,
         userId: data.userId,
@@ -435,19 +564,20 @@ export class FeedbackService {
         browserInfo: data.metadata.browserInfo,
         companyName: this.fromName,
         year: new Date().getFullYear(),
+        // STORY-041B: New fields for notification
+        feedbackId: data.feedbackId,
+        adminUrl: this.adminUrl,
+        hasScreenshot: data.hasScreenshot,
+        route: data.route,
       });
 
+      // STORY-041B: New subject format
       const emailPayload = {
         from: `${this.fromName} <${this.fromAddress}>`,
         to: [this.supportEmail],
-        subject: `Feedback from ${data.userName} <${data.userEmail}>`,
+        subject: `Neues Feedback von ${data.userName}`,
         html,
-        attachments: [
-          {
-            filename: attachment.filename,
-            content: attachment.content,
-          },
-        ],
+        // No attachments - screenshots are in MinIO
       };
 
       const { data: result, error } = await this.resend.emails.send(emailPayload);
@@ -468,8 +598,11 @@ export class FeedbackService {
         'sent',
       );
 
+      // Update feedback record with email status
+      await this.updateFeedbackEmailStatus(data.feedbackId, 'sent');
+
       this.logger.log(
-        `Feedback email sent via queue (Resend ID: ${result?.id})`,
+        `Feedback notification email sent (Resend ID: ${result?.id})`,
         'FeedbackService',
       );
     } catch (error) {
@@ -488,14 +621,158 @@ export class FeedbackService {
         errorMessage,
       );
 
+      // Update feedback record with failed email status
+      await this.updateFeedbackEmailStatus(data.feedbackId, 'failed');
+
       this.logger.error(
-        `Failed to send queued feedback email: ${errorMessage}`,
+        `Failed to send feedback notification: ${errorMessage}`,
         error instanceof Error ? error.stack : undefined,
         'FeedbackService',
       );
 
-      throw new Error(`Failed to send feedback email: ${errorMessage}`);
+      // Don't throw - feedback was stored, email failure is logged
+      this.logger.warn(
+        `Feedback ${data.feedbackId} stored but notification email failed`,
+        'FeedbackService',
+      );
     }
+  }
+
+  /**
+   * Update feedback record email status
+   * STORY-041B: Track email notification status
+   *
+   * @param feedbackId - Feedback record ID
+   * @param status - Email status ('sent' or 'failed')
+   */
+  private async updateFeedbackEmailStatus(
+    feedbackId: number,
+    status: 'sent' | 'failed',
+  ): Promise<void> {
+    try {
+      const pool = this.databaseService.getPool();
+      if (!pool) {
+        return;
+      }
+
+      await pool.query(
+        `UPDATE feedback_submissions
+         SET email_status = $1, email_sent_at = CASE WHEN $1 = 'sent' THEN NOW() ELSE email_sent_at END
+         WHERE id = $2`,
+        [status, feedbackId],
+      );
+    } catch (error) {
+      this.logger.warn(
+        `Failed to update feedback email status: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        'FeedbackService',
+      );
+    }
+  }
+
+  /**
+   * Render the feedback notification template
+   * STORY-041B: Notification-only template without attachment notice
+   *
+   * @param data - Template data
+   * @returns Rendered HTML string
+   */
+  private async renderFeedbackNotificationTemplate(data: FeedbackTemplateData): Promise<string> {
+    const templateName = 'feedback-notification';
+
+    // Check cache first
+    let template = this.templateCache.get(templateName);
+
+    if (!template) {
+      try {
+        const templatePath = path.join(this.templateDir, `${templateName}.hbs`);
+        const templateSource = await fs.readFile(templatePath, 'utf-8');
+        template = Handlebars.compile<FeedbackTemplateData>(templateSource);
+        this.templateCache.set(templateName, template);
+      } catch (error) {
+        // Fallback to inline template if file not found
+        this.logger.warn(
+          'Feedback notification template not found, using inline template',
+          'FeedbackService',
+        );
+        template = this.getInlineFeedbackNotificationTemplate();
+        this.templateCache.set(templateName, template);
+      }
+    }
+
+    return template(data);
+  }
+
+  /**
+   * Get inline feedback notification template as fallback
+   * STORY-041B: Notification template with admin link
+   */
+  private getInlineFeedbackNotificationTemplate(): HandlebarsTemplateDelegate<FeedbackTemplateData> {
+    const templateSource = `
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Neues Feedback - {{companyName}}</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f5f5f5; }
+    .container { background-color: #ffffff; border-radius: 8px; padding: 40px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }
+    .header { text-align: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 2px solid #e5e7eb; }
+    .logo { font-size: 24px; font-weight: bold; color: #2563eb; }
+    .badge { display: inline-block; background-color: #dbeafe; color: #1d4ed8; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; margin-top: 10px; }
+    h1 { color: #1f2937; font-size: 22px; margin-bottom: 20px; }
+    p { margin-bottom: 16px; color: #4b5563; }
+    .info-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+    .info-table th { text-align: left; padding: 10px; background-color: #f9fafb; border-bottom: 1px solid #e5e7eb; color: #6b7280; font-weight: 500; width: 30%; }
+    .info-table td { padding: 10px; border-bottom: 1px solid #e5e7eb; color: #1f2937; }
+    .message-box { background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 6px; padding: 20px; margin: 20px 0; }
+    .message-box h3 { color: #374151; font-size: 14px; margin: 0 0 10px 0; text-transform: uppercase; letter-spacing: 0.5px; }
+    .message-content { white-space: pre-wrap; color: #1f2937; font-size: 14px; line-height: 1.6; }
+    .btn { display: inline-block; background-color: #2563eb; color: #ffffff !important; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 500; margin-top: 20px; }
+    .btn:hover { background-color: #1d4ed8; }
+    .screenshot-notice { background-color: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; padding: 12px 16px; margin: 20px 0; color: #166534; font-size: 14px; }
+    .footer { text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb; color: #9ca3af; font-size: 12px; }
+    a { color: #2563eb; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="logo">{{companyName}}</div>
+      <div class="badge">NEUES FEEDBACK</div>
+    </div>
+    <h1>Neues Feedback eingegangen</h1>
+    <p>Ein Benutzer hat Feedback mit einem Screenshot eingereicht.</p>
+    <table class="info-table">
+      <tr><th>Von</th><td>{{userName}} (<a href="mailto:{{userEmail}}">{{userEmail}}</a>)</td></tr>
+      <tr><th>Benutzer-ID</th><td>{{userId}}</td></tr>
+      <tr><th>Feedback-ID</th><td>{{feedbackId}}</td></tr>
+      {{#if route}}<tr><th>Route</th><td>{{route}}</td></tr>{{/if}}
+      {{#if url}}<tr><th>Seiten-URL</th><td><a href="{{url}}">{{url}}</a></td></tr>{{/if}}
+      {{#if browserInfo}}<tr><th>Browser</th><td>{{browserInfo}}</td></tr>{{/if}}
+    </table>
+    <div class="message-box">
+      <h3>Kommentar</h3>
+      <div class="message-content">{{comment}}</div>
+    </div>
+    {{#if hasScreenshot}}
+    <div class="screenshot-notice">
+      <strong>Screenshot vorhanden</strong> - Der Screenshot wurde gespeichert und kann im Admin-Bereich eingesehen werden.
+    </div>
+    {{/if}}
+    <p style="text-align: center;">
+      <a href="{{adminUrl}}/admin/feedback/{{feedbackId}}" class="btn">Feedback im Admin-Bereich ansehen</a>
+    </p>
+    <div class="footer">
+      <p>&copy; {{year}} {{companyName}} - Internes Feedback-System</p>
+      <p>Dies ist eine automatische Benachrichtigung aus dem Feedback-System.</p>
+    </div>
+  </div>
+</body>
+</html>`;
+
+    return Handlebars.compile<FeedbackTemplateData>(templateSource);
   }
 
   /**
@@ -584,164 +861,6 @@ export class FeedbackService {
       );
       return null;
     }
-  }
-
-  /**
-   * Send feedback email with attachment via Resend
-   *
-   * @param data - Feedback data for email template
-   * @param attachment - Screenshot attachment
-   */
-  private async sendFeedbackEmail(
-    data: {
-      userName: string;
-      userEmail: string;
-      userId: number;
-      comment: string;
-      url?: string;
-      browserInfo?: string;
-    },
-    attachment: EmailAttachment,
-  ): Promise<void> {
-    try {
-      // Render template
-      const html = await this.renderFeedbackTemplate({
-        ...data,
-        companyName: this.fromName,
-        year: new Date().getFullYear(),
-      });
-
-      // Prepare email payload with attachment
-      const emailPayload = {
-        from: `${this.fromName} <${this.fromAddress}>`,
-        to: [this.supportEmail],
-        subject: `Feedback from ${data.userName} <${data.userEmail}>`,
-        html,
-        attachments: [
-          {
-            filename: attachment.filename,
-            content: attachment.content,
-          },
-        ],
-      };
-
-      // Send via Resend
-      const { data: result, error } = await this.resend.emails.send(emailPayload);
-
-      if (error) {
-        throw new Error(`Resend API error: ${error.message}`);
-      }
-
-      // Log successful send
-      await this.logFeedbackEmail(data, result?.id || null, 'sent');
-
-      this.logger.log(
-        `Feedback email sent successfully (Resend ID: ${result?.id})`,
-        'FeedbackService',
-      );
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-
-      // Log failed send
-      await this.logFeedbackEmail(data, null, 'failed', errorMessage);
-
-      this.logger.error(
-        `Failed to send feedback email: ${errorMessage}`,
-        error instanceof Error ? error.stack : undefined,
-        'FeedbackService',
-      );
-
-      throw new Error(`Failed to send feedback email: ${errorMessage}`);
-    }
-  }
-
-  /**
-   * Render the feedback email template
-   *
-   * @param data - Template data
-   * @returns Rendered HTML string
-   */
-  private async renderFeedbackTemplate(data: FeedbackTemplateData): Promise<string> {
-    const templateName = 'feedback';
-
-    // Check cache first
-    let template = this.templateCache.get(templateName);
-
-    if (!template) {
-      try {
-        const templatePath = path.join(this.templateDir, `${templateName}.hbs`);
-        const templateSource = await fs.readFile(templatePath, 'utf-8');
-        template = Handlebars.compile<FeedbackTemplateData>(templateSource);
-        this.templateCache.set(templateName, template);
-      } catch (error) {
-        // Fallback to inline template if file not found
-        this.logger.warn(
-          'Feedback template not found, using inline template',
-          'FeedbackService',
-        );
-        template = this.getInlineFeedbackTemplate();
-        this.templateCache.set(templateName, template);
-      }
-    }
-
-    return template(data);
-  }
-
-  /**
-   * Get inline feedback template as fallback
-   */
-  private getInlineFeedbackTemplate(): HandlebarsTemplateDelegate<FeedbackTemplateData> {
-    const templateSource = `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>User Feedback - {{companyName}}</title>
-  <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f5f5f5; }
-    .container { background-color: #ffffff; border-radius: 8px; padding: 40px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }
-    .header { text-align: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 2px solid #e5e7eb; }
-    .logo { font-size: 24px; font-weight: bold; color: #2563eb; }
-    .badge { display: inline-block; background-color: #dbeafe; color: #1d4ed8; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; margin-top: 10px; }
-    h1 { color: #1f2937; font-size: 22px; margin-bottom: 20px; }
-    p { margin-bottom: 16px; color: #4b5563; }
-    .info-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-    .info-table th { text-align: left; padding: 10px; background-color: #f9fafb; border-bottom: 1px solid #e5e7eb; color: #6b7280; font-weight: 500; width: 30%; }
-    .info-table td { padding: 10px; border-bottom: 1px solid #e5e7eb; color: #1f2937; }
-    .message-box { background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 6px; padding: 20px; margin: 20px 0; }
-    .message-box h3 { color: #374151; font-size: 14px; margin: 0 0 10px 0; text-transform: uppercase; letter-spacing: 0.5px; }
-    .message-content { white-space: pre-wrap; color: #1f2937; font-size: 14px; line-height: 1.6; }
-    .footer { text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb; color: #9ca3af; font-size: 12px; }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div class="header">
-      <div class="logo">{{companyName}}</div>
-      <div class="badge">USER FEEDBACK</div>
-    </div>
-    <h1>New User Feedback Received</h1>
-    <p>A user has submitted feedback with a screenshot attached.</p>
-    <table class="info-table">
-      <tr><th>From</th><td>{{userName}} (<a href="mailto:{{userEmail}}">{{userEmail}}</a>)</td></tr>
-      <tr><th>User ID</th><td>{{userId}}</td></tr>
-      {{#if url}}<tr><th>Page URL</th><td><a href="{{url}}">{{url}}</a></td></tr>{{/if}}
-      {{#if browserInfo}}<tr><th>Browser</th><td>{{browserInfo}}</td></tr>{{/if}}
-    </table>
-    <div class="message-box">
-      <h3>Feedback</h3>
-      <div class="message-content">{{comment}}</div>
-    </div>
-    <p><strong>Note:</strong> A screenshot is attached to this email.</p>
-    <div class="footer">
-      <p>&copy; {{year}} {{companyName}}</p>
-    </div>
-  </div>
-</body>
-</html>`;
-
-    return Handlebars.compile<FeedbackTemplateData>(templateSource);
   }
 
   /**

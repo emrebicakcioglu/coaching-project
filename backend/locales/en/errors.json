@@ -74,5 +74,17 @@
   "feature": {
     "disabled": "This feature is currently disabled",
     "notAvailable": "This feature is not available in your plan"
+  },
+  "forbidden": {
+    "title": "Access Denied",
+    "code": "Forbidden",
+    "message": "You do not have permission to access this page. Please contact your administrator if you believe this is an error.",
+    "buttons": {
+      "goBack": "Go Back",
+      "dashboard": "Go to Dashboard"
+    },
+    "links": {
+      "support": "Contact Support"
+    }
   }
 }

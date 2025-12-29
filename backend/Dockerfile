@@ -75,9 +75,11 @@ USER nodejs
 # Expose application port (STORY-023A: Corrected to match docker-compose.yml)
 EXPOSE 14102
 
-# Health check - Using /api/health endpoint (STORY-021A, STORY-029)
+# Health check - Using liveness endpoint for Docker (002-REWORK-002)
+# Uses /api/health/live for fast liveness checks (< 100ms)
+# Kubernetes/Docker Compose should use /api/health/ready for readiness probes
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-    CMD node -e "require('http').get('http://localhost:14102/api/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"
+    CMD node -e "require('http').get('http://localhost:14102/api/health/live', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"
 
 # Start NestJS application
 CMD ["node", "dist/main.js"]

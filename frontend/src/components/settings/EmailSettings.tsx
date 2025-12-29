@@ -1,18 +1,21 @@
 /**
  * Email Settings Component
  * STORY-013B: In-App Settings Frontend UI
+ * STORY-002-003: Settings Page i18n Support
  *
  * Form component for managing email settings.
  * Includes email signature configuration.
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { FormField } from './FormField';
 import {
   settingsService,
   EmailSettings as EmailSettingsType,
   UpdateEmailSettingsDto,
 } from '../../services/settingsService';
+import { logger } from '../../services/loggerService';
 
 /**
  * Form errors interface
@@ -51,6 +54,8 @@ export const EmailSettings: React.FC<EmailSettingsProps> = ({
   onSaveError,
   onUnsavedChanges,
 }) => {
+  const { t } = useTranslation('settings');
+
   // Form state
   const [formData, setFormData] = useState<EmailSettingsType>(DEFAULT_SETTINGS);
   const [originalData, setOriginalData] = useState<EmailSettingsType | null>(null);
@@ -71,7 +76,7 @@ export const EmailSettings: React.FC<EmailSettingsProps> = ({
         setOriginalData(settings);
         setErrors({});
       } catch (error) {
-        console.error('Failed to load email settings:', error);
+        logger.error('Failed to load email settings', error);
         // Use default settings if loading fails
         setFormData(DEFAULT_SETTINGS);
         setOriginalData(DEFAULT_SETTINGS);
@@ -104,12 +109,12 @@ export const EmailSettings: React.FC<EmailSettingsProps> = ({
 
     // Validate signature length
     if (formData.signature && formData.signature.length > 1000) {
-      newErrors.signature = 'Signatur darf maximal 1000 Zeichen lang sein';
+      newErrors.signature = t('admin.email.validation.signatureMaxLength');
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
-  }, [formData]);
+  }, [formData, t]);
 
   /**
    * Handle field change
@@ -154,11 +159,11 @@ export const EmailSettings: React.FC<EmailSettingsProps> = ({
       setFormData(updatedSettings);
       setOriginalData(updatedSettings);
       setHasUnsavedChanges(false);
-      onSaveSuccess?.('E-Mail-Einstellungen wurden gespeichert');
+      onSaveSuccess?.(t('admin.email.saveSuccess'));
     } catch (error) {
-      console.error('Failed to save email settings:', error);
-      setErrors({ general: 'Fehler beim Speichern der E-Mail-Einstellungen' });
-      onSaveError?.('Fehler beim Speichern der E-Mail-Einstellungen');
+      logger.error('Failed to save email settings', error);
+      setErrors({ general: t('admin.email.saveError') });
+      onSaveError?.(t('admin.email.saveError'));
     } finally {
       setIsSaving(false);
     }
@@ -183,7 +188,7 @@ export const EmailSettings: React.FC<EmailSettingsProps> = ({
         data-testid="email-settings-loading"
       >
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600" />
-        <span className="ml-3 text-neutral-600">Einstellungen werden geladen...</span>
+        <span className="ml-3 text-neutral-600">{t('admin.loading')}</span>
       </div>
     );
   }
@@ -222,42 +227,41 @@ export const EmailSettings: React.FC<EmailSettingsProps> = ({
             />
           </svg>
           <p className="ml-3 text-sm text-blue-700">
-            Diese Einstellungen betreffen alle vom System versendeten E-Mails wie
-            Benachrichtigungen, Passwort-Reset-E-Mails und Registrierungsbestätigungen.
+            {t('admin.email.infoBanner')}
           </p>
         </div>
       </div>
 
       {/* Email Signature */}
       <FormField
-        label="E-Mail-Signatur"
-        description="Signatur, die am Ende jeder E-Mail angehängt wird (max. 1000 Zeichen)"
+        label={t('admin.email.signature')}
+        description={t('admin.email.signatureDescription')}
         name="signature"
         type="textarea"
         value={formData.signature}
         onChange={handleFieldChange('signature')}
         error={errors.signature}
-        placeholder="Mit freundlichen Grüßen,&#10;Ihr Team"
+        placeholder={t('admin.email.signaturePlaceholder')}
         rows={5}
         data-testid="email-setting"
       />
 
       {/* Character count */}
       <div className="text-sm text-neutral-500">
-        {formData.signature.length} / 1000 Zeichen
+        {t('admin.email.characterCount', { count: formData.signature.length })}
       </div>
 
       {/* Preview Section */}
       <div className="space-y-2">
-        <h4 className="text-sm font-medium text-neutral-900">Vorschau</h4>
+        <h4 className="text-sm font-medium text-neutral-900">{t('admin.email.preview')}</h4>
         <div className="p-4 bg-neutral-50 border border-neutral-200 rounded-md">
           <div className="text-sm text-neutral-600 whitespace-pre-wrap">
             <p className="mb-4 text-neutral-500 italic">
-              [E-Mail-Inhalt...]
+              {t('admin.email.previewContent')}
             </p>
             <div className="border-t border-neutral-200 pt-4">
               {formData.signature || (
-                <span className="text-neutral-400 italic">Keine Signatur definiert</span>
+                <span className="text-neutral-400 italic">{t('admin.email.noSignature')}</span>
               )}
             </div>
           </div>
@@ -278,7 +282,7 @@ export const EmailSettings: React.FC<EmailSettingsProps> = ({
               d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
             />
           </svg>
-          <span>Sie haben ungespeicherte Änderungen</span>
+          <span>{t('admin.unsavedChanges')}</span>
         </div>
       )}
 
@@ -291,7 +295,7 @@ export const EmailSettings: React.FC<EmailSettingsProps> = ({
           className="px-4 py-2 text-sm font-medium text-neutral-700 bg-white border border-neutral-300 rounded-md hover:bg-neutral-50 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
           data-testid="reset-button"
         >
-          Zurücksetzen
+          {t('admin.buttons.reset')}
         </button>
         <button
           type="submit"
@@ -299,7 +303,7 @@ export const EmailSettings: React.FC<EmailSettingsProps> = ({
           className="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
           data-testid="save-button"
         >
-          {isSaving ? 'Wird gespeichert...' : 'Speichern'}
+          {isSaving ? t('admin.buttons.saving') : t('admin.buttons.save')}
         </button>
       </div>
     </form>

@@ -7,10 +7,13 @@
  * Stories:
  * - STORY-021A: API-Basis-Infrastruktur
  * - STORY-029: Health Status (SMTP, MinIO checks)
+ * - 002-REWORK-002: Fehlende Health-Check Endpoints
  *
  * Endpoints:
  * - GET /health - Legacy health endpoint
  * - GET /api/health - Full health check with all components
+ * - GET /api/health/live - Liveness probe (002-REWORK-002)
+ * - GET /api/health/ready - Readiness probe (002-REWORK-002)
  */
 
 import { Module } from '@nestjs/common';

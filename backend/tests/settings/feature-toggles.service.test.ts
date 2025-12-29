@@ -1,6 +1,7 @@
 /**
  * Feature Toggles Service Tests
  * STORY-014A: Feature Toggles Backend
+ * STORY-041: Feedback Feature Flag
  *
  * Unit tests for FeatureTogglesService including:
  * - Get all features
@@ -11,7 +12,7 @@
  */
 
 import { Test, TestingModule } from '@nestjs/testing';
-import { NotFoundException, BadRequestException } from '@nestjs/common';
+import { NotFoundException } from '@nestjs/common';
 import {
   FeatureTogglesService,
   DEFAULT_FEATURES,
@@ -447,6 +448,12 @@ describe('FeatureTogglesService', () => {
       expect(DEFAULT_FEATURES['dark-mode']).toBeDefined();
       expect(DEFAULT_FEATURES['dark-mode'].enabled).toBe(false);
       expect(DEFAULT_FEATURES['dark-mode'].category).toBe('ui');
+
+      // STORY-041: Feedback Feature Flag
+      expect(DEFAULT_FEATURES['feedback']).toBeDefined();
+      expect(DEFAULT_FEATURES['feedback'].enabled).toBe(false);
+      expect(DEFAULT_FEATURES['feedback'].name).toBe('Feedback System');
+      expect(DEFAULT_FEATURES['feedback'].category).toBe('support');
     });
   });
 });

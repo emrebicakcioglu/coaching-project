@@ -2,6 +2,7 @@
  * LoginForm Component
  * STORY-007B: Login System Frontend UI
  * STORY-CAPTCHA: Login Security with CAPTCHA
+ * STORY-002-001: i18n Support for Login Page
  *
  * Reusable login form component with validation, accessibility features,
  * and password visibility toggle.
@@ -19,8 +20,10 @@
 
 import React, { useState, useCallback, FormEvent, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { RememberMeCheckbox } from './RememberMeCheckbox';
 import { CaptchaInput } from './CaptchaInput';
+import { EyeIcon, EyeOffIcon } from '../icons';
 
 /**
  * Form data interface
@@ -84,35 +87,35 @@ export interface LoginFormProps {
 }
 
 /**
- * Validation result interface
+ * Validation result interface with translation keys
  */
 interface ValidationResult {
   isValid: boolean;
-  emailError?: string;
-  passwordError?: string;
+  emailErrorKey?: string;
+  passwordErrorKey?: string;
 }
 
 /**
- * Validate form data
+ * Validate form data - returns translation keys for error messages
  */
 const validateForm = (data: LoginFormData): ValidationResult => {
   const result: ValidationResult = { isValid: true };
 
   // Email validation
   if (!data.email.trim()) {
-    result.emailError = 'Bitte geben Sie Ihre E-Mail-Adresse ein.';
+    result.emailErrorKey = 'login.validation.emailRequired';
     result.isValid = false;
   } else {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(data.email)) {
-      result.emailError = 'Bitte geben Sie eine gültige E-Mail-Adresse ein.';
+      result.emailErrorKey = 'login.validation.invalidEmail';
       result.isValid = false;
     }
   }
 
   // Password validation
   if (!data.password) {
-    result.passwordError = 'Bitte geben Sie Ihr Passwort ein.';
+    result.passwordErrorKey = 'login.validation.passwordRequired';
     result.isValid = false;
   }
 
@@ -141,6 +144,8 @@ export const LoginForm: React.FC<LoginFormProps> = ({
   captchaError = null,
   delayMessage = null,
 }) => {
+  const { t } = useTranslation('auth');
+
   // Form state
   const [formData, setFormData] = useState<LoginFormData>({
     email: initialValues.email || '',
@@ -224,14 +229,14 @@ export const LoginForm: React.FC<LoginFormProps> = ({
 
       if (!validation.isValid) {
         setFieldErrors({
-          email: validation.emailError,
-          password: validation.passwordError,
+          email: validation.emailErrorKey ? t(validation.emailErrorKey) : undefined,
+          password: validation.passwordErrorKey ? t(validation.passwordErrorKey) : undefined,
         });
 
         // Focus first field with error
-        if (validation.emailError && emailInputRef.current) {
+        if (validation.emailErrorKey && emailInputRef.current) {
           emailInputRef.current.focus();
-        } else if (validation.passwordError && passwordInputRef.current) {
+        } else if (validation.passwordErrorKey && passwordInputRef.current) {
           passwordInputRef.current.focus();
         }
 
@@ -248,7 +253,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
         captchaAnswer: requiresCaptcha ? captchaAnswer : undefined,
       });
     },
-    [formData, onSubmit, captcha, requiresCaptcha, captchaAnswer]
+    [formData, onSubmit, captcha, requiresCaptcha, captchaAnswer, t]
   );
 
   // Determine if there are any errors to display
@@ -260,7 +265,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
       className="auth-form"
       onSubmit={handleSubmit}
       noValidate
-      aria-label="Anmeldeformular"
+      aria-label={t('login.formLabel')}
       data-testid="login-form"
     >
       {/* Success Message */}
@@ -296,7 +301,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
       {/* Email Field */}
       <div className="auth-field">
         <label htmlFor="email" className="auth-label">
-          E-Mail-Adresse
+          {t('login.email')}
         </label>
         <input
           ref={emailInputRef}
@@ -306,7 +311,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
           value={formData.email}
           onChange={handleInputChange}
           className={`auth-input ${fieldErrors.email ? 'auth-input--error' : ''}`}
-          placeholder="ihre@email.de"
+          placeholder={t('login.emailPlaceholder')}
           autoComplete="email"
           required
           disabled={isLoading}
@@ -326,7 +331,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
       <div className="auth-field">
         <div className="auth-field-header">
           <label htmlFor="password" className="auth-label">
-            Passwort
+            {t('login.password')}
           </label>
         </div>
         <div className="auth-input-wrapper">
@@ -338,7 +343,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
             value={formData.password}
             onChange={handleInputChange}
             className={`auth-input ${fieldErrors.password ? 'auth-input--error' : ''}`}
-            placeholder="Ihr Passwort"
+            placeholder={t('login.passwordPlaceholder')}
             autoComplete="current-password"
             required
             disabled={isLoading}
@@ -352,14 +357,14 @@ export const LoginForm: React.FC<LoginFormProps> = ({
             className="auth-input-toggle"
             onClick={togglePasswordVisibility}
             disabled={isLoading}
-            aria-label={showPassword ? 'Passwort verbergen' : 'Passwort anzeigen'}
+            aria-label={showPassword ? t('login.hidePassword') : t('login.showPassword')}
             aria-pressed={showPassword}
             data-testid="password-toggle"
           >
             {showPassword ? (
-              <span aria-hidden="true">👁️</span>
+              <EyeOffIcon className="w-5 h-5" aria-hidden="true" />
             ) : (
-              <span aria-hidden="true">👁️‍🗨️</span>
+              <EyeIcon className="w-5 h-5" aria-hidden="true" />
             )}
           </button>
         </div>
@@ -376,7 +381,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
               tabIndex={isLoading ? -1 : 0}
               data-testid="forgot-password-link"
             >
-              Passwort vergessen?
+              {t('login.forgotPassword')}
             </Link>
           </div>
         )}
@@ -436,10 +441,10 @@ export const LoginForm: React.FC<LoginFormProps> = ({
               aria-hidden="true"
               data-testid="loading-spinner"
             />
-            <span>Wird angemeldet...</span>
+            <span>{t('login.submitting')}</span>
           </>
         ) : (
-          'Anmelden'
+          t('login.submit')
         )}
       </button>
     </form>

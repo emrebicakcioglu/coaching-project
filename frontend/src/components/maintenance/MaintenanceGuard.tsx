@@ -10,6 +10,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useAuth } from '../../contexts';
 import { maintenanceService, MaintenanceStatus } from '../../services/maintenanceService';
 import { MaintenancePage } from '../../pages/MaintenancePage';
+import { logger } from '../../services/loggerService';
 
 /**
  * Props for MaintenanceGuard component
@@ -51,7 +52,7 @@ export const MaintenanceGuard: React.FC<MaintenanceGuardProps> = ({ children }) 
       }
     } catch (error) {
       // On error, assume no maintenance to not block users
-      console.error('Failed to check maintenance status:', error);
+      logger.error('Failed to check maintenance status', error);
       setMaintenanceStatus(null);
       setShowAdminBanner(false);
     } finally {
@@ -68,8 +69,8 @@ export const MaintenanceGuard: React.FC<MaintenanceGuardProps> = ({ children }) 
 
     checkMaintenanceStatus();
 
-    // Check every minute
-    const interval = setInterval(checkMaintenanceStatus, 60000);
+    // Check every 5 minutes to reduce unnecessary re-renders
+    const interval = setInterval(checkMaintenanceStatus, 300000);
 
     return () => clearInterval(interval);
   }, [checkMaintenanceStatus, authLoading]);

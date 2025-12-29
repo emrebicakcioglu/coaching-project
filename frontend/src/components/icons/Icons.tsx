@@ -382,6 +382,147 @@ export const MoonIcon: React.FC<IconProps> = (props) => (
 );
 
 /**
+ * Eye Icon (password visible)
+ * UI-AUDIT: Standardized password toggle icon
+ */
+export const EyeIcon: React.FC<IconProps> = (props) => (
+  <SvgIcon {...props}>
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+    />
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+    />
+  </SvgIcon>
+);
+
+/**
+ * Eye Off Icon (password hidden)
+ * UI-AUDIT: Standardized password toggle icon
+ */
+export const EyeOffIcon: React.FC<IconProps> = (props) => (
+  <SvgIcon {...props}>
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
+    />
+  </SvgIcon>
+);
+
+/**
+ * Lock Icon (for MFA/Security)
+ * STORY-107: MFA Settings Page UI Audit - Replace emoji with SVG
+ */
+export const LockIcon: React.FC<IconProps> = (props) => (
+  <SvgIcon {...props}>
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+    />
+  </SvgIcon>
+);
+
+/**
+ * Lock Closed Icon (filled variant for MFA)
+ * STORY-107: MFA Settings Page UI Audit - Alternative lock icon
+ */
+export const LockClosedIcon: React.FC<IconProps> = (props) => (
+  <SvgIcon {...props}>
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+    />
+  </SvgIcon>
+);
+
+/**
+ * Check Icon (for success/completed states)
+ * STORY-107: MFA Settings Page UI Audit - Replace emoji checkmark with SVG
+ */
+export const CheckIcon: React.FC<IconProps> = (props) => (
+  <SvgIcon {...props}>
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M5 13l4 4L19 7"
+    />
+  </SvgIcon>
+);
+
+/**
+ * Check Circle Icon (for success states in benefits list)
+ * STORY-107: MFA Settings Page UI Audit - Consistent check styling
+ */
+export const CheckCircleIcon: React.FC<IconProps> = (props) => (
+  <SvgIcon {...props}>
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+    />
+  </SvgIcon>
+);
+
+/**
+ * X Circle Icon (for error states)
+ * STORY-107: MFA Settings Page UI Audit - Replace emoji X with SVG
+ */
+export const XCircleIcon: React.FC<IconProps> = (props) => (
+  <SvgIcon {...props}>
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+    />
+  </SvgIcon>
+);
+
+/**
+ * Clipboard/Copy Icon (for copy functionality)
+ * STORY-107: MFA Settings Page UI Audit - Replace emoji clipboard with SVG
+ */
+export const ClipboardIcon: React.FC<IconProps> = (props) => (
+  <SvgIcon {...props}>
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"
+    />
+  </SvgIcon>
+);
+
+/**
+ * Message Square Icon (for feedback/comments)
+ * STORY-041H: Feedback Admin Page
+ */
+export const MessageSquareIcon: React.FC<IconProps> = (props) => (
+  <SvgIcon {...props}>
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"
+    />
+  </SvgIcon>
+);
+
+/**
  * Icon name to component mapping
  */
 const iconMap: Record<IconName, React.FC<IconProps>> = {
@@ -399,6 +540,7 @@ const iconMap: Record<IconName, React.FC<IconProps>> = {
   sessions: SessionsIcon,
   palette: PaletteIcon,
   globe: GlobeIcon,
+  'message-square': MessageSquareIcon,
 };
 
 /**
@@ -422,7 +564,11 @@ export function getIcon(name: IconName): React.FC<IconProps> | null {
 export const Icon: React.FC<IconProps & { name: IconName }> = ({ name, ...props }) => {
   const IconComponent = iconMap[name];
   if (!IconComponent) {
-    console.warn(`Icon "${name}" not found`);
+    // Intentionally using console.warn directly here to avoid logger import cycle
+    // This is a development-only warning for missing icons
+    if (import.meta.env.DEV) {
+      console.warn(`Icon "${name}" not found`);
+    }
     return null;
   }
   return <IconComponent {...props} />;

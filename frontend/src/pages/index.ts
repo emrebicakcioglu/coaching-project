@@ -51,3 +51,6 @@ export { default as ResponsiveDemoPage } from './ResponsiveDemoPage';
 
 // Maintenance Page (STORY-034)
 export { MaintenancePage } from './MaintenancePage';
+
+// Feedback Admin Page (STORY-041H)
+export { FeedbackAdminPage } from './FeedbackAdminPage';

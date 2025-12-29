@@ -20,6 +20,7 @@
 import React, { useState } from 'react';
 import { ResponsiveModal } from '../responsive';
 import { rolesService, Role } from '../../services/rolesService';
+import { logger } from '../../services/loggerService';
 import './RoleDeleteDialog.css';
 
 /**
@@ -70,7 +71,7 @@ export const RoleDeleteDialog: React.FC<RoleDeleteDialogProps> = ({
       onSuccess?.();
       onClose();
     } catch (err: unknown) {
-      console.error('Failed to delete role:', err);
+      logger.error('Failed to delete role', err);
       const apiError = err as { response?: { data?: { message?: string } } };
       setError(
         apiError.response?.data?.message ||

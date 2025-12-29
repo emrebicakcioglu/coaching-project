@@ -6,7 +6,8 @@
     "activeSessions": "Aktive Sitzungen",
     "roles": "Rollen",
     "systemStatus": "Systemstatus",
-    "healthy": "Gesund"
+    "healthy": "Gesund",
+    "unhealthy": "Fehlerhaft"
   },
   "quickActions": {
     "title": "Schnellaktionen",

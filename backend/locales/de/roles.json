@@ -15,7 +15,9 @@
     "edit": "Bearbeiten",
     "delete": "Löschen",
     "editLabel": "Rolle {{name}} bearbeiten",
-    "deleteLabel": "Rolle {{name}} löschen"
+    "deleteLabel": "Rolle {{name}} löschen",
+    "protected": "Geschützt",
+    "protectedRole": "Systemrollen können nicht gelöscht werden"
   },
   "badges": {
     "system": "System"
@@ -28,5 +30,12 @@
     "created": "Rolle \"{{name}}\" erfolgreich erstellt.",
     "updated": "Rolle \"{{name}}\" erfolgreich aktualisiert.",
     "deleted": "Rolle \"{{name}}\" erfolgreich gelöscht."
+  },
+  "descriptions": {
+    "admin": "Vollständiger Systemadministrator mit allen Berechtigungen",
+    "guest": "Lesezugriff für Gäste",
+    "manager": "Benutzer- und Inhaltsverwalter",
+    "user": "Standardbenutzer mit Basisberechtigung",
+    "viewer": "Lesezugriff auf das System"
   }
 }

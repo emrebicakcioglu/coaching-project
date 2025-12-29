@@ -60,8 +60,8 @@ export const HamburgerButton: React.FC<HamburgerButtonProps> = ({
       className={`
         min-w-[44px] min-h-[44px]
         flex items-center justify-center
-        text-neutral-600 hover:text-neutral-900
-        hover:bg-neutral-100
+        text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]
+        hover:bg-[var(--color-background-surface)]
         focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2
         rounded-md
         transition-colors duration-[var(--transition-normal,200ms)]

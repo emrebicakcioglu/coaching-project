@@ -28,7 +28,7 @@ i18n
     fallbackLng: 'de',
 
     // Namespaces
-    ns: ['common', 'navigation', 'validation', 'errors'],
+    ns: ['common', 'navigation', 'validation', 'errors', 'auth', 'dashboard', 'settings', 'help'],
     defaultNS: 'common',
 
     // Backend configuration - load from API
@@ -61,9 +61,9 @@ i18n
     // Debug mode in development
     debug: import.meta.env.DEV,
 
-    // React settings
+    // React settings - disable Suspense to prevent focus loss during re-renders
     react: {
-      useSuspense: true,
+      useSuspense: false,
     },
   });
 

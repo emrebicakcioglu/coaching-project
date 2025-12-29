@@ -1,6 +1,7 @@
 /**
  * Logo Component
  * STORY-016A: Context Menu Core Navigation
+ * UI-AUDIT: Replaced logo placeholder with actual SVG branding
  *
  * Company logo and name display for sidebar header.
  *
@@ -29,7 +30,7 @@ export interface LogoProps {
 /**
  * Logo Component
  *
- * Displays a simple logo mark with optional company name.
+ * Displays a professional SVG logo mark with optional company name.
  * The logo mark is always visible, but name can be hidden.
  */
 export const Logo: React.FC<LogoProps> = ({
@@ -43,26 +44,39 @@ export const Logo: React.FC<LogoProps> = ({
       className={`flex items-center ${className}`}
       data-testid={testId}
     >
-      {/* Logo mark */}
+      {/* Logo mark - SVG icon representing interconnected nodes/core */}
       <div
         className="
           flex-shrink-0
           w-8 h-8
-          bg-primary-600
+          bg-gradient-to-br from-primary-500 to-primary-700
           rounded-lg
           flex items-center justify-center
-          text-white font-bold text-sm
+          shadow-sm
         "
         aria-hidden="true"
       >
-        {/* Simple logo - first letter of company name */}
-        {companyName.charAt(0).toUpperCase()}
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="white"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          {/* Hexagon core shape */}
+          <path d="M12 2L21 7v10l-9 5-9-5V7l9-5z" />
+          {/* Inner connecting lines */}
+          <path d="M12 7v10M7 9.5l10 5M7 14.5l10-5" />
+        </svg>
       </div>
 
       {/* Company name */}
       {showName && (
         <span
-          className="ml-3 text-lg font-semibold text-neutral-900 truncate"
+          className="ml-3 text-lg font-semibold text-[var(--color-text-primary)] truncate"
           data-testid={`${testId}-name`}
         >
           {companyName}

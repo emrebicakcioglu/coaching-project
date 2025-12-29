@@ -3,9 +3,16 @@
  * STORY-001: Login System
  * STORY-008: Session Management mit "Remember Me"
  * STORY-009: Password Reset
+ * STORY-3: Register Page UI Audit - Input field styling consistency
  *
- * Shared styles for authentication pages (Login, Forgot Password, Reset Password).
+ * Shared styles for authentication pages (Login, Register, Forgot Password, Reset Password).
  * Responsive design for Mobile/Tablet/Desktop.
+ *
+ * STORY-3 Input Field Consistency:
+ * - All input fields (.auth-input) share identical border, background, and focus states
+ * - Focus ring: 2px solid #2563eb with 3px box-shadow
+ * - Error state: Red border with red focus ring
+ * - Disabled state: Gray background with not-allowed cursor
  */
 
 /* ========================================
@@ -22,7 +29,8 @@
 }
 
 .auth-container {
-  background-color: var(--color-background-card);
+  /* STORY-3 FIX: Added explicit fallback color for consistency */
+  background-color: var(--color-background-card, #f9fafb);
   border-radius: 12px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   padding: 40px;
@@ -43,17 +51,13 @@
 .auth-logo__placeholder {
   width: 64px;
   height: 64px;
-  background-color: var(--color-background-surface);
-  border: 2px solid var(--color-border-default);
-  border-radius: 12px;
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  border: none;
+  border-radius: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--color-text-tertiary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  box-shadow: 0 4px 14px rgba(59, 130, 246, 0.3);
 }
 
 /* ========================================
@@ -120,18 +124,27 @@
 
 .auth-input {
   padding: 12px 14px;
-  border: 1px solid var(--color-border-default);
+  /* STORY-3 FIX: Added explicit fallback colors for consistency */
+  border: 1px solid var(--color-border-default, #e5e7eb);
   border-radius: 8px;
   font-size: 1rem;
   color: var(--color-text-primary);
-  background-color: var(--color-background-card);
+  background-color: var(--color-background-input, #ffffff);
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .auth-input:focus {
   outline: none;
-  border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  border-color: #2563eb !important;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+}
+
+/* STORY-2: Enhanced focus-visible state for keyboard navigation accessibility */
+.auth-input:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+  border-color: #2563eb !important;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
 }
 
 .auth-input::placeholder {
@@ -139,11 +152,20 @@
 }
 
 .auth-input--error {
-  border-color: #ef4444;
+  border-color: var(--color-error, #ef4444);
 }
 
 .auth-input--error:focus {
-  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+}
+
+/* STORY-2: Enhanced error state focus-visible for accessibility */
+.auth-input--error:focus-visible {
+  outline: 2px solid #ef4444;
+  outline-offset: 2px;
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.25);
 }
 
 .auth-input:disabled {
@@ -180,12 +202,40 @@
   color: var(--color-text-primary);
 }
 
+/* STORY-2: Enhanced focus states for password toggle button accessibility */
+.auth-input-toggle:focus {
+  outline: none;
+  color: var(--color-primary, #2563eb);
+}
+
+.auth-input-toggle:focus-visible {
+  outline: 2px solid var(--color-primary, #2563eb);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
 /* Field Messages */
 .auth-field-error,
 .validation-error {
   font-size: 0.8125rem;
   color: #ef4444;
   margin: 4px 0 0 0;
+}
+
+/* STORY-3: Field hint text for password requirements */
+.auth-field-hint {
+  font-size: 0.75rem;
+  color: var(--color-text-tertiary, #6b7280);
+  margin: 8px 0 0 0;
+  line-height: 1.4;
+}
+
+/* STORY-3: Privacy notice styling for consistency */
+.auth-privacy-notice {
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary, #4b5563);
+  margin: 0;
+  line-height: 1.5;
 }
 
 .auth-field-success {
@@ -639,5 +689,16 @@
 }
 
 .auth-delay-message__icon {
+  flex-shrink: 0;
+}
+
+/* ========================================
+   Forbidden Page (STORY-109)
+   ======================================== */
+
+/* Help icon in support link - explicit dimensions for visibility */
+.forbidden-page__help-icon {
+  width: 16px;
+  height: 16px;
   flex-shrink: 0;
 }

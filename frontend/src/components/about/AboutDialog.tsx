@@ -17,6 +17,7 @@
 import React, { useState, useEffect } from 'react';
 import { ResponsiveModal } from '../responsive/ResponsiveModal';
 import { versionService, VersionInfo } from '../../services';
+import { logger } from '../../services/loggerService';
 
 /**
  * AboutDialog props
@@ -62,7 +63,7 @@ export const AboutDialog: React.FC<AboutDialogProps> = ({
           setLoading(false);
         })
         .catch((err) => {
-          console.error('Failed to fetch version info:', err);
+          logger.error('Failed to fetch version info', err);
           setError('Failed to load version information');
           setLoading(false);
         });
@@ -91,13 +92,11 @@ export const AboutDialog: React.FC<AboutDialogProps> = ({
             {/* Application Logo/Icon */}
             <div className="flex justify-center mb-4">
               <div
-                className="
-                  w-16 h-16
-                  rounded-xl
-                  bg-primary-100
-                  flex items-center justify-center
-                  text-primary-600
-                "
+                className="w-16 h-16 rounded-xl flex items-center justify-center"
+                style={{
+                  backgroundColor: 'var(--color-background-surface, #dbeafe)',
+                  color: 'var(--color-primary, #2563eb)',
+                }}
               >
                 <svg
                   className="w-8 h-8"
@@ -119,13 +118,15 @@ export const AboutDialog: React.FC<AboutDialogProps> = ({
             {/* Application Name */}
             <div className="text-center">
               <h3
-                className="text-lg font-semibold text-neutral-900"
+                className="text-lg font-semibold"
+                style={{ color: 'var(--color-text-primary, #111827)' }}
                 data-testid={`${testId}-name`}
               >
                 {versionInfo.name || 'Core App'}
               </h3>
               <p
-                className="text-sm text-neutral-500 mt-1"
+                className="text-sm mt-1"
+                style={{ color: 'var(--color-text-secondary, #6b7280)' }}
                 data-testid={`${testId}-description`}
               >
                 {versionInfo.description}
@@ -134,18 +135,15 @@ export const AboutDialog: React.FC<AboutDialogProps> = ({
 
             {/* Version Information */}
             <div
-              className="
-                bg-neutral-50
-                rounded-lg
-                p-4
-                space-y-2
-              "
+              className="rounded-lg p-4 space-y-2"
+              style={{ backgroundColor: 'var(--color-background-surface, #f9fafb)' }}
             >
               {/* Version Number */}
               <div className="flex justify-between items-center">
-                <span className="text-sm text-neutral-600">Version</span>
+                <span className="text-sm" style={{ color: 'var(--color-text-secondary, #6b7280)' }}>Version</span>
                 <span
-                  className="text-sm font-mono font-medium text-neutral-900"
+                  className="text-sm font-mono font-medium"
+                  style={{ color: 'var(--color-text-primary, #111827)' }}
                   data-testid={`${testId}-version`}
                 >
                   {versionInfo.version}
@@ -155,9 +153,10 @@ export const AboutDialog: React.FC<AboutDialogProps> = ({
               {/* Build Number (if available) */}
               {versionInfo.build && (
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-neutral-600">Build</span>
+                  <span className="text-sm" style={{ color: 'var(--color-text-secondary, #6b7280)' }}>Build</span>
                   <span
-                    className="text-sm font-mono text-neutral-700"
+                    className="text-sm font-mono"
+                    style={{ color: 'var(--color-text-primary, #374151)' }}
                     data-testid={`${testId}-build`}
                   >
                     {versionInfo.build}
@@ -168,9 +167,10 @@ export const AboutDialog: React.FC<AboutDialogProps> = ({
               {/* Git Commit (if available) */}
               {versionInfo.commit && (
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-neutral-600">Commit</span>
+                  <span className="text-sm" style={{ color: 'var(--color-text-secondary, #6b7280)' }}>Commit</span>
                   <span
-                    className="text-sm font-mono text-neutral-700"
+                    className="text-sm font-mono"
+                    style={{ color: 'var(--color-text-primary, #374151)' }}
                     data-testid={`${testId}-commit`}
                   >
                     {versionInfo.commit}
@@ -180,7 +180,7 @@ export const AboutDialog: React.FC<AboutDialogProps> = ({
             </div>
 
             {/* Footer */}
-            <div className="text-center text-xs text-neutral-400 pt-2">
+            <div className="text-center text-xs pt-2" style={{ color: 'var(--color-text-muted, #9ca3af)' }}>
               <p>&copy; {new Date().getFullYear()} Core App. All rights reserved.</p>
             </div>
           </>

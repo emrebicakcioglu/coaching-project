@@ -4,11 +4,118 @@
   "admin": {
     "title": "Administrator-Einstellungen",
     "subtitle": "Konfigurieren Sie systemweite Einstellungen für die Anwendung.",
+    "tabsLabel": "Einstellungen Tabs",
     "tabs": {
       "general": "Allgemein",
       "security": "Sicherheit",
       "email": "E-Mail",
       "maintenance": "Wartung"
+    },
+    "unsavedChangesConfirm": "Sie haben ungespeicherte Änderungen. Möchten Sie trotzdem wechseln?",
+    "loading": "Einstellungen werden geladen...",
+    "unsavedChanges": "Sie haben ungespeicherte Änderungen",
+    "buttons": {
+      "reset": "Zurücksetzen",
+      "save": "Speichern",
+      "saving": "Wird gespeichert...",
+      "discardChanges": "Änderungen verwerfen",
+      "resetToDefaults": "Auf Standard zurücksetzen",
+      "cancel": "Abbrechen",
+      "resetting": "Wird zurückgesetzt..."
+    },
+    "general": {
+      "supportEmail": "Support E-Mail",
+      "supportEmailDescription": "E-Mail-Adresse für Support-Anfragen (wird im Footer angezeigt)",
+      "sessionTimeout": "Session-Timeout",
+      "sessionTimeoutDescription": "Zeit in Minuten bis zur automatischen Abmeldung (1-1440)",
+      "showTimeoutWarning": "Timeout-Warnung anzeigen",
+      "showTimeoutWarningDescription": "Warnung vor automatischer Abmeldung anzeigen",
+      "warningTime": "Warnzeit vor Timeout",
+      "warningTimeDescription": "Minuten vor Timeout, um Warnung anzuzeigen (1-60)",
+      "loadError": "Fehler beim Laden der Einstellungen",
+      "saveSuccess": "Allgemeine Einstellungen wurden gespeichert",
+      "saveError": "Fehler beim Speichern der Einstellungen",
+      "validation": {
+        "invalidEmail": "Bitte geben Sie eine gültige E-Mail-Adresse ein",
+        "sessionTimeoutRange": "Session-Timeout muss zwischen 1 und 1440 Minuten liegen",
+        "warningTimeRange": "Warnzeit muss zwischen 1 und 60 Minuten liegen",
+        "warningTimeLessThanTimeout": "Warnzeit muss kleiner als Session-Timeout sein"
+      }
+    },
+    "security": {
+      "title": "Login-Sicherheit",
+      "passwordPolicy": "Passwort-Richtlinie",
+      "maxLoginAttempts": "Maximale Login-Versuche",
+      "maxLoginAttemptsDescription": "Anzahl der fehlgeschlagenen Versuche bis zur Kontosperrung (1-100)",
+      "inactivityTimeout": "Inaktivitäts-Timeout",
+      "inactivityTimeoutDescription": "Zeit in Minuten bis zur automatischen Abmeldung bei Inaktivität (1-1440)",
+      "passwordMinLength": "Minimale Passwortlänge",
+      "passwordMinLengthDescription": "Minimale Anzahl an Zeichen für Passwörter (6-128)",
+      "requireUppercase": "Großbuchstaben erforderlich",
+      "requireUppercaseDescription": "Mindestens ein Großbuchstabe (A-Z) erforderlich",
+      "requireLowercase": "Kleinbuchstaben erforderlich",
+      "requireLowercaseDescription": "Mindestens ein Kleinbuchstabe (a-z) erforderlich",
+      "requireNumbers": "Zahlen erforderlich",
+      "requireNumbersDescription": "Mindestens eine Zahl (0-9) erforderlich",
+      "requireSpecialChars": "Sonderzeichen erforderlich",
+      "requireSpecialCharsDescription": "Mindestens ein Sonderzeichen (!@#$%^&*...) erforderlich",
+      "resetConfirmTitle": "Auf Standardwerte zurücksetzen?",
+      "resetConfirmMessage": "Alle Sicherheitseinstellungen werden auf die Standardwerte zurückgesetzt. Diese Aktion kann nicht rückgängig gemacht werden.",
+      "loadError": "Fehler beim Laden der Sicherheitseinstellungen",
+      "saveSuccess": "Sicherheitseinstellungen wurden gespeichert",
+      "saveError": "Fehler beim Speichern der Sicherheitseinstellungen",
+      "resetSuccess": "Sicherheitseinstellungen wurden auf Standardwerte zurückgesetzt",
+      "resetError": "Fehler beim Zurücksetzen der Sicherheitseinstellungen",
+      "validation": {
+        "maxLoginAttemptsRange": "Maximale Login-Versuche müssen zwischen 1 und 100 liegen",
+        "passwordMinLengthRange": "Minimale Passwortlänge muss zwischen 6 und 128 liegen",
+        "inactivityTimeoutRange": "Inaktivitäts-Timeout muss zwischen 1 und 1440 Minuten liegen"
+      }
+    },
+    "email": {
+      "infoBanner": "Diese Einstellungen betreffen alle vom System versendeten E-Mails wie Benachrichtigungen, Passwort-Reset-E-Mails und Registrierungsbestätigungen.",
+      "signature": "E-Mail-Signatur",
+      "signatureDescription": "Signatur, die am Ende jeder E-Mail angehängt wird (max. 1000 Zeichen)",
+      "signaturePlaceholder": "Mit freundlichen Grüßen,\nIhr Team",
+      "characterCount": "{{count}} / 1000 Zeichen",
+      "preview": "Vorschau",
+      "previewContent": "[E-Mail-Inhalt...]",
+      "noSignature": "Keine Signatur definiert",
+      "loadError": "Fehler beim Laden der E-Mail-Einstellungen",
+      "saveSuccess": "E-Mail-Einstellungen wurden gespeichert",
+      "saveError": "Fehler beim Speichern der E-Mail-Einstellungen",
+      "validation": {
+        "signatureMaxLength": "Signatur darf maximal 1000 Zeichen lang sein"
+      }
+    },
+    "maintenance": {
+      "title": "Wartungsmodus",
+      "description": "Deaktivieren Sie die Anwendung temporär für alle Benutzer (außer Administratoren).",
+      "loading": "Laden...",
+      "statusActive": "Wartungsmodus ist AKTIV",
+      "statusActiveDescription": "Normale Benutzer können nicht auf die Anwendung zugreifen.",
+      "remainingTime": "Verbleibende Zeit:",
+      "soon": "Bald",
+      "toggleEnable": "Wartungsmodus aktivieren",
+      "toggleDisable": "Wartungsmodus deaktivieren",
+      "toggleEnableHint": "Klicken Sie um die Anwendung in den Wartungsmodus zu versetzen",
+      "toggleDisableHint": "Klicken Sie um die Anwendung wieder freizugeben",
+      "message": "Wartungsnachricht",
+      "messagePlaceholder": "Geben Sie eine Nachricht für die Benutzer ein...",
+      "messageCharCount": "{{count}}/500 Zeichen",
+      "duration": "Geschätzte Dauer (Minuten)",
+      "durationMax": "Maximale Dauer: 24 Stunden (1440 Minuten)",
+      "infoTitle": "Hinweise:",
+      "infoItems": {
+        "adminAccess": "Administratoren können während des Wartungsmodus weiterhin auf die Anwendung zugreifen",
+        "apiError": "Alle API-Anfragen von normalen Benutzern werden mit einem 503-Fehler abgelehnt",
+        "userMessage": "Benutzer sehen eine Wartungsseite mit Ihrer Nachricht",
+        "canDisable": "Der Wartungsmodus kann jederzeit deaktiviert werden"
+      },
+      "loadError": "Fehler beim Laden des Wartungsmodus-Status",
+      "enableSuccess": "Wartungsmodus aktiviert! Normale Benutzer haben keinen Zugriff mehr.",
+      "disableSuccess": "Wartungsmodus deaktiviert. Die Anwendung ist wieder verfügbar.",
+      "updateError": "Fehler beim Ändern des Wartungsmodus"
     }
   },
   "personal": {
@@ -31,7 +138,10 @@
     "mfa": {
       "title": "Zwei-Faktor-Authentifizierung (2FA)",
       "description": "Fügen Sie eine zusätzliche Sicherheitsebene zu Ihrem Konto hinzu.",
-      "setup": "2FA einrichten"
+      "setup": "2FA einrichten",
+      "enabled": "Aktiviert",
+      "disabled": "Deaktiviert",
+      "disable": "2FA deaktivieren"
     },
     "password": {
       "title": "Passwort ändern",
@@ -39,6 +149,66 @@
       "new": "Neues Passwort",
       "confirm": "Neues Passwort bestätigen",
       "update": "Passwort aktualisieren"
+    }
+  },
+  "mfaSetup": {
+    "title": "Zwei-Faktor-Authentifizierung",
+    "subtitle": "Schützen Sie Ihr Konto mit einem zusätzlichen Sicherheitsfaktor.",
+    "steps": {
+      "start": "Start",
+      "verify": "Verifizieren",
+      "backup": "Backup-Codes",
+      "done": "Fertig"
+    },
+    "intro": {
+      "title": "2FA aktivieren",
+      "description": "Die Zwei-Faktor-Authentifizierung fügt eine zusätzliche Sicherheitsebene zu Ihrem Konto hinzu. Zusätzlich zu Ihrem Passwort müssen Sie einen Code aus einer Authenticator-App eingeben.",
+      "benefits": {
+        "title": "Vorteile:",
+        "protection": "Schutz vor unbefugtem Zugriff",
+        "security": "Selbst wenn Ihr Passwort kompromittiert wird, bleibt Ihr Konto sicher",
+        "recovery": "Backup-Codes für Notfälle"
+      }
+    },
+    "buttons": {
+      "enable": "2FA aktivieren",
+      "backToSettings": "Zurück zu Einstellungen",
+      "codesStored": "Ich habe die Codes gespeichert",
+      "done": "Fertig",
+      "copyCode": "Code kopieren"
+    },
+    "loading": {
+      "setup": "Wird eingerichtet...",
+      "qrCode": "Lade QR-Code..."
+    },
+    "scan": {
+      "title": "QR-Code scannen",
+      "description": "Scannen Sie den QR-Code mit Ihrer Authenticator-App (z.B. Google Authenticator, Authy, Microsoft Authenticator).",
+      "manual": "Oder geben Sie diesen Code manuell ein:",
+      "aria": {
+        "qrCode": "QR-Code für MFA-Einrichtung"
+      }
+    },
+    "verify": {
+      "title": "Verifizierungscode eingeben",
+      "description": "Geben Sie den 6-stelligen Code aus Ihrer Authenticator-App ein.",
+      "placeholder": "000000"
+    },
+    "backup": {
+      "title": "Backup-Codes speichern",
+      "description": "Speichern Sie diese Backup-Codes an einem sicheren Ort. Sie können sie verwenden, um auf Ihr Konto zuzugreifen, wenn Sie keinen Zugriff auf Ihre Authenticator-App haben.",
+      "warning": "Jeder Code kann nur einmal verwendet werden.",
+      "appName": "Core App"
+    },
+    "success": {
+      "title": "2FA aktiviert!",
+      "description": "Ihr Konto ist jetzt mit Zwei-Faktor-Authentifizierung geschützt.",
+      "warning": "Wichtig: Bewahren Sie Ihre Backup-Codes sicher auf. Sie benötigen sie, wenn Sie den Zugang zu Ihrer Authenticator-App verlieren."
+    },
+    "errors": {
+      "setup": "2FA konnte nicht eingerichtet werden. Bitte versuchen Sie es erneut.",
+      "verify": "Ungültiger Code. Bitte versuchen Sie es erneut.",
+      "generic": "Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut."
     }
   }
 }

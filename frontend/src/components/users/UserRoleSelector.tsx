@@ -11,6 +11,7 @@ import { RoleBadge } from './RoleBadge';
 import { rolesService } from '../../services/rolesService';
 import { usersService } from '../../services/usersService';
 import type { Role } from '../../services/usersService';
+import { logger } from '../../services/loggerService';
 import './UserRoleSelector.css';
 
 export interface UserRoleSelectorProps {
@@ -55,7 +56,7 @@ export const UserRoleSelector: React.FC<UserRoleSelectorProps> = ({
         const roles = await rolesService.listRoles();
         setAvailableRoles(roles);
       } catch (err) {
-        console.error('Failed to load roles:', err);
+        logger.error('Failed to load roles', err);
         setError('Failed to load available roles');
       } finally {
         setIsLoading(false);
@@ -159,7 +160,7 @@ export const UserRoleSelector: React.FC<UserRoleSelectorProps> = ({
         onRolesUpdated(selectedRoles);
       }
     } catch (err) {
-      console.error('Failed to update roles:', err);
+      logger.error('Failed to update roles', err);
       setError('Failed to save role changes. Please try again.');
       // Revert to original selection
       setSelectedRoles(currentRoles);

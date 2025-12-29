@@ -1,18 +1,21 @@
 /**
  * Security Settings Component
  * STORY-013B: In-App Settings Frontend UI
+ * STORY-002-003: Settings Page i18n Support
  *
  * Form component for managing security settings.
  * Includes password policy and login attempt configuration.
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { FormField } from './FormField';
 import {
   settingsService,
   SecuritySettings as SecuritySettingsType,
   UpdateSecuritySettingsDto,
 } from '../../services/settingsService';
+import { logger } from '../../services/loggerService';
 
 /**
  * Form errors interface
@@ -59,6 +62,8 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({
   onSaveError,
   onUnsavedChanges,
 }) => {
+  const { t } = useTranslation('settings');
+
   // Form state
   const [formData, setFormData] = useState<SecuritySettingsType>(DEFAULT_SETTINGS);
   const [originalData, setOriginalData] = useState<SecuritySettingsType | null>(null);
@@ -81,15 +86,15 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({
         setOriginalData(settings);
         setErrors({});
       } catch (error) {
-        console.error('Failed to load security settings:', error);
-        onSaveError?.('Fehler beim Laden der Sicherheitseinstellungen');
+        logger.error('Failed to load security settings', error);
+        onSaveError?.(t('admin.security.loadError'));
       } finally {
         setIsLoading(false);
       }
     };
 
     loadSettings();
-  }, [onSaveError]);
+  }, [onSaveError, t]);
 
   /**
    * Check for unsaved changes
@@ -118,14 +123,12 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({
 
     // Validate max login attempts
     if (formData.max_login_attempts < 1 || formData.max_login_attempts > 100) {
-      newErrors.max_login_attempts =
-        'Maximale Login-Versuche müssen zwischen 1 und 100 liegen';
+      newErrors.max_login_attempts = t('admin.security.validation.maxLoginAttemptsRange');
     }
 
     // Validate password min length
     if (formData.password_min_length < 6 || formData.password_min_length > 128) {
-      newErrors.password_min_length =
-        'Minimale Passwortlänge muss zwischen 6 und 128 liegen';
+      newErrors.password_min_length = t('admin.security.validation.passwordMinLengthRange');
     }
 
     // Validate session inactivity timeout
@@ -133,13 +136,12 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({
       formData.session_inactivity_timeout < 1 ||
       formData.session_inactivity_timeout > 1440
     ) {
-      newErrors.session_inactivity_timeout =
-        'Inaktivitäts-Timeout muss zwischen 1 und 1440 Minuten liegen';
+      newErrors.session_inactivity_timeout = t('admin.security.validation.inactivityTimeoutRange');
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
-  }, [formData]);
+  }, [formData, t]);
 
   /**
    * Handle field change
@@ -190,11 +192,11 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({
       setFormData(updatedSettings);
       setOriginalData(updatedSettings);
       setHasUnsavedChanges(false);
-      onSaveSuccess?.('Sicherheitseinstellungen wurden gespeichert');
+      onSaveSuccess?.(t('admin.security.saveSuccess'));
     } catch (error) {
-      console.error('Failed to save security settings:', error);
-      setErrors({ general: 'Fehler beim Speichern der Sicherheitseinstellungen' });
-      onSaveError?.('Fehler beim Speichern der Sicherheitseinstellungen');
+      logger.error('Failed to save security settings', error);
+      setErrors({ general: t('admin.security.saveError') });
+      onSaveError?.(t('admin.security.saveError'));
     } finally {
       setIsSaving(false);
     }
@@ -224,11 +226,11 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({
       setOriginalData(resetSettings);
       setHasUnsavedChanges(false);
       setShowResetConfirm(false);
-      onSaveSuccess?.('Sicherheitseinstellungen wurden auf Standardwerte zurückgesetzt');
+      onSaveSuccess?.(t('admin.security.resetSuccess'));
     } catch (error) {
-      console.error('Failed to reset security settings:', error);
-      setErrors({ general: 'Fehler beim Zurücksetzen der Sicherheitseinstellungen' });
-      onSaveError?.('Fehler beim Zurücksetzen der Sicherheitseinstellungen');
+      logger.error('Failed to reset security settings', error);
+      setErrors({ general: t('admin.security.resetError') });
+      onSaveError?.(t('admin.security.resetError'));
     } finally {
       setIsResetting(false);
     }
@@ -242,7 +244,7 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({
         data-testid="security-settings-loading"
       >
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600" />
-        <span className="ml-3 text-neutral-600">Einstellungen werden geladen...</span>
+        <span className="ml-3 text-neutral-600">{t('admin.loading')}</span>
       </div>
     );
   }
@@ -257,11 +259,10 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({
         >
           <div className="bg-white rounded-lg shadow-xl p-6 max-w-md mx-4">
             <h3 className="text-lg font-semibold text-neutral-900 mb-2">
-              Auf Standardwerte zurücksetzen?
+              {t('admin.security.resetConfirmTitle')}
             </h3>
             <p className="text-sm text-neutral-600 mb-4">
-              Alle Sicherheitseinstellungen werden auf die Standardwerte zurückgesetzt.
-              Diese Aktion kann nicht rückgängig gemacht werden.
+              {t('admin.security.resetConfirmMessage')}
             </p>
             <div className="flex justify-end gap-3">
               <button
@@ -269,7 +270,7 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({
                 onClick={() => setShowResetConfirm(false)}
                 className="px-4 py-2 text-sm font-medium text-neutral-700 bg-white border border-neutral-300 rounded-md hover:bg-neutral-50 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
               >
-                Abbrechen
+                {t('admin.buttons.cancel')}
               </button>
               <button
                 type="button"
@@ -278,7 +279,7 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({
                 className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50"
                 data-testid="confirm-reset"
               >
-                {isResetting ? 'Wird zurückgesetzt...' : 'Zurücksetzen'}
+                {isResetting ? t('admin.buttons.resetting') : t('admin.buttons.reset')}
               </button>
             </div>
           </div>
@@ -300,12 +301,12 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({
         {/* Login Security Section */}
         <div className="space-y-4">
           <h3 className="text-sm font-semibold text-neutral-900 uppercase tracking-wide">
-            Login-Sicherheit
+            {t('admin.security.title')}
           </h3>
 
           <FormField
-            label="Maximale Login-Versuche"
-            description="Anzahl der fehlgeschlagenen Versuche bis zur Kontosperrung (1-100)"
+            label={t('admin.security.maxLoginAttempts')}
+            description={t('admin.security.maxLoginAttemptsDescription')}
             name="max_login_attempts"
             type="number"
             value={formData.max_login_attempts}
@@ -318,8 +319,8 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({
           />
 
           <FormField
-            label="Inaktivitäts-Timeout"
-            description="Zeit in Minuten bis zur automatischen Abmeldung bei Inaktivität (1-1440)"
+            label={t('admin.security.inactivityTimeout')}
+            description={t('admin.security.inactivityTimeoutDescription')}
             name="session_inactivity_timeout"
             type="number"
             value={formData.session_inactivity_timeout}
@@ -335,12 +336,12 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({
         {/* Password Policy Section */}
         <div className="space-y-4 pt-4 border-t border-neutral-200">
           <h3 className="text-sm font-semibold text-neutral-900 uppercase tracking-wide">
-            Passwort-Richtlinie
+            {t('admin.security.passwordPolicy')}
           </h3>
 
           <FormField
-            label="Minimale Passwortlänge"
-            description="Minimale Anzahl an Zeichen für Passwörter (6-128)"
+            label={t('admin.security.passwordMinLength')}
+            description={t('admin.security.passwordMinLengthDescription')}
             name="password_min_length"
             type="number"
             value={formData.password_min_length}
@@ -353,8 +354,8 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({
           />
 
           <FormField
-            label="Großbuchstaben erforderlich"
-            description="Mindestens ein Großbuchstabe (A-Z) erforderlich"
+            label={t('admin.security.requireUppercase')}
+            description={t('admin.security.requireUppercaseDescription')}
             name="password_require_uppercase"
             type="toggle"
             value={formData.password_require_uppercase}
@@ -363,8 +364,8 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({
           />
 
           <FormField
-            label="Kleinbuchstaben erforderlich"
-            description="Mindestens ein Kleinbuchstabe (a-z) erforderlich"
+            label={t('admin.security.requireLowercase')}
+            description={t('admin.security.requireLowercaseDescription')}
             name="password_require_lowercase"
             type="toggle"
             value={formData.password_require_lowercase}
@@ -373,8 +374,8 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({
           />
 
           <FormField
-            label="Zahlen erforderlich"
-            description="Mindestens eine Zahl (0-9) erforderlich"
+            label={t('admin.security.requireNumbers')}
+            description={t('admin.security.requireNumbersDescription')}
             name="password_require_numbers"
             type="toggle"
             value={formData.password_require_numbers}
@@ -383,8 +384,8 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({
           />
 
           <FormField
-            label="Sonderzeichen erforderlich"
-            description="Mindestens ein Sonderzeichen (!@#$%^&*...) erforderlich"
+            label={t('admin.security.requireSpecialChars')}
+            description={t('admin.security.requireSpecialCharsDescription')}
             name="password_require_special_chars"
             type="toggle"
             value={formData.password_require_special_chars}
@@ -407,7 +408,7 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({
                 d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
               />
             </svg>
-            <span>Sie haben ungespeicherte Änderungen</span>
+            <span>{t('admin.unsavedChanges')}</span>
           </div>
         )}
 
@@ -420,7 +421,7 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({
             className="px-4 py-2 text-sm font-medium text-red-700 bg-red-50 border border-red-200 rounded-md hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
             data-testid="reset-to-defaults-button"
           >
-            Auf Standard zurücksetzen
+            {t('admin.buttons.resetToDefaults')}
           </button>
 
           <div className="flex gap-3">
@@ -431,7 +432,7 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({
               className="px-4 py-2 text-sm font-medium text-neutral-700 bg-white border border-neutral-300 rounded-md hover:bg-neutral-50 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
               data-testid="reset-button"
             >
-              Änderungen verwerfen
+              {t('admin.buttons.discardChanges')}
             </button>
             <button
               type="submit"
@@ -439,7 +440,7 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = ({
               className="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
               data-testid="save-button"
             >
-              {isSaving ? 'Wird gespeichert...' : 'Speichern'}
+              {isSaving ? t('admin.buttons.saving') : t('admin.buttons.save')}
             </button>
           </div>
         </div>

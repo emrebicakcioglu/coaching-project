@@ -1,6 +1,7 @@
 /**
  * CaptchaInput Component
  * STORY-CAPTCHA: Login Security with CAPTCHA
+ * STORY-002-001: i18n Support for Login Page
  *
  * Math CAPTCHA input component for login security.
  * Displays a math question and input field for the answer.
@@ -11,6 +12,7 @@
  * - Refresh button to get new CAPTCHA
  * - Loading and error states
  * - Accessible with ARIA labels
+ * - Full i18n support
  *
  * @example
  * ```tsx
@@ -27,6 +29,7 @@
  */
 
 import React, { useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 
 /**
  * Props for CaptchaInput component
@@ -66,6 +69,8 @@ export const CaptchaInput: React.FC<CaptchaInputProps> = ({
   disabled = false,
   className = '',
 }) => {
+  const { t } = useTranslation('auth');
+
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       // Only allow numbers and minus sign
@@ -93,7 +98,7 @@ export const CaptchaInput: React.FC<CaptchaInputProps> = ({
     >
       <div className="captcha-header">
         <label htmlFor="captcha-answer" className="captcha-label">
-          Sicherheitsabfrage
+          {t('login.captcha.label')}
         </label>
       </div>
 
@@ -103,7 +108,7 @@ export const CaptchaInput: React.FC<CaptchaInputProps> = ({
           {isLoading ? (
             <span className="captcha-loading">
               <span className="captcha-spinner" aria-hidden="true" />
-              Wird geladen...
+              {t('login.captcha.loading')}
             </span>
           ) : (
             <span className="captcha-question-text">{question}</span>
@@ -119,7 +124,7 @@ export const CaptchaInput: React.FC<CaptchaInputProps> = ({
             value={value}
             onChange={handleChange}
             className={`captcha-input ${error ? 'captcha-input--error' : ''}`}
-            placeholder="Antwort eingeben"
+            placeholder={t('login.captcha.placeholder')}
             autoComplete="off"
             inputMode="numeric"
             required
@@ -135,8 +140,8 @@ export const CaptchaInput: React.FC<CaptchaInputProps> = ({
             className="captcha-refresh-btn"
             onClick={handleRefresh}
             disabled={disabled || isLoading}
-            aria-label="Neue Sicherheitsabfrage laden"
-            title="Neue Frage"
+            aria-label={t('login.captcha.refreshAriaLabel')}
+            title={t('login.captcha.refreshTitle')}
             data-testid="captcha-refresh"
           >
             {isLoading ? (
@@ -170,7 +175,7 @@ export const CaptchaInput: React.FC<CaptchaInputProps> = ({
         {/* Hint text */}
         {!error && (
           <span id="captcha-hint" className="captcha-hint">
-            Bitte l&ouml;sen Sie die Rechenaufgabe
+            {t('login.captcha.hint')}
           </span>
         )}
       </div>

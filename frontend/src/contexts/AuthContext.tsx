@@ -25,9 +25,22 @@ import React, {
   useEffect,
   useCallback,
   useMemo,
+  useRef,
 } from 'react';
-import { authService, LoginRequest, LoginResponse } from '../services/authService';
+import { authService, LoginRequest, LoginResponse, AUTH_STATE_CHANGE_EVENT } from '../services/authService';
 import { rolesService, Permission, Role } from '../services/rolesService';
+
+/**
+ * Token validation interval in milliseconds (30 seconds)
+ * This ensures we catch expired tokens reasonably quickly
+ */
+const TOKEN_VALIDATION_INTERVAL = 30 * 1000;
+
+/**
+ * Proactive refresh buffer in seconds (60 seconds before expiration)
+ * Refresh token this many seconds before it actually expires
+ */
+const PROACTIVE_REFRESH_BUFFER = 60;
 
 /**
  * User interface for authenticated user
@@ -121,8 +134,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [role, setRole] = useState<Role | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Ref to track if we're currently refreshing to prevent multiple refresh attempts
+  const isRefreshingRef = useRef(false);
+
   /**
    * Load user from storage on mount
+   * STORY-008: Enhanced to recover session from refresh token even if auth_user is missing
    */
   useEffect(() => {
     const loadStoredAuth = async () => {
@@ -132,6 +149,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         const storedPermissions = localStorage.getItem(PERMISSIONS_STORAGE_KEY);
 
         if (storedUser && authService.isAuthenticated()) {
+          // Normal case: both user data and tokens exist
           const userData = JSON.parse(storedUser) as User;
           setUser(userData);
 
@@ -142,6 +160,55 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           // Try to refresh user data in background
           // Don't await to avoid blocking the UI
           refreshUserData().catch(console.error);
+        } else if (!storedUser && authService.isAuthenticated()) {
+          // Recovery case: refresh token exists but user data is missing
+          // This can happen when browser clears some localStorage but keeps tokens
+          // Try to recover the session by refreshing the token and getting user info
+          console.log('Attempting to recover session from refresh token...');
+          try {
+            // Make an authenticated API call to trigger token refresh
+            const roles = await rolesService.listRoles();
+
+            // If we get here, the token was valid/refreshed
+            // Try to get user info from the access token
+            const accessToken = localStorage.getItem('access_token');
+            if (accessToken) {
+              try {
+                const base64Payload = accessToken.split('.')[1];
+                const payload = JSON.parse(atob(base64Payload));
+
+                // Create user object from token payload
+                const recoveredUser: User = {
+                  id: payload.sub,
+                  email: payload.email,
+                  name: payload.email.split('@')[0], // Fallback name from email
+                  status: 'active',
+                };
+
+                setUser(recoveredUser);
+                localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(recoveredUser));
+
+                // Set permissions from roles
+                if (roles.length > 0) {
+                  const userRole = roles.find((r) => r.name.toLowerCase() === 'admin') || roles[0];
+                  if (userRole) {
+                    setRole(userRole);
+                    const permissionNames = userRole.permissions?.map((p) => p.name) || [];
+                    setPermissions(permissionNames);
+                    localStorage.setItem(PERMISSIONS_STORAGE_KEY, JSON.stringify(permissionNames));
+                  }
+                }
+
+                console.log('Session recovered successfully');
+              } catch (decodeError) {
+                console.error('Failed to decode access token:', decodeError);
+              }
+            }
+          } catch (refreshError) {
+            // Token refresh failed - user needs to login again
+            console.log('Session recovery failed, user needs to login');
+            authService.clearTokens();
+          }
         }
       } catch (error) {
         console.error('Error loading stored auth:', error);
@@ -155,6 +222,92 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     loadStoredAuth();
   }, []);
+
+  /**
+   * Handle logout - clears user state and storage
+   */
+  const handleLogout = useCallback(() => {
+    setUser(null);
+    setPermissions([]);
+    setRole(null);
+    localStorage.removeItem(USER_STORAGE_KEY);
+    localStorage.removeItem(PERMISSIONS_STORAGE_KEY);
+  }, []);
+
+  /**
+   * Proactive token refresh
+   * Refreshes the token before it expires to prevent session interruption
+   */
+  const proactiveTokenRefresh = useCallback(async () => {
+    if (isRefreshingRef.current) return;
+
+    try {
+      isRefreshingRef.current = true;
+      await authService.refreshToken();
+      console.debug('Proactive token refresh successful');
+    } catch (error) {
+      console.warn('Proactive token refresh failed:', error);
+      // If refresh fails, the next API call will trigger the interceptor
+      // which will handle the redirect to login
+    } finally {
+      isRefreshingRef.current = false;
+    }
+  }, []);
+
+  /**
+   * Periodic token validation
+   * Checks token status every 30 seconds and handles expiration
+   * IMPORTANT: This prevents users from working with expired sessions
+   */
+  useEffect(() => {
+    // Don't run if not authenticated or still loading
+    if (isLoading || !user) return;
+
+    const validateToken = async () => {
+      // Check if token is still valid
+      if (!authService.isAuthenticated()) {
+        console.warn('Token validation: Session expired, logging out');
+        handleLogout();
+        authService.forceLogout('session_expired');
+        return;
+      }
+
+      // Check if token is about to expire and proactively refresh
+      if (authService.isTokenAboutToExpire(PROACTIVE_REFRESH_BUFFER)) {
+        console.debug('Token validation: Token about to expire, refreshing proactively');
+        await proactiveTokenRefresh();
+      }
+    };
+
+    // Run immediately on mount
+    validateToken();
+
+    // Set up periodic validation
+    const intervalId = setInterval(validateToken, TOKEN_VALIDATION_INTERVAL);
+
+    return () => clearInterval(intervalId);
+  }, [isLoading, user, handleLogout, proactiveTokenRefresh]);
+
+  /**
+   * Listen for auth state change events from authService
+   * This handles cases where the interceptor detects token expiration
+   */
+  useEffect(() => {
+    const handleAuthStateChange = (event: CustomEvent<{ isAuthenticated: boolean; reason: string }>) => {
+      const { isAuthenticated, reason } = event.detail;
+
+      if (!isAuthenticated) {
+        console.warn(`Auth state change: ${reason}`);
+        handleLogout();
+      }
+    };
+
+    window.addEventListener(AUTH_STATE_CHANGE_EVENT, handleAuthStateChange as EventListener);
+
+    return () => {
+      window.removeEventListener(AUTH_STATE_CHANGE_EVENT, handleAuthStateChange as EventListener);
+    };
+  }, [handleLogout]);
 
   /**
    * Refresh user data from server
@@ -287,12 +440,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
    */
   const logout = useCallback(async (): Promise<void> => {
     await authService.logout();
-    setUser(null);
-    setPermissions([]);
-    setRole(null);
-    localStorage.removeItem(USER_STORAGE_KEY);
-    localStorage.removeItem(PERMISSIONS_STORAGE_KEY);
-  }, []);
+    handleLogout();
+  }, [handleLogout]);
 
   /**
    * Memoized context value

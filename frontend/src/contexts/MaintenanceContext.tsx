@@ -18,6 +18,7 @@ import {
   maintenanceService,
   MaintenanceStatus,
 } from '../services/maintenanceService';
+import { logger } from '../services/loggerService';
 
 /**
  * Maintenance context state
@@ -81,7 +82,7 @@ const DEFAULT_MAINTENANCE_STATUS: MaintenanceStatus = {
  */
 export const MaintenanceProvider: React.FC<MaintenanceProviderProps> = ({
   children,
-  checkInterval = 60000, // 1 minute default
+  checkInterval = 300000, // 5 minutes default to reduce unnecessary re-renders
   skipCheck = false,
 }) => {
   const [isMaintenanceMode, setIsMaintenanceMode] = useState(false);
@@ -109,7 +110,7 @@ export const MaintenanceProvider: React.FC<MaintenanceProviderProps> = ({
       setIsMaintenanceMode(status.enabled);
     } catch (err) {
       // On error, assume maintenance mode is off to not block users
-      console.error('Failed to check maintenance status:', err);
+      logger.error('Failed to check maintenance status', err);
       setError(err instanceof Error ? err : new Error('Failed to check maintenance status'));
       setMaintenanceInfo(DEFAULT_MAINTENANCE_STATUS);
       setIsMaintenanceMode(false);

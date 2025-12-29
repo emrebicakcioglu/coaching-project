@@ -19,6 +19,7 @@ import React, { useState, useEffect } from 'react';
 import { ResponsiveModal } from '../responsive';
 import { usersService, CreateUserDto, User } from '../../services/usersService';
 import { rolesService, Role } from '../../services/rolesService';
+import { logger } from '../../services/loggerService';
 import './UserFormModal.css';
 
 /**
@@ -100,7 +101,7 @@ export const UserCreateModal: React.FC<UserCreateModalProps> = ({
       const roles = await rolesService.listRoles();
       setAvailableRoles(roles);
     } catch (error) {
-      console.error('Failed to load roles:', error);
+      logger.error('Failed to load roles', error);
     }
   };
 
@@ -193,7 +194,7 @@ export const UserCreateModal: React.FC<UserCreateModalProps> = ({
       onSuccess?.(newUser);
       onClose();
     } catch (error: unknown) {
-      console.error('Failed to create user:', error);
+      logger.error('Failed to create user', error);
       const apiError = error as { response?: { data?: { message?: string } } };
       setErrors({
         general:

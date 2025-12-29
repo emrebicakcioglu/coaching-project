@@ -33,6 +33,7 @@ import React, {
 } from 'react';
 import { useTranslation } from 'react-i18next';
 import { changeLanguage as i18nChangeLanguage, getCurrentLanguage } from '../i18n';
+import { logger } from '../services/loggerService';
 
 /**
  * Language metadata interface
@@ -129,7 +130,7 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
       const data = await response.json();
       setLanguages(data);
     } catch (err) {
-      console.error('Failed to load languages:', err);
+      logger.error('Failed to load languages', err);
       setError('Failed to load available languages');
       // Set default languages as fallback
       setLanguages([
@@ -187,7 +188,7 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
       await i18nChangeLanguage(code);
       setCurrentLanguage(code);
     } catch (err) {
-      console.error('Failed to change language:', err);
+      logger.error('Failed to change language', err);
       setError('Failed to change language');
     } finally {
       setIsLoading(false);

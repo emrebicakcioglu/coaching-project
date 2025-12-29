@@ -4,11 +4,118 @@
   "admin": {
     "title": "Administrator Settings",
     "subtitle": "Configure system-wide settings for the application.",
+    "tabsLabel": "Settings Tabs",
     "tabs": {
       "general": "General",
       "security": "Security",
       "email": "Email",
       "maintenance": "Maintenance"
+    },
+    "unsavedChangesConfirm": "You have unsaved changes. Do you want to switch anyway?",
+    "loading": "Loading settings...",
+    "unsavedChanges": "You have unsaved changes",
+    "buttons": {
+      "reset": "Reset",
+      "save": "Save",
+      "saving": "Saving...",
+      "discardChanges": "Discard changes",
+      "resetToDefaults": "Reset to defaults",
+      "cancel": "Cancel",
+      "resetting": "Resetting..."
+    },
+    "general": {
+      "supportEmail": "Support Email",
+      "supportEmailDescription": "Email address for support requests (displayed in footer)",
+      "sessionTimeout": "Session Timeout",
+      "sessionTimeoutDescription": "Time in minutes until automatic logout (1-1440)",
+      "showTimeoutWarning": "Show timeout warning",
+      "showTimeoutWarningDescription": "Show warning before automatic logout",
+      "warningTime": "Warning time before timeout",
+      "warningTimeDescription": "Minutes before timeout to show warning (1-60)",
+      "loadError": "Error loading settings",
+      "saveSuccess": "General settings saved successfully",
+      "saveError": "Error saving settings",
+      "validation": {
+        "invalidEmail": "Please enter a valid email address",
+        "sessionTimeoutRange": "Session timeout must be between 1 and 1440 minutes",
+        "warningTimeRange": "Warning time must be between 1 and 60 minutes",
+        "warningTimeLessThanTimeout": "Warning time must be less than session timeout"
+      }
+    },
+    "security": {
+      "title": "Login Security",
+      "passwordPolicy": "Password Policy",
+      "maxLoginAttempts": "Maximum login attempts",
+      "maxLoginAttemptsDescription": "Number of failed attempts until account lockout (1-100)",
+      "inactivityTimeout": "Inactivity timeout",
+      "inactivityTimeoutDescription": "Time in minutes until automatic logout due to inactivity (1-1440)",
+      "passwordMinLength": "Minimum password length",
+      "passwordMinLengthDescription": "Minimum number of characters for passwords (6-128)",
+      "requireUppercase": "Require uppercase letters",
+      "requireUppercaseDescription": "At least one uppercase letter (A-Z) required",
+      "requireLowercase": "Require lowercase letters",
+      "requireLowercaseDescription": "At least one lowercase letter (a-z) required",
+      "requireNumbers": "Require numbers",
+      "requireNumbersDescription": "At least one number (0-9) required",
+      "requireSpecialChars": "Require special characters",
+      "requireSpecialCharsDescription": "At least one special character (!@#$%^&*...) required",
+      "resetConfirmTitle": "Reset to default values?",
+      "resetConfirmMessage": "All security settings will be reset to default values. This action cannot be undone.",
+      "loadError": "Error loading security settings",
+      "saveSuccess": "Security settings saved successfully",
+      "saveError": "Error saving security settings",
+      "resetSuccess": "Security settings have been reset to default values",
+      "resetError": "Error resetting security settings",
+      "validation": {
+        "maxLoginAttemptsRange": "Maximum login attempts must be between 1 and 100",
+        "passwordMinLengthRange": "Minimum password length must be between 6 and 128",
+        "inactivityTimeoutRange": "Inactivity timeout must be between 1 and 1440 minutes"
+      }
+    },
+    "email": {
+      "infoBanner": "These settings affect all emails sent by the system such as notifications, password reset emails, and registration confirmations.",
+      "signature": "Email Signature",
+      "signatureDescription": "Signature appended to the end of every email (max. 1000 characters)",
+      "signaturePlaceholder": "Best regards,\nYour Team",
+      "characterCount": "{{count}} / 1000 characters",
+      "preview": "Preview",
+      "previewContent": "[Email content...]",
+      "noSignature": "No signature defined",
+      "loadError": "Error loading email settings",
+      "saveSuccess": "Email settings saved successfully",
+      "saveError": "Error saving email settings",
+      "validation": {
+        "signatureMaxLength": "Signature must be at most 1000 characters"
+      }
+    },
+    "maintenance": {
+      "title": "Maintenance Mode",
+      "description": "Temporarily disable the application for all users (except administrators).",
+      "loading": "Loading...",
+      "statusActive": "Maintenance mode is ACTIVE",
+      "statusActiveDescription": "Normal users cannot access the application.",
+      "remainingTime": "Remaining time:",
+      "soon": "Soon",
+      "toggleEnable": "Enable maintenance mode",
+      "toggleDisable": "Disable maintenance mode",
+      "toggleEnableHint": "Click to put the application into maintenance mode",
+      "toggleDisableHint": "Click to make the application available again",
+      "message": "Maintenance message",
+      "messagePlaceholder": "Enter a message for users...",
+      "messageCharCount": "{{count}}/500 characters",
+      "duration": "Estimated duration (minutes)",
+      "durationMax": "Maximum duration: 24 hours (1440 minutes)",
+      "infoTitle": "Notes:",
+      "infoItems": {
+        "adminAccess": "Administrators can still access the application during maintenance mode",
+        "apiError": "All API requests from normal users will be rejected with a 503 error",
+        "userMessage": "Users will see a maintenance page with your message",
+        "canDisable": "Maintenance mode can be disabled at any time"
+      },
+      "loadError": "Error loading maintenance mode status",
+      "enableSuccess": "Maintenance mode enabled! Normal users no longer have access.",
+      "disableSuccess": "Maintenance mode disabled. The application is available again.",
+      "updateError": "Error changing maintenance mode"
     }
   },
   "personal": {
@@ -31,7 +138,10 @@
     "mfa": {
       "title": "Two-Factor Authentication (2FA)",
       "description": "Add an extra layer of security to your account.",
-      "setup": "Setup 2FA"
+      "setup": "Setup 2FA",
+      "enabled": "Enabled",
+      "disabled": "Disabled",
+      "disable": "Disable 2FA"
     },
     "password": {
       "title": "Change Password",
@@ -39,6 +149,66 @@
       "new": "New Password",
       "confirm": "Confirm New Password",
       "update": "Update Password"
+    }
+  },
+  "mfaSetup": {
+    "title": "Two-Factor Authentication",
+    "subtitle": "Protect your account with an additional security factor.",
+    "steps": {
+      "start": "Start",
+      "verify": "Verify",
+      "backup": "Backup Codes",
+      "done": "Done"
+    },
+    "intro": {
+      "title": "Enable 2FA",
+      "description": "Two-factor authentication adds an extra layer of security to your account. In addition to your password, you will need to enter a code from an authenticator app.",
+      "benefits": {
+        "title": "Benefits:",
+        "protection": "Protection against unauthorized access",
+        "security": "Even if your password is compromised, your account remains secure",
+        "recovery": "Backup codes for emergencies"
+      }
+    },
+    "buttons": {
+      "enable": "Enable 2FA",
+      "backToSettings": "Back to Settings",
+      "codesStored": "I have saved the codes",
+      "done": "Done",
+      "copyCode": "Copy code"
+    },
+    "loading": {
+      "setup": "Setting up...",
+      "qrCode": "Loading QR code..."
+    },
+    "scan": {
+      "title": "Scan QR Code",
+      "description": "Scan the QR code with your authenticator app (e.g., Google Authenticator, Authy, Microsoft Authenticator).",
+      "manual": "Or enter this code manually:",
+      "aria": {
+        "qrCode": "QR code for MFA setup"
+      }
+    },
+    "verify": {
+      "title": "Enter Verification Code",
+      "description": "Enter the 6-digit code from your authenticator app.",
+      "placeholder": "000000"
+    },
+    "backup": {
+      "title": "Save Backup Codes",
+      "description": "Save these backup codes in a safe place. You can use them to access your account if you lose access to your authenticator app.",
+      "warning": "Each code can only be used once.",
+      "appName": "Core App"
+    },
+    "success": {
+      "title": "2FA Enabled!",
+      "description": "Your account is now protected with two-factor authentication.",
+      "warning": "Important: Keep your backup codes safe. You will need them if you lose access to your authenticator app."
+    },
+    "errors": {
+      "setup": "Failed to setup 2FA. Please try again.",
+      "verify": "Invalid code. Please try again.",
+      "generic": "An error occurred. Please try again."
     }
   }
 }

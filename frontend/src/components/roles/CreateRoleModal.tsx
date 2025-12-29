@@ -19,6 +19,7 @@ import React, { useState, useEffect } from 'react';
 import { ResponsiveModal } from '../responsive';
 import { rolesService, Role, Permission, CreateRoleDto } from '../../services/rolesService';
 import { PermissionCheckboxGroup } from './PermissionCheckboxGroup';
+import { logger } from '../../services/loggerService';
 import './RoleFormModal.css';
 
 /**
@@ -93,7 +94,7 @@ export const CreateRoleModal: React.FC<CreateRoleModalProps> = ({
       const allPermissions = await rolesService.listPermissions();
       setPermissions(allPermissions);
     } catch (error) {
-      console.error('Failed to load permissions:', error);
+      logger.error('Failed to load permissions', error);
       setErrors({ general: 'Berechtigungen konnten nicht geladen werden.' });
     } finally {
       setLoadingPermissions(false);
@@ -172,7 +173,7 @@ export const CreateRoleModal: React.FC<CreateRoleModalProps> = ({
       onSuccess?.(newRole);
       onClose();
     } catch (error: unknown) {
-      console.error('Failed to create role:', error);
+      logger.error('Failed to create role', error);
       const apiError = error as { response?: { data?: { message?: string } } };
       setErrors({
         general:

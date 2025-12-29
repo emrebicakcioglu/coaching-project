@@ -1,11 +1,13 @@
 /**
  * Maintenance Settings Component
  * STORY-034: Maintenance Mode
+ * STORY-002-003: Settings Page i18n Support
  *
  * Admin settings panel for enabling/disabling maintenance mode.
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { maintenanceService, MaintenanceStatus } from '../../services/maintenanceService';
 
 /**
@@ -28,6 +30,8 @@ export const MaintenanceSettings: React.FC<MaintenanceSettingsProps> = ({
   onSaveError,
   onUnsavedChanges,
 }) => {
+  const { t } = useTranslation('settings');
+
   // State
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -53,12 +57,12 @@ export const MaintenanceSettings: React.FC<MaintenanceSettingsProps> = ({
       setEnabled(status.enabled);
       setMessage(status.message || defaultMessage);
     } catch (err) {
-      setError('Fehler beim Laden des Wartungsmodus-Status');
-      onSaveError?.('Fehler beim Laden des Wartungsmodus-Status');
+      setError(t('admin.maintenance.loadError'));
+      onSaveError?.(t('admin.maintenance.loadError'));
     } finally {
       setLoading(false);
     }
-  }, [onSaveError]);
+  }, [onSaveError, t]);
 
   // Load status on mount
   useEffect(() => {
@@ -85,13 +89,13 @@ export const MaintenanceSettings: React.FC<MaintenanceSettingsProps> = ({
       setCurrentStatus(result);
 
       if (newEnabled) {
-        onSaveSuccess?.('Wartungsmodus aktiviert! Normale Benutzer haben keinen Zugriff mehr.');
+        onSaveSuccess?.(t('admin.maintenance.enableSuccess'));
       } else {
-        onSaveSuccess?.('Wartungsmodus deaktiviert. Die Anwendung ist wieder verfuegbar.');
+        onSaveSuccess?.(t('admin.maintenance.disableSuccess'));
       }
     } catch (err) {
-      setError('Fehler beim Aendern des Wartungsmodus');
-      onSaveError?.('Fehler beim Aendern des Wartungsmodus');
+      setError(t('admin.maintenance.updateError'));
+      onSaveError?.(t('admin.maintenance.updateError'));
     } finally {
       setSaving(false);
     }
@@ -126,7 +130,7 @@ export const MaintenanceSettings: React.FC<MaintenanceSettingsProps> = ({
     const now = Date.now();
     const diff = endTime - now;
 
-    if (diff <= 0) return 'Bald';
+    if (diff <= 0) return t('admin.maintenance.soon');
 
     const hours = Math.floor(diff / (1000 * 60 * 60));
     const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
@@ -141,7 +145,7 @@ export const MaintenanceSettings: React.FC<MaintenanceSettingsProps> = ({
     return (
       <div className="flex items-center justify-center p-8">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500" />
-        <span className="ml-2 text-neutral-600">Laden...</span>
+        <span className="ml-2 text-neutral-600">{t('admin.maintenance.loading')}</span>
       </div>
     );
   }
@@ -150,9 +154,9 @@ export const MaintenanceSettings: React.FC<MaintenanceSettingsProps> = ({
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h3 className="text-lg font-medium text-neutral-900">Wartungsmodus</h3>
+        <h3 className="text-lg font-medium text-neutral-900">{t('admin.maintenance.title')}</h3>
         <p className="mt-1 text-sm text-neutral-600">
-          Deaktivieren Sie die Anwendung temporaer fuer alle Benutzer (ausser Administratoren).
+          {t('admin.maintenance.description')}
         </p>
       </div>
 
@@ -182,14 +186,14 @@ export const MaintenanceSettings: React.FC<MaintenanceSettingsProps> = ({
             </svg>
             <div>
               <p className="text-sm font-medium text-yellow-800">
-                Wartungsmodus ist AKTIV
+                {t('admin.maintenance.statusActive')}
               </p>
               <p className="text-sm text-yellow-700">
-                Normale Benutzer koennen nicht auf die Anwendung zugreifen.
+                {t('admin.maintenance.statusActiveDescription')}
               </p>
               {currentStatus?.estimatedEndTime && (
                 <p className="text-sm text-yellow-700 mt-1">
-                  Verbleibende Zeit: <strong>{calculateRemainingTime()}</strong>
+                  {t('admin.maintenance.remainingTime')} <strong>{calculateRemainingTime()}</strong>
                 </p>
               )}
             </div>
@@ -204,12 +208,12 @@ export const MaintenanceSettings: React.FC<MaintenanceSettingsProps> = ({
             htmlFor="maintenance-toggle"
             className="text-sm font-medium text-neutral-900"
           >
-            Wartungsmodus {enabled ? 'deaktivieren' : 'aktivieren'}
+            {enabled ? t('admin.maintenance.toggleDisable') : t('admin.maintenance.toggleEnable')}
           </label>
           <p className="text-sm text-neutral-500">
             {enabled
-              ? 'Klicken Sie um die Anwendung wieder freizugeben'
-              : 'Klicken Sie um die Anwendung in den Wartungsmodus zu versetzen'}
+              ? t('admin.maintenance.toggleDisableHint')
+              : t('admin.maintenance.toggleEnableHint')}
           </p>
         </div>
         <button
@@ -245,20 +249,20 @@ export const MaintenanceSettings: React.FC<MaintenanceSettingsProps> = ({
           htmlFor="maintenance-message"
           className="block text-sm font-medium text-neutral-700 mb-2"
         >
-          Wartungsnachricht
+          {t('admin.maintenance.message')}
         </label>
         <textarea
           id="maintenance-message"
           value={message}
           onChange={handleMessageChange}
-          placeholder="Geben Sie eine Nachricht fuer die Benutzer ein..."
+          placeholder={t('admin.maintenance.messagePlaceholder')}
           rows={4}
           maxLength={500}
           className="w-full px-3 py-2 border border-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
           data-testid="maintenance-message"
         />
         <p className="mt-1 text-sm text-neutral-500">
-          {message.length}/500 Zeichen
+          {t('admin.maintenance.messageCharCount', { count: message.length })}
         </p>
       </div>
 
@@ -268,7 +272,7 @@ export const MaintenanceSettings: React.FC<MaintenanceSettingsProps> = ({
           htmlFor="maintenance-duration"
           className="block text-sm font-medium text-neutral-700 mb-2"
         >
-          Geschaetzte Dauer (Minuten)
+          {t('admin.maintenance.duration')}
         </label>
         <input
           id="maintenance-duration"
@@ -281,18 +285,18 @@ export const MaintenanceSettings: React.FC<MaintenanceSettingsProps> = ({
           data-testid="maintenance-duration"
         />
         <p className="mt-1 text-sm text-neutral-500">
-          Maximale Dauer: 24 Stunden (1440 Minuten)
+          {t('admin.maintenance.durationMax')}
         </p>
       </div>
 
       {/* Info section */}
       <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
-        <h4 className="text-sm font-medium text-blue-800 mb-2">Hinweise:</h4>
+        <h4 className="text-sm font-medium text-blue-800 mb-2">{t('admin.maintenance.infoTitle')}</h4>
         <ul className="list-disc list-inside text-sm text-blue-700 space-y-1">
-          <li>Administratoren koennen waehrend des Wartungsmodus weiterhin auf die Anwendung zugreifen</li>
-          <li>Alle API-Anfragen von normalen Benutzern werden mit einem 503-Fehler abgelehnt</li>
-          <li>Benutzer sehen eine Wartungsseite mit Ihrer Nachricht</li>
-          <li>Der Wartungsmodus kann jederzeit deaktiviert werden</li>
+          <li>{t('admin.maintenance.infoItems.adminAccess')}</li>
+          <li>{t('admin.maintenance.infoItems.apiError')}</li>
+          <li>{t('admin.maintenance.infoItems.userMessage')}</li>
+          <li>{t('admin.maintenance.infoItems.canDisable')}</li>
         </ul>
       </div>
     </div>

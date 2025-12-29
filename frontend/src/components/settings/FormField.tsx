@@ -1,6 +1,7 @@
 /**
  * FormField Component
  * STORY-013B: In-App Settings Frontend UI
+ * STORY-106: Settings Page UI Audit - Standardized spacing (label-input: 8px, desc-input: 4px)
  *
  * Reusable form field component with label, description, and various input types.
  * Supports text, number, email, password, select, toggle, and textarea inputs.
@@ -96,14 +97,36 @@ export const FormField: React.FC<FormFieldProps> = ({
   const errorId = error ? `error-${id}-${name}` : undefined;
 
   /**
-   * Base input classes
+   * Base input styles for dark mode support
+   * Uses theme input CSS variables for proper color scheme integration
    */
+  const inputBaseStyle = {
+    backgroundColor: error
+      ? 'var(--color-input-error-background, var(--color-error-light, #fef2f2))'
+      : disabled
+        ? 'var(--color-input-disabled-background, #f3f4f6)'
+        : 'var(--color-input-background, var(--color-background-input, #ffffff))',
+    borderColor: error
+      ? 'var(--color-input-error-border, var(--color-error, #ef4444))'
+      : disabled
+        ? 'var(--color-input-disabled-border, #e5e7eb)'
+        : 'var(--color-input-border, var(--color-border-default, #d1d5db))',
+    color: error
+      ? 'var(--color-input-error-text, #991b1b)'
+      : disabled
+        ? 'var(--color-input-disabled-text, #9ca3af)'
+        : 'var(--color-input-text, var(--color-text-primary, #111827))',
+    '--tw-ring-color': error
+      ? 'var(--color-input-error-focus-ring, rgba(239, 68, 68, 0.2))'
+      : 'var(--color-input-focus-ring, rgba(37, 99, 235, 0.2))',
+  } as React.CSSProperties;
+
   const inputBaseClasses = `
     w-full px-3 py-2 border rounded-md text-sm
     transition-colors duration-200
-    focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent
-    disabled:bg-neutral-100 disabled:cursor-not-allowed disabled:text-neutral-500
-    ${error ? 'border-red-300 bg-red-50' : 'border-neutral-300'}
+    focus:outline-none focus:ring-2 focus:border-transparent
+    disabled:cursor-not-allowed disabled:opacity-60
+    placeholder:text-[var(--color-input-placeholder,#9ca3af)]
   `;
 
   /**
@@ -128,6 +151,7 @@ export const FormField: React.FC<FormFieldProps> = ({
         max={max}
         step={step}
         className={inputBaseClasses}
+        style={inputBaseStyle}
         aria-describedby={[descriptionId, errorId].filter(Boolean).join(' ') || undefined}
         aria-invalid={error ? 'true' : undefined}
         data-testid={testId || `setting-input-${name}`}
@@ -147,6 +171,7 @@ export const FormField: React.FC<FormFieldProps> = ({
       disabled={disabled}
       required={required}
       className={inputBaseClasses}
+      style={inputBaseStyle}
       aria-describedby={[descriptionId, errorId].filter(Boolean).join(' ') || undefined}
       aria-invalid={error ? 'true' : undefined}
       data-testid={testId || `setting-select-${name}`}
@@ -173,6 +198,7 @@ export const FormField: React.FC<FormFieldProps> = ({
       placeholder={placeholder}
       rows={rows}
       className={inputBaseClasses}
+      style={inputBaseStyle}
       aria-describedby={[descriptionId, errorId].filter(Boolean).join(' ') || undefined}
       aria-invalid={error ? 'true' : undefined}
       data-testid={testId || `setting-textarea-${name}`}
@@ -230,20 +256,21 @@ export const FormField: React.FC<FormFieldProps> = ({
   };
 
   return (
-    <div className="space-y-1" data-testid={`field-container-${name}`}>
-      {/* Label and Toggle Layout */}
+    <div className="space-y-2" data-testid={`field-container-${name}`}>
+      {/* Label and Toggle Layout - STORY-106: Standardized spacing */}
       {type === 'toggle' ? (
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-4">
           <div className="flex-1">
             <label
               htmlFor={fieldId}
-              className="block text-sm font-medium text-neutral-900"
+              className="block text-sm font-medium"
+              style={{ color: 'var(--color-text-primary, #111827)' }}
             >
               {label}
               {required && <span className="text-red-500 ml-1">*</span>}
             </label>
             {description && (
-              <p id={descriptionId} className="text-sm text-neutral-500 mt-0.5">
+              <p id={descriptionId} className="text-sm mt-1" style={{ color: 'var(--color-text-secondary, #6b7280)' }}>
                 {description}
               </p>
             )}
@@ -252,15 +279,18 @@ export const FormField: React.FC<FormFieldProps> = ({
         </div>
       ) : (
         <>
+          {/* STORY-106: Label with 8px (space-y-2) spacing to input */}
           <label
             htmlFor={fieldId}
-            className="block text-sm font-medium text-neutral-900"
+            className="block text-sm font-medium"
+            style={{ color: 'var(--color-text-primary, #111827)' }}
           >
             {label}
             {required && <span className="text-red-500 ml-1">*</span>}
           </label>
+          {/* STORY-106: Description with 4px (mt-1) spacing */}
           {description && (
-            <p id={descriptionId} className="text-sm text-neutral-500 mb-1">
+            <p id={descriptionId} className="text-sm -mt-1 mb-1" style={{ color: 'var(--color-text-secondary, #6b7280)' }}>
               {description}
             </p>
           )}
@@ -268,7 +298,7 @@ export const FormField: React.FC<FormFieldProps> = ({
         </>
       )}
 
-      {/* Error Message */}
+      {/* Error Message - STORY-106: Consistent error spacing */}
       {error && (
         <p
           id={errorId}

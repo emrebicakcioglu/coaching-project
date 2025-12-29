@@ -7,7 +7,7 @@
  * Story: STORY-021A (API-Basis-Infrastruktur)
  */
 
-import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
+import { Injectable, OnModuleInit, OnModuleDestroy, ServiceUnavailableException } from '@nestjs/common';
 import { Pool, PoolClient, QueryResult, QueryResultRow } from 'pg';
 import { DatabasePool, getDatabase } from './pool';
 import { Migrator } from './migrator';
@@ -110,5 +110,30 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
    */
   getPool(): Pool | null {
     return this.databasePool.getPool();
+  }
+
+  /**
+   * Get pool with guaranteed availability
+   * Throws ServiceUnavailableException if pool is not available
+   *
+   * Use this instead of getPool() + null check pattern:
+   * ```typescript
+   * // OLD (repeated in 50+ places):
+   * const pool = this.databaseService.getPool();
+   * if (!pool) throw new Error('Database pool not available');
+   *
+   * // NEW (cleaner, better error handling):
+   * const pool = this.databaseService.ensurePool();
+   * ```
+   *
+   * @throws ServiceUnavailableException if database connection is lost
+   * @returns Pool instance (never null)
+   */
+  ensurePool(): Pool {
+    const pool = this.databasePool.getPool();
+    if (!pool) {
+      throw new ServiceUnavailableException('Database connection unavailable. Please try again later.');
+    }
+    return pool;
   }
 }

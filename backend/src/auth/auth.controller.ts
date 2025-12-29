@@ -70,11 +70,7 @@ import {
   CaptchaResponseDto,
 } from './dto/login-security.dto';
 import { RateLimit } from '../common/guards/rate-limit.guard';
-
-interface AuthRequest extends Request {
-  user?: { id?: number; email?: string };
-  requestId?: string;
-}
+import { AuthRequest } from './auth.types';
 
 @ApiTags('Auth')
 @Controller('api/v1/auth')
@@ -145,7 +141,8 @@ export class AuthController {
       if (!loginDto.captchaId || !loginDto.captchaAnswer) {
         const captcha = this.loginSecurityService.generateCaptcha();
         throw new BadRequestException({
-          message: 'CAPTCHA erforderlich',
+          message: 'CAPTCHA_REQUIRED',
+          errorCode: 'CAPTCHA_REQUIRED',
           requiresCaptcha: true,
           captcha,
           delaySeconds: securityStatus.delaySeconds,
@@ -160,7 +157,8 @@ export class AuthController {
       if (!captchaValid) {
         const captcha = this.loginSecurityService.generateCaptcha();
         throw new BadRequestException({
-          message: 'Falsche CAPTCHA-Antwort',
+          message: 'CAPTCHA_INVALID',
+          errorCode: 'CAPTCHA_INVALID',
           requiresCaptcha: true,
           captcha,
           delaySeconds: securityStatus.delaySeconds,
@@ -182,7 +180,8 @@ export class AuthController {
         const captcha = this.loginSecurityService.generateCaptcha();
         if (error instanceof UnauthorizedException) {
           throw new UnauthorizedException({
-            message: error.message || 'Invalid email or password',
+            message: 'AUTH_INVALID_CREDENTIALS',
+            errorCode: 'AUTH_INVALID_CREDENTIALS',
             requiresCaptcha: true,
             captcha,
             delaySeconds: updatedStatus.delaySeconds,

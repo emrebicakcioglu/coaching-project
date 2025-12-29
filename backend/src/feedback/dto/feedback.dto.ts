@@ -2,6 +2,8 @@
  * Feedback DTOs
  * STORY-038A: Feedback-Backend API
  * STORY-038B: Feedback Rate Limiting & Email Queue
+ * STORY-041B: Feedback Screenshot Storage
+ * STORY-002-REWORK-003: Fixed HTTP 500 error - made screenshot optional
  *
  * Data Transfer Objects for feedback submission with screenshot support.
  */
@@ -11,15 +13,16 @@ import { IsString, IsOptional, IsNotEmpty, MaxLength } from 'class-validator';
 
 /**
  * DTO for submitting user feedback with optional screenshot
+ * STORY-002-REWORK-003: Screenshot is now optional to prevent validation errors
  */
 export class SubmitFeedbackDto {
-  @ApiProperty({
-    description: 'Base64 encoded screenshot image (PNG format)',
+  @ApiPropertyOptional({
+    description: 'Base64 encoded screenshot image (PNG format) - optional',
     example: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
   })
+  @IsOptional()
   @IsString()
-  @IsNotEmpty({ message: 'Screenshot is required' })
-  screenshot: string;
+  screenshot?: string;
 
   @ApiProperty({
     description: 'User feedback comment/message',
@@ -85,6 +88,7 @@ export class SubmitFeedbackDto {
 
 /**
  * Response DTO for successful feedback submission
+ * STORY-041B: Added id and screenshotStored fields
  */
 export class FeedbackResponseDto {
   @ApiProperty({
@@ -94,10 +98,22 @@ export class FeedbackResponseDto {
   message: string;
 
   @ApiPropertyOptional({
+    description: 'Unique identifier of the feedback submission',
+    example: 123,
+  })
+  id?: number;
+
+  @ApiPropertyOptional({
     description: 'Indicates if feedback was queued for async processing',
     example: true,
   })
   queued?: boolean;
+
+  @ApiPropertyOptional({
+    description: 'Indicates if screenshot was stored in MinIO',
+    example: true,
+  })
+  screenshotStored?: boolean;
 }
 
 /**

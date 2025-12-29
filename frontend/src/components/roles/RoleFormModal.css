@@ -4,6 +4,7 @@
  *
  * Styling for CreateRoleModal and EditRoleModal components.
  * Uses BEM naming convention for consistency with existing styles.
+ * Updated for dark mode support using CSS variables.
  */
 
 /* Form container */
@@ -16,9 +17,9 @@
 /* General error message */
 .role-form-modal__error {
   padding: 12px 16px;
-  color: #b91c1c;
-  background: #fee2e2;
-  border: 1px solid #fecaca;
+  color: var(--color-error, #b91c1c);
+  background: var(--color-error-light, #fee2e2);
+  border: 1px solid var(--color-error, #fecaca);
   border-radius: 6px;
   font-size: 14px;
   line-height: 1.5;
@@ -30,18 +31,18 @@
   align-items: center;
   gap: 8px;
   padding: 12px 16px;
-  background: #f3f4f6;
+  background: var(--color-background-surface, #f3f4f6);
   border-radius: 6px;
   font-size: 14px;
 }
 
 .role-form-modal__info-label {
-  color: #6b7280;
+  color: var(--color-text-secondary, #6b7280);
   font-weight: 500;
 }
 
 .role-form-modal__info-value {
-  color: #374151;
+  color: var(--color-text-primary, #374151);
   font-family: ui-monospace, monospace;
 }
 
@@ -52,8 +53,8 @@
   margin-left: auto;
   font-size: 12px;
   font-weight: 500;
-  color: #6b7280;
-  background: #e5e7eb;
+  color: var(--color-text-secondary, #6b7280);
+  background: var(--color-border-default, #e5e7eb);
   border-radius: 9999px;
 }
 
@@ -71,12 +72,12 @@
   gap: 8px;
   font-size: 14px;
   font-weight: 500;
-  color: #374151;
+  color: var(--color-text-primary, #374151);
 }
 
 .role-form-modal__label-hint {
   font-weight: 400;
-  color: #6b7280;
+  color: var(--color-text-secondary, #6b7280);
   font-size: 12px;
 }
 
@@ -85,31 +86,35 @@
   width: 100%;
   padding: 10px 12px;
   font-size: 14px;
-  color: #1f2937;
-  background: white;
-  border: 1px solid #d1d5db;
+  color: var(--color-text-primary, #1f2937);
+  background: var(--color-background-input, #ffffff);
+  border: 1px solid var(--color-border-default, #d1d5db);
   border-radius: 6px;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
+.role-form-modal__input::placeholder {
+  color: var(--color-text-muted, #9ca3af);
+}
+
 .role-form-modal__input:focus {
   outline: none;
-  border-color: #3b82f6;
+  border-color: var(--color-primary, #3b82f6);
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
 }
 
 .role-form-modal__input:disabled {
-  background: #f9fafb;
-  color: #9ca3af;
+  background: var(--color-background-surface, #f9fafb);
+  color: var(--color-text-muted, #9ca3af);
   cursor: not-allowed;
 }
 
 .role-form-modal__input--error {
-  border-color: #ef4444;
+  border-color: var(--color-error, #ef4444);
 }
 
 .role-form-modal__input--error:focus {
-  border-color: #ef4444;
+  border-color: var(--color-error, #ef4444);
   box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
 }
 
@@ -118,9 +123,9 @@
   width: 100%;
   padding: 10px 12px;
   font-size: 14px;
-  color: #1f2937;
-  background: white;
-  border: 1px solid #d1d5db;
+  color: var(--color-text-primary, #1f2937);
+  background: var(--color-background-input, #ffffff);
+  border: 1px solid var(--color-border-default, #d1d5db);
   border-radius: 6px;
   resize: vertical;
   min-height: 80px;
@@ -128,38 +133,42 @@
   font-family: inherit;
 }
 
+.role-form-modal__textarea::placeholder {
+  color: var(--color-text-muted, #9ca3af);
+}
+
 .role-form-modal__textarea:focus {
   outline: none;
-  border-color: #3b82f6;
+  border-color: var(--color-primary, #3b82f6);
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
 }
 
 .role-form-modal__textarea:disabled {
-  background: #f9fafb;
-  color: #9ca3af;
+  background: var(--color-background-surface, #f9fafb);
+  color: var(--color-text-muted, #9ca3af);
   cursor: not-allowed;
 }
 
 .role-form-modal__textarea--error {
-  border-color: #ef4444;
+  border-color: var(--color-error, #ef4444);
 }
 
 .role-form-modal__textarea--error:focus {
-  border-color: #ef4444;
+  border-color: var(--color-error, #ef4444);
   box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
 }
 
 /* Field error message */
 .role-form-modal__field-error {
   font-size: 12px;
-  color: #ef4444;
+  color: var(--color-error, #ef4444);
   line-height: 1.4;
 }
 
 /* Hint text */
 .role-form-modal__hint {
   font-size: 12px;
-  color: #6b7280;
+  color: var(--color-text-secondary, #6b7280);
   line-height: 1.4;
   text-align: right;
 }
@@ -171,17 +180,17 @@
   justify-content: center;
   gap: 12px;
   padding: 24px;
-  color: #6b7280;
-  background: #f9fafb;
+  color: var(--color-text-secondary, #6b7280);
+  background: var(--color-background-surface, #f9fafb);
   border-radius: 8px;
-  border: 1px dashed #d1d5db;
+  border: 1px dashed var(--color-border-default, #d1d5db);
 }
 
 .role-form-modal__spinner {
   width: 20px;
   height: 20px;
-  border: 2px solid #e5e7eb;
-  border-top-color: #3b82f6;
+  border: 2px solid var(--color-border-default, #e5e7eb);
+  border-top-color: var(--color-primary, #3b82f6);
   border-radius: 50%;
   animation: role-form-spin 0.8s linear infinite;
 }
@@ -218,12 +227,12 @@
 
 .role-form-modal__btn--primary {
   color: white;
-  background: #3b82f6;
+  background: var(--color-primary, #3b82f6);
   border: none;
 }
 
 .role-form-modal__btn--primary:hover:not(:disabled) {
-  background: #2563eb;
+  background: var(--color-primary-hover, #2563eb);
 }
 
 .role-form-modal__btn--primary:focus {
@@ -232,14 +241,14 @@
 }
 
 .role-form-modal__btn--secondary {
-  color: #374151;
-  background: white;
-  border: 1px solid #d1d5db;
+  color: var(--color-text-primary, #374151);
+  background: var(--color-background-input, #ffffff);
+  border: 1px solid var(--color-border-default, #d1d5db);
 }
 
 .role-form-modal__btn--secondary:hover:not(:disabled) {
-  background: #f9fafb;
-  border-color: #9ca3af;
+  background: var(--color-background-surface, #f9fafb);
+  border-color: var(--color-border-hover, #9ca3af);
 }
 
 .role-form-modal__btn--secondary:focus {

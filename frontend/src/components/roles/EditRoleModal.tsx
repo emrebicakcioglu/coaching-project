@@ -21,6 +21,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { ResponsiveModal } from '../responsive';
 import { rolesService, Role, Permission, UpdateRoleDto } from '../../services/rolesService';
 import { PermissionCheckboxGroup } from './PermissionCheckboxGroup';
+import { logger } from '../../services/loggerService';
 import './RoleFormModal.css';
 
 /**
@@ -102,7 +103,7 @@ export const EditRoleModal: React.FC<EditRoleModalProps> = ({
       const allPermissions = await rolesService.listPermissions();
       setPermissions(allPermissions);
     } catch (error) {
-      console.error('Failed to load permissions:', error);
+      logger.error('Failed to load permissions', error);
       setErrors({ general: 'Berechtigungen konnten nicht geladen werden.' });
     } finally {
       setLoadingPermissions(false);
@@ -237,7 +238,7 @@ export const EditRoleModal: React.FC<EditRoleModalProps> = ({
       onSuccess?.(updatedRole);
       onClose();
     } catch (error: unknown) {
-      console.error('Failed to update role:', error);
+      logger.error('Failed to update role', error);
       const apiError = error as { response?: { data?: { message?: string } } };
       setErrors({
         general:

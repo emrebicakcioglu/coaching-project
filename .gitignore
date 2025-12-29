@@ -114,3 +114,4 @@ credentials/
 
 # Keep example environment file
 !.env.docker.example
+nul

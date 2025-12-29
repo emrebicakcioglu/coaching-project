@@ -433,15 +433,7 @@ export class EmailService implements OnModuleInit {
    */
   private async logEmail(entry: EmailLogEntry): Promise<void> {
     try {
-      const pool = this.databaseService.getPool();
-      if (!pool) {
-        // Fallback to console logging if database not available
-        this.logger.warn(
-          `Email log (DB unavailable): ${entry.status} - ${entry.subject} to ${entry.to}`,
-          'EmailService',
-        );
-        return;
-      }
+      const pool = this.databaseService.ensurePool();
 
       await pool.query(
         `INSERT INTO email_logs (recipient, subject, template, message_id, status, error, retry_count, sent_at, created_at)

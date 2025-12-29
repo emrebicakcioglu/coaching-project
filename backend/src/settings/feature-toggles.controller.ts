@@ -111,7 +111,8 @@ export class FeatureTogglesController {
   async getPublicFeatures(): Promise<FeaturesListResponseDto> {
     const features = await this.featureTogglesService.getFeatures();
     // Return only public-facing features
-    const publicFeatureKeys = ['user-registration', 'dark-mode'];
+    // STORY-041: Added 'feedback' to public features
+    const publicFeatureKeys = ['user-registration', 'dark-mode', 'feedback'];
     const publicFeatures = Object.fromEntries(
       Object.entries(features).filter(([key]) => publicFeatureKeys.includes(key)),
     );

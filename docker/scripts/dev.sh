@@ -96,6 +96,8 @@ start_services() {
     echo "  - API:             http://localhost:14102/api/v1"
     echo "  - API Docs:        http://localhost:14102/api/docs"
     echo "  - API Health:      http://localhost:14102/api/health"
+    echo "  - API Liveness:    http://localhost:14102/api/health/live"
+    echo "  - API Readiness:   http://localhost:14102/api/health/ready"
     echo "  - Frontend (dev):  http://localhost:3000 (run 'cd frontend && npm run dev')"
     echo "  - PostgreSQL:      localhost:14101"
     echo "  - Redis:           localhost:14103"

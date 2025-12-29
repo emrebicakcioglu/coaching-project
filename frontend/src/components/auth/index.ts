@@ -10,7 +10,7 @@
 
 // STORY-007B: Login System Frontend UI
 export { LoginForm } from './LoginForm';
-export type { LoginFormProps, LoginFormData } from './LoginForm';
+export type { LoginFormProps, LoginFormData, CaptchaChallengeData } from './LoginForm';
 
 export { PrivateRoute } from './PrivateRoute';
 export type { PrivateRouteProps } from './PrivateRoute';
@@ -49,3 +49,7 @@ export type { MFALoginPromptProps } from './MFALoginPrompt';
 // STORY-CAPTCHA: Login Security
 export { CaptchaInput } from './CaptchaInput';
 export type { CaptchaInputProps } from './CaptchaInput';
+
+// STORY-3: Register Page UI Audit - Shared Auth Logo
+export { AuthLogo } from './AuthLogo';
+export type { AuthLogoProps } from './AuthLogo';

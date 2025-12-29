@@ -78,10 +78,7 @@ export class UsersService {
   async findAll(
     query: ListUsersQueryDto,
   ): Promise<PaginatedResponse<UserResponseDto>> {
-    const pool = this.databaseService.getPool();
-    if (!pool) {
-      throw new Error('Database pool not available');
-    }
+    const pool = this.databaseService.ensurePool();
 
     const {
       page = 1,
@@ -179,10 +176,7 @@ export class UsersService {
    * @returns User or throws NotFoundException
    */
   async findOne(id: number): Promise<UserResponseDto> {
-    const pool = this.databaseService.getPool();
-    if (!pool) {
-      throw new Error('Database pool not available');
-    }
+    const pool = this.databaseService.ensurePool();
 
     const result = await pool.query<User>(
       'SELECT * FROM users WHERE id = $1',
@@ -206,10 +200,7 @@ export class UsersService {
    * @returns Full user record or null
    */
   async findById(id: number): Promise<User | null> {
-    const pool = this.databaseService.getPool();
-    if (!pool) {
-      throw new Error('Database pool not available');
-    }
+    const pool = this.databaseService.ensurePool();
 
     const result = await pool.query<User>(
       'SELECT * FROM users WHERE id = $1',
@@ -226,10 +217,7 @@ export class UsersService {
    * @returns Full user record or null
    */
   async findByEmail(email: string): Promise<User | null> {
-    const pool = this.databaseService.getPool();
-    if (!pool) {
-      throw new Error('Database pool not available');
-    }
+    const pool = this.databaseService.ensurePool();
 
     const result = await pool.query<User>(
       'SELECT * FROM users WHERE email = $1',
@@ -247,10 +235,7 @@ export class UsersService {
    * @returns Created user
    */
   async create(createUserDto: CreateUserDto, request?: AuthRequest): Promise<UserResponseDto> {
-    const pool = this.databaseService.getPool();
-    if (!pool) {
-      throw new Error('Database pool not available');
-    }
+    const pool = this.databaseService.ensurePool();
 
     const {
       email,
@@ -335,10 +320,7 @@ export class UsersService {
    * @returns Updated user
    */
   async update(id: number, updateUserDto: UpdateUserDto, request?: AuthRequest): Promise<UserResponseDto> {
-    const pool = this.databaseService.getPool();
-    if (!pool) {
-      throw new Error('Database pool not available');
-    }
+    const pool = this.databaseService.ensurePool();
 
     // Check if user exists
     const existingUser = await this.findById(id);
@@ -441,10 +423,7 @@ export class UsersService {
    * @returns Deleted user
    */
   async delete(id: number, request?: AuthRequest): Promise<UserResponseDto> {
-    const pool = this.databaseService.getPool();
-    if (!pool) {
-      throw new Error('Database pool not available');
-    }
+    const pool = this.databaseService.ensurePool();
 
     // Check if user exists
     const existingUser = await this.findById(id);
@@ -495,10 +474,7 @@ export class UsersService {
    * @returns Deleted user info
    */
   async hardDelete(id: number, request?: AuthRequest): Promise<UserResponseDto> {
-    const pool = this.databaseService.getPool();
-    if (!pool) {
-      throw new Error('Database pool not available');
-    }
+    const pool = this.databaseService.ensurePool();
 
     // Check if user exists
     const existingUser = await this.findById(id);
@@ -533,10 +509,7 @@ export class UsersService {
    * @returns Restored user
    */
   async restore(id: number, request?: AuthRequest): Promise<UserResponseDto> {
-    const pool = this.databaseService.getPool();
-    if (!pool) {
-      throw new Error('Database pool not available');
-    }
+    const pool = this.databaseService.ensurePool();
 
     // Check if user exists
     const existingUser = await this.findById(id);
@@ -591,10 +564,7 @@ export class UsersService {
     newPassword: string,
     request?: AuthRequest,
   ): Promise<UserResponseDto> {
-    const pool = this.databaseService.getPool();
-    if (!pool) {
-      throw new Error('Database pool not available');
-    }
+    const pool = this.databaseService.ensurePool();
 
     // Check if user exists
     const existingUser = await this.findById(id);
@@ -639,10 +609,7 @@ export class UsersService {
    * @param id - User ID
    */
   async updateLastLogin(id: number): Promise<void> {
-    const pool = this.databaseService.getPool();
-    if (!pool) {
-      throw new Error('Database pool not available');
-    }
+    const pool = this.databaseService.ensurePool();
 
     await pool.query(
       'UPDATE users SET last_login = NOW(), updated_at = NOW() WHERE id = $1',
@@ -658,10 +625,7 @@ export class UsersService {
    * @returns True if user has the role
    */
   async hasRole(userId: number, roleName: string): Promise<boolean> {
-    const pool = this.databaseService.getPool();
-    if (!pool) {
-      throw new Error('Database pool not available');
-    }
+    const pool = this.databaseService.ensurePool();
 
     const result = await pool.query<{ count: string }>(
       `SELECT COUNT(*) as count
@@ -689,10 +653,7 @@ export class UsersService {
     request?: AuthRequest,
     invalidateTokens: boolean = true,
   ): Promise<void> {
-    const pool = this.databaseService.getPool();
-    if (!pool) {
-      throw new Error('Database pool not available');
-    }
+    const pool = this.databaseService.ensurePool();
 
     const user = await this.findById(userId);
     if (!user) {
@@ -769,10 +730,7 @@ export class UsersService {
     request?: AuthRequest,
     invalidateTokens: boolean = true,
   ): Promise<void> {
-    const pool = this.databaseService.getPool();
-    if (!pool) {
-      throw new Error('Database pool not available');
-    }
+    const pool = this.databaseService.ensurePool();
 
     const user = await this.findById(userId);
     if (!user) {
@@ -859,10 +817,7 @@ export class UsersService {
    * @returns Array of user roles
    */
   async getUserRoles(userId: number): Promise<UserRoleDto[]> {
-    const pool = this.databaseService.getPool();
-    if (!pool) {
-      throw new Error('Database pool not available');
-    }
+    const pool = this.databaseService.ensurePool();
 
     const result = await pool.query<UserRoleDto>(
       `SELECT r.id, r.name, r.description
@@ -891,10 +846,7 @@ export class UsersService {
    * Attach roles to a single user
    */
   private async attachRolesToUser(user: User): Promise<UserWithRoles> {
-    const pool = this.databaseService.getPool();
-    if (!pool) {
-      return { ...user, roles: [] };
-    }
+    const pool = this.databaseService.ensurePool();
 
     const rolesResult = await pool.query<UserRoleDto>(
       `SELECT r.id, r.name, r.description
@@ -916,10 +868,7 @@ export class UsersService {
       return [];
     }
 
-    const pool = this.databaseService.getPool();
-    if (!pool) {
-      return users.map((u) => ({ ...u, roles: [] }));
-    }
+    const pool = this.databaseService.ensurePool();
 
     const userIds = users.map((u) => u.id);
 

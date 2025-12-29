@@ -33,7 +33,9 @@ import {
   ThemeColors,
   UpdateThemeColorsDto,
   DEFAULT_THEME_COLORS,
+  ThemeInputColors,
 } from '../services/themeService';
+import { logger } from '../services/loggerService';
 
 /**
  * Theme context state interface
@@ -114,29 +116,133 @@ function applyThemeToCss(colors: ThemeColors): void {
   root.style.setProperty('--color-warning', colors.status.warning);
   root.style.setProperty('--color-error', colors.status.error);
 
+  // Input colors (if provided)
+  if (colors.inputs) {
+    // Normal input state
+    root.style.setProperty('--color-input-background', colors.inputs.normal.background);
+    root.style.setProperty('--color-input-text', colors.inputs.normal.text);
+    root.style.setProperty('--color-input-border', colors.inputs.normal.border);
+    root.style.setProperty('--color-input-placeholder', colors.inputs.normal.placeholder);
+    root.style.setProperty('--color-input-focus-border', colors.inputs.normal.focusBorder);
+    root.style.setProperty('--color-input-focus-ring', colors.inputs.normal.focusRing);
+
+    // Error input state
+    root.style.setProperty('--color-input-error-background', colors.inputs.error.background);
+    root.style.setProperty('--color-input-error-text', colors.inputs.error.text);
+    root.style.setProperty('--color-input-error-border', colors.inputs.error.border);
+    root.style.setProperty('--color-input-error-placeholder', colors.inputs.error.placeholder);
+    root.style.setProperty('--color-input-error-focus-border', colors.inputs.error.focusBorder);
+    root.style.setProperty('--color-input-error-focus-ring', colors.inputs.error.focusRing);
+
+    // Disabled input state
+    root.style.setProperty('--color-input-disabled-background', colors.inputs.disabled.background);
+    root.style.setProperty('--color-input-disabled-text', colors.inputs.disabled.text);
+    root.style.setProperty('--color-input-disabled-border', colors.inputs.disabled.border);
+    root.style.setProperty('--color-input-disabled-placeholder', colors.inputs.disabled.placeholder);
+  }
+
+  // Button colors (if provided)
+  if (colors.buttons) {
+    const buttonTypes = ['normal', 'inactive', 'abort', 'special', 'danger', 'success'] as const;
+    buttonTypes.forEach(type => {
+      const btn = colors.buttons![type];
+      root.style.setProperty(`--color-button-${type}-bg`, btn.background);
+      root.style.setProperty(`--color-button-${type}-text`, btn.text);
+      root.style.setProperty(`--color-button-${type}-border`, btn.border);
+      root.style.setProperty(`--color-button-${type}-hover-bg`, btn.hoverBackground);
+      root.style.setProperty(`--color-button-${type}-hover-text`, btn.hoverText);
+      root.style.setProperty(`--color-button-${type}-hover-border`, btn.hoverBorder);
+    });
+  }
+
+  // Typography (if provided)
+  if (colors.typography) {
+    // Font families
+    root.style.setProperty('--font-family-primary', colors.typography.fontFamily.primary);
+    root.style.setProperty('--font-family-mono', colors.typography.fontFamily.mono);
+
+    // Headings
+    const headings = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'] as const;
+    headings.forEach(h => {
+      const style = colors.typography!.heading[h];
+      root.style.setProperty(`--typography-${h}-size`, style.fontSize);
+      root.style.setProperty(`--typography-${h}-weight`, style.fontWeight);
+      root.style.setProperty(`--typography-${h}-line-height`, style.lineHeight);
+      if (style.color) root.style.setProperty(`--typography-${h}-color`, style.color);
+    });
+
+    // Body text
+    const bodySizes = ['large', 'normal', 'small'] as const;
+    bodySizes.forEach(size => {
+      const style = colors.typography!.body[size];
+      root.style.setProperty(`--typography-body-${size}-size`, style.fontSize);
+      root.style.setProperty(`--typography-body-${size}-weight`, style.fontWeight);
+      root.style.setProperty(`--typography-body-${size}-line-height`, style.lineHeight);
+      if (style.color) root.style.setProperty(`--typography-body-${size}-color`, style.color);
+    });
+  }
+
+  // Card colors (if provided)
+  if (colors.cards) {
+    const cardTypes = ['default', 'elevated', 'flat'] as const;
+    cardTypes.forEach(type => {
+      const card = colors.cards![type];
+      root.style.setProperty(`--color-card-${type}-bg`, card.background);
+      root.style.setProperty(`--color-card-${type}-border`, card.border);
+      root.style.setProperty(`--color-card-${type}-shadow`, card.shadow);
+      root.style.setProperty(`--color-card-${type}-radius`, card.borderRadius);
+    });
+  }
+
+  // Badge colors (if provided)
+  if (colors.badges) {
+    const badgeTypes = ['default', 'primary', 'secondary', 'success', 'warning', 'error', 'info'] as const;
+    badgeTypes.forEach(type => {
+      const badge = colors.badges![type];
+      root.style.setProperty(`--color-badge-${type}-bg`, badge.background);
+      root.style.setProperty(`--color-badge-${type}-text`, badge.text);
+    });
+  }
+
+  // Alert colors (if provided)
+  if (colors.alerts) {
+    const alertTypes = ['success', 'warning', 'error', 'info'] as const;
+    alertTypes.forEach(type => {
+      const alert = colors.alerts![type];
+      root.style.setProperty(`--color-alert-${type}-bg`, alert.background);
+      root.style.setProperty(`--color-alert-${type}-border`, alert.border);
+      root.style.setProperty(`--color-alert-${type}-text`, alert.text);
+      root.style.setProperty(`--color-alert-${type}-icon`, alert.icon);
+    });
+  }
+
   // Also update neutral colors based on background
   // This enables proper contrast for cards and page backgrounds
   const isLightTheme = isLightColor(colors.background.page);
   if (isLightTheme) {
     root.style.setProperty('--color-neutral-50', '#f9fafb');
     root.style.setProperty('--color-neutral-800', colors.text.primary);
-    // Light mode: surface, input, and border colors
+    // Light mode: surface, input, modal, and border colors
     root.style.setProperty('--color-background-surface', '#f9fafb');
-    root.style.setProperty('--color-background-input', '#ffffff');
-    root.style.setProperty('--color-border-default', '#e5e7eb');
+    root.style.setProperty('--color-background-input', colors.inputs?.normal.background || '#ffffff');
+    root.style.setProperty('--color-background-modal', '#ffffff');
+    root.style.setProperty('--color-border-default', colors.inputs?.normal.border || '#e5e7eb');
     root.style.setProperty('--color-border-light', '#f3f4f6');
     root.style.setProperty('--color-border-hover', '#9ca3af');
     root.style.setProperty('--color-text-tertiary', '#9ca3af');
+    root.style.setProperty('--color-text-muted', colors.inputs?.normal.placeholder || '#9ca3af');
   } else {
     root.style.setProperty('--color-neutral-50', colors.background.page);
     root.style.setProperty('--color-neutral-800', '#f9fafb');
-    // Dark mode: surface, input, and border colors
+    // Dark mode: surface, input, modal, and border colors
     root.style.setProperty('--color-background-surface', colors.background.card);
-    root.style.setProperty('--color-background-input', colors.background.card);
-    root.style.setProperty('--color-border-default', '#374151');
+    root.style.setProperty('--color-background-input', colors.inputs?.normal.background || colors.background.card);
+    root.style.setProperty('--color-background-modal', colors.background.card);
+    root.style.setProperty('--color-border-default', colors.inputs?.normal.border || '#374151');
     root.style.setProperty('--color-border-light', '#1f2937');
     root.style.setProperty('--color-border-hover', '#6b7280');
     root.style.setProperty('--color-text-tertiary', '#6b7280');
+    root.style.setProperty('--color-text-muted', colors.inputs?.normal.placeholder || '#6b7280');
   }
 
   // Update body background color directly
@@ -191,7 +297,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
       const themeColors = await themeService.getThemeColors();
       setColors(themeColors);
     } catch (err) {
-      console.error('Failed to fetch theme:', err);
+      logger.error('Failed to fetch theme', err);
       setError('Failed to load theme. Using default colors.');
       // Colors will remain at default from state initialization
     } finally {
@@ -239,7 +345,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
       const updatedColors = await themeService.updateThemeColors(newColors);
       setColors(updatedColors);
     } catch (err) {
-      console.error('Failed to update theme:', err);
+      logger.error('Failed to update theme', err);
       setError('Failed to update theme. Please try again.');
       throw err;
     } finally {
@@ -331,7 +437,7 @@ export function useThemeColor(colorPath: string): string {
     if (value && typeof value === 'object' && part in value) {
       value = (value as Record<string, unknown>)[part];
     } else {
-      console.warn(`Invalid color path: ${colorPath}`);
+      logger.warn(`Invalid color path: ${colorPath}`);
       return DEFAULT_THEME_COLORS.primary;
     }
   }

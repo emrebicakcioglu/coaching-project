@@ -1,11 +1,13 @@
 /**
  * General Settings Service
  * STORY-035: Support-E-Mail & Session-Timeout
+ * STORY-041: Feedback Feature Flag
  *
  * Business logic for general settings management including:
  * - Support email configuration
  * - Session timeout settings
  * - Timeout warning configuration
+ * - Feedback feature flag
  */
 
 import { Injectable, Inject, forwardRef, BadRequestException } from '@nestjs/common';
@@ -17,7 +19,9 @@ import {
   UpdateGeneralSettingsDto,
   GeneralSettingsResponseDto,
   SessionTimeoutConfigDto,
+  PublicSettingsResponseDto,
 } from './dto/general-settings.dto';
+import { FeaturesMap } from './dto/feature-toggles.dto';
 import { Request } from 'express';
 
 /**
@@ -56,19 +60,16 @@ export class GeneralSettingsService {
   ) {}
 
   /**
-   * Get general settings (support email and session timeout)
+   * Get general settings (support email, session timeout, and feedback feature)
    *
-   * @returns General settings
+   * @returns General settings including feedback_enabled
    */
   async getGeneralSettings(): Promise<GeneralSettingsResponseDto> {
-    const pool = this.databaseService.getPool();
-    if (!pool) {
-      throw new Error('Database pool not available');
-    }
+    const pool = this.databaseService.ensurePool();
 
-    const result = await pool.query<AppSettings>(
+    const result = await pool.query<AppSettings & { features: FeaturesMap }>(
       `SELECT support_email, session_timeout_minutes, show_timeout_warning,
-              warning_before_timeout_minutes, updated_at, last_updated_by
+              warning_before_timeout_minutes, updated_at, last_updated_by, features
        FROM app_settings WHERE id = 1`,
     );
 
@@ -79,17 +80,22 @@ export class GeneralSettingsService {
         session_timeout_minutes: DEFAULT_SESSION_TIMEOUT_MINUTES,
         show_timeout_warning: DEFAULT_SHOW_TIMEOUT_WARNING,
         warning_before_timeout_minutes: DEFAULT_WARNING_BEFORE_TIMEOUT,
+        feedback_enabled: false,
         updated_at: new Date(),
         updated_by: null,
       });
     }
 
     const row = result.rows[0];
+    // Extract feedback.enabled from features JSONB
+    const feedbackEnabled = row.features?.feedback?.enabled ?? false;
+
     return GeneralSettingsResponseDto.fromEntity({
       support_email: row.support_email ?? null,
       session_timeout_minutes: row.session_timeout_minutes ?? DEFAULT_SESSION_TIMEOUT_MINUTES,
       show_timeout_warning: row.show_timeout_warning ?? DEFAULT_SHOW_TIMEOUT_WARNING,
       warning_before_timeout_minutes: row.warning_before_timeout_minutes ?? DEFAULT_WARNING_BEFORE_TIMEOUT,
+      feedback_enabled: feedbackEnabled,
       updated_at: row.updated_at,
       updated_by: row.last_updated_by ?? null,
     });
@@ -108,10 +114,7 @@ export class GeneralSettingsService {
     userId: number | undefined,
     request: AuthRequest,
   ): Promise<GeneralSettingsResponseDto> {
-    const pool = this.databaseService.getPool();
-    if (!pool) {
-      throw new Error('Database pool not available');
-    }
+    const pool = this.databaseService.ensurePool();
 
     // Get current settings for audit
     const currentSettings = await this.getGeneralSettings();
@@ -151,8 +154,14 @@ export class GeneralSettingsService {
       params.push(updateDto.warning_before_timeout_minutes);
     }
 
-    // If no actual content updates, return current settings
-    if (contentUpdates.length === 0) {
+    // STORY-041: Handle feedback_enabled update via features JSONB
+    let feedbackUpdated = false;
+    if (updateDto.feedback_enabled !== undefined) {
+      feedbackUpdated = true;
+    }
+
+    // If no actual content updates and no feedback update, return current settings
+    if (contentUpdates.length === 0 && !feedbackUpdated) {
       return currentSettings;
     }
 
@@ -163,11 +172,29 @@ export class GeneralSettingsService {
       params.push(userId);
     }
 
-    // Execute update
-    await pool.query(
-      `UPDATE app_settings SET ${updates.join(', ')} WHERE id = 1`,
-      params,
-    );
+    // Execute update for standard fields
+    if (contentUpdates.length > 0 || userId) {
+      await pool.query(
+        `UPDATE app_settings SET ${updates.join(', ')} WHERE id = 1`,
+        params,
+      );
+    }
+
+    // STORY-041: Update feedback.enabled in features JSONB
+    if (feedbackUpdated) {
+      await pool.query(
+        `UPDATE app_settings
+         SET features = jsonb_set(
+           COALESCE(features, '{}'::jsonb),
+           '{feedback}',
+           COALESCE(features->'feedback', '{}'::jsonb) || $1::jsonb,
+           true
+         ),
+         updated_at = NOW()
+         WHERE id = 1`,
+        [JSON.stringify({ enabled: updateDto.feedback_enabled })],
+      );
+    }
 
     // Invalidate cache
     this.invalidateCache();
@@ -222,10 +249,7 @@ export class GeneralSettingsService {
     }
 
     // Fetch from database
-    const pool = this.databaseService.getPool();
-    if (!pool) {
-      return DEFAULT_SESSION_TIMEOUT_MINUTES;
-    }
+    const pool = this.databaseService.ensurePool();
 
     try {
       const result = await pool.query<{ session_timeout_minutes: number }>(
@@ -252,10 +276,7 @@ export class GeneralSettingsService {
    * @returns Support email or null if not configured
    */
   async getSupportEmail(): Promise<string | null> {
-    const pool = this.databaseService.getPool();
-    if (!pool) {
-      return null;
-    }
+    const pool = this.databaseService.ensurePool();
 
     try {
       const result = await pool.query<{ support_email: string | null }>(
@@ -280,5 +301,65 @@ export class GeneralSettingsService {
   invalidateCache(): void {
     this.cachedSessionTimeout = null;
     this.cacheTimestamp = 0;
+  }
+
+  /**
+   * Get public settings for unauthenticated clients
+   * STORY-041: Feedback Feature Flag
+   *
+   * Returns minimal settings including feature flags needed for public UI.
+   * No authentication required.
+   *
+   * @returns Public settings including feedback_enabled
+   */
+  async getPublicSettings(): Promise<PublicSettingsResponseDto> {
+    const pool = this.databaseService.ensurePool();
+
+    try {
+      const result = await pool.query<{ features: FeaturesMap }>(
+        'SELECT features FROM app_settings WHERE id = 1',
+      );
+
+      if (result.rows.length === 0 || !result.rows[0].features) {
+        return PublicSettingsResponseDto.fromFeatures({});
+      }
+
+      return PublicSettingsResponseDto.fromFeatures(result.rows[0].features);
+    } catch (error) {
+      this.logger.error(
+        `Failed to get public settings: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        error instanceof Error ? error.stack : undefined,
+        'GeneralSettingsService',
+      );
+      // Return defaults on error
+      return PublicSettingsResponseDto.fromFeatures({});
+    }
+  }
+
+  /**
+   * Check if feedback feature is enabled
+   * STORY-041: Feedback Feature Flag
+   *
+   * Quick check for feedback feature status.
+   *
+   * @returns Whether feedback is enabled
+   */
+  async isFeedbackEnabled(): Promise<boolean> {
+    const pool = this.databaseService.ensurePool();
+
+    try {
+      const result = await pool.query<{ features: FeaturesMap }>(
+        'SELECT features FROM app_settings WHERE id = 1',
+      );
+
+      return result.rows[0]?.features?.feedback?.enabled ?? false;
+    } catch (error) {
+      this.logger.error(
+        `Failed to check feedback enabled: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        error instanceof Error ? error.stack : undefined,
+        'GeneralSettingsService',
+      );
+      return false;
+    }
   }
 }

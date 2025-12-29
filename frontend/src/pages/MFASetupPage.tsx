@@ -1,6 +1,7 @@
 /**
  * MFA Setup Page Component
  * STORY-005C: MFA UI (Frontend)
+ * STORY-107: MFA Settings Page UI Audit - Icon consistency improvements
  *
  * Multi-step MFA setup wizard in account settings.
  * Guides users through enabling two-factor authentication.
@@ -19,14 +20,23 @@
  * - Loading and error states
  * - Responsive design
  * - Accessible with ARIA labels
+ * - Consistent SVG icons (STORY-107)
  */
 
 import React, { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Container } from '../components/layout';
 import { MFACodeInput, BackupCodesList } from '../components/auth';
 import { mfaService } from '../services/authService';
 import { useAuth } from '../contexts';
+import {
+  LockIcon,
+  CheckCircleIcon,
+  XCircleIcon,
+  ClipboardIcon,
+  CheckIcon,
+} from '../components/icons';
 import './MFASetup.css';
 
 /**
@@ -38,6 +48,7 @@ type MFASetupStep = 'init' | 'verify' | 'backup' | 'done';
  * MFASetupPage Component
  */
 export const MFASetupPage: React.FC = () => {
+  const { t } = useTranslation('settings');
   const navigate = useNavigate();
   const { user, refreshUser } = useAuth();
 
@@ -64,19 +75,19 @@ export const MFASetupPage: React.FC = () => {
       setBackupCodes(response.backupCodes);
       setStep('verify');
     } catch (err) {
-      let errorMessage = 'MFA-Einrichtung fehlgeschlagen. Bitte versuchen Sie es erneut.';
+      let errorMessage = t('mfaSetup.errors.setup');
       if (err instanceof Error) {
         if (err.message.includes('already enabled')) {
-          errorMessage = 'MFA ist bereits für Ihr Konto aktiviert.';
+          errorMessage = t('mfaSetup.errors.setup');
         } else if (err.message.includes('unauthorized')) {
-          errorMessage = 'Sie sind nicht angemeldet. Bitte melden Sie sich erneut an.';
+          errorMessage = t('mfaSetup.errors.generic');
         }
       }
       setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [t]);
 
   /**
    * Handle code verification
@@ -89,17 +100,17 @@ export const MFASetupPage: React.FC = () => {
       await mfaService.verifyMFASetup(code);
       setStep('backup');
     } catch (err) {
-      let errorMessage = 'Verifizierung fehlgeschlagen. Bitte überprüfen Sie den Code.';
+      let errorMessage = t('mfaSetup.errors.verify');
       if (err instanceof Error) {
         if (err.message.includes('invalid') || err.message.includes('expired')) {
-          errorMessage = 'Ungültiger oder abgelaufener Code. Bitte versuchen Sie es erneut.';
+          errorMessage = t('mfaSetup.errors.verify');
         }
       }
       setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [t]);
 
   /**
    * Handle completion
@@ -144,13 +155,13 @@ export const MFASetupPage: React.FC = () => {
   }, [navigate]);
 
   return (
-    <Container className="py-6">
+    <Container className="py-8">
       <div className="mfa-setup" data-testid="mfa-setup-page">
         {/* Header */}
-        <div className="mfa-setup__header">
-          <h1 className="mfa-setup__title">Zwei-Faktor-Authentifizierung</h1>
-          <p className="mfa-setup__subtitle">
-            Schützen Sie Ihr Konto mit einem zusätzlichen Sicherheitsfaktor.
+        <div className="page-header">
+          <h1 className="page-title">{t('mfaSetup.title')}</h1>
+          <p className="page-subtitle">
+            {t('mfaSetup.subtitle')}
           </p>
         </div>
 
@@ -158,19 +169,19 @@ export const MFASetupPage: React.FC = () => {
         <div className="mfa-setup__progress" role="progressbar" aria-valuenow={getStepNumber(step)} aria-valuemin={1} aria-valuemax={4}>
           <div className={`mfa-setup__step ${step === 'init' || step === 'verify' || step === 'backup' || step === 'done' ? 'mfa-setup__step--active' : ''}`}>
             <span className="mfa-setup__step-number">1</span>
-            <span className="mfa-setup__step-label">Start</span>
+            <span className="mfa-setup__step-label">{t('mfaSetup.steps.start')}</span>
           </div>
           <div className={`mfa-setup__step ${step === 'verify' || step === 'backup' || step === 'done' ? 'mfa-setup__step--active' : ''}`}>
             <span className="mfa-setup__step-number">2</span>
-            <span className="mfa-setup__step-label">Verifizieren</span>
+            <span className="mfa-setup__step-label">{t('mfaSetup.steps.verify')}</span>
           </div>
           <div className={`mfa-setup__step ${step === 'backup' || step === 'done' ? 'mfa-setup__step--active' : ''}`}>
             <span className="mfa-setup__step-number">3</span>
-            <span className="mfa-setup__step-label">Backup-Codes</span>
+            <span className="mfa-setup__step-label">{t('mfaSetup.steps.backup')}</span>
           </div>
           <div className={`mfa-setup__step ${step === 'done' ? 'mfa-setup__step--active' : ''}`}>
             <span className="mfa-setup__step-number">4</span>
-            <span className="mfa-setup__step-label">Fertig</span>
+            <span className="mfa-setup__step-label">{t('mfaSetup.steps.done')}</span>
           </div>
         </div>
 
@@ -179,24 +190,22 @@ export const MFASetupPage: React.FC = () => {
           {/* Step 1: Init */}
           {step === 'init' && (
             <div className="mfa-setup__init" data-testid="mfa-setup-init">
-              <div className="mfa-setup__icon">
-                <span aria-hidden="true">🔐</span>
+              <div className="mfa-setup__icon" data-testid="mfa-setup-lock-icon">
+                <LockIcon className="mfa-setup__icon-svg" aria-label="Security lock" />
               </div>
-              <h2 className="mfa-setup__content-title">2FA aktivieren</h2>
+              <h2 className="mfa-setup__content-title">{t('mfaSetup.intro.title')}</h2>
               <p className="mfa-setup__content-description">
-                Die Zwei-Faktor-Authentifizierung fügt eine zusätzliche Sicherheitsebene zu Ihrem
-                Konto hinzu. Nach der Aktivierung benötigen Sie neben Ihrem Passwort einen
-                zeitbasierten Code aus einer Authentifizierungs-App.
+                {t('mfaSetup.intro.description')}
               </p>
               <ul className="mfa-setup__benefits">
-                <li>Schutz vor unbefugtem Zugriff</li>
-                <li>Sicherheit auch bei kompromittiertem Passwort</li>
-                <li>Kompatibel mit gängigen Authenticator-Apps</li>
+                <li>{t('mfaSetup.intro.benefits.protection')}</li>
+                <li>{t('mfaSetup.intro.benefits.security')}</li>
+                <li>{t('mfaSetup.intro.benefits.recovery')}</li>
               </ul>
 
               {error && (
                 <div className="mfa-setup__error" role="alert" data-testid="mfa-setup-error">
-                  <span aria-hidden="true">❌</span>
+                  <XCircleIcon className="mfa-setup__error-icon" aria-hidden="true" />
                   {error}
                 </div>
               )}
@@ -211,10 +220,10 @@ export const MFASetupPage: React.FC = () => {
                 {isLoading ? (
                   <>
                     <span className="mfa-setup__spinner" aria-hidden="true" />
-                    Wird eingerichtet...
+                    {t('mfaSetup.loading.setup')}
                   </>
                 ) : (
-                  '2FA aktivieren'
+                  t('mfaSetup.buttons.enable')
                 )}
               </button>
 
@@ -223,7 +232,7 @@ export const MFASetupPage: React.FC = () => {
                 onClick={handleBackToSettings}
                 className="mfa-setup__button mfa-setup__button--secondary"
               >
-                Zurück zu Einstellungen
+                {t('mfaSetup.buttons.backToSettings')}
               </button>
             </div>
           )}
@@ -231,10 +240,9 @@ export const MFASetupPage: React.FC = () => {
           {/* Step 2: Verify */}
           {step === 'verify' && (
             <div className="mfa-setup__verify" data-testid="mfa-setup-verify">
-              <h2 className="mfa-setup__content-title">QR-Code scannen</h2>
+              <h2 className="mfa-setup__content-title">{t('mfaSetup.scan.title')}</h2>
               <p className="mfa-setup__content-description">
-                Scannen Sie den QR-Code mit Ihrer Authenticator-App (z.B. Google Authenticator,
-                Authy, Microsoft Authenticator).
+                {t('mfaSetup.scan.description')}
               </p>
 
               {/* QR Code */}
@@ -242,7 +250,7 @@ export const MFASetupPage: React.FC = () => {
                 {qrCodeUrl ? (
                   <img
                     src={qrCodeUrl}
-                    alt="QR-Code für MFA-Einrichtung"
+                    alt={t('mfaSetup.scan.aria.qrCode')}
                     width="300"
                     height="300"
                     className="mfa-setup__qr-code"
@@ -251,7 +259,7 @@ export const MFASetupPage: React.FC = () => {
                 ) : (
                   <div className="mfa-setup__qr-placeholder">
                     <span className="mfa-setup__spinner" aria-hidden="true" />
-                    Lade QR-Code...
+                    {t('mfaSetup.loading.qrCode')}
                   </div>
                 )}
               </div>
@@ -259,7 +267,7 @@ export const MFASetupPage: React.FC = () => {
               {/* Manual Entry */}
               <div className="mfa-setup__manual-entry">
                 <p className="mfa-setup__manual-label">
-                  Oder geben Sie diesen Code manuell ein:
+                  {t('mfaSetup.scan.manual')}
                 </p>
                 <div className="mfa-setup__secret-container">
                   <code className="mfa-setup__secret" data-testid="mfa-setup-secret">
@@ -269,10 +277,14 @@ export const MFASetupPage: React.FC = () => {
                     type="button"
                     onClick={handleCopySecret}
                     className="mfa-setup__copy-button"
-                    aria-label="Code kopieren"
+                    aria-label={t('mfaSetup.buttons.copyCode')}
                     data-testid="mfa-setup-copy-secret"
                   >
-                    {secretCopied ? '✓' : '📋'}
+                    {secretCopied ? (
+                      <CheckIcon className="mfa-setup__copy-icon mfa-setup__copy-icon--success" aria-hidden="true" />
+                    ) : (
+                      <ClipboardIcon className="mfa-setup__copy-icon" aria-hidden="true" />
+                    )}
                   </button>
                 </div>
               </div>
@@ -284,13 +296,13 @@ export const MFASetupPage: React.FC = () => {
                   isLoading={isLoading}
                   error={error}
                   autoFocus
-                  label="Verifizierungscode eingeben"
+                  label={t('mfaSetup.verify.title')}
                   data-testid="mfa-setup-code-input"
                 />
               </div>
 
               <p className="mfa-setup__hint">
-                Geben Sie den 6-stelligen Code aus Ihrer Authenticator-App ein.
+                {t('mfaSetup.verify.description')}
               </p>
             </div>
           )}
@@ -298,15 +310,14 @@ export const MFASetupPage: React.FC = () => {
           {/* Step 3: Backup */}
           {step === 'backup' && (
             <div className="mfa-setup__backup" data-testid="mfa-setup-backup">
-              <h2 className="mfa-setup__content-title">Backup-Codes speichern</h2>
+              <h2 className="mfa-setup__content-title">{t('mfaSetup.backup.title')}</h2>
               <p className="mfa-setup__content-description">
-                Speichern Sie diese Backup-Codes sicher. Sie können jeden Code einmal verwenden,
-                falls Sie keinen Zugriff auf Ihre Authenticator-App haben.
+                {t('mfaSetup.backup.description')}
               </p>
 
               <BackupCodesList
                 codes={backupCodes}
-                appName="Core App"
+                appName={t('mfaSetup.backup.appName')}
                 data-testid="mfa-setup-backup-codes"
               />
 
@@ -316,7 +327,7 @@ export const MFASetupPage: React.FC = () => {
                 className="mfa-setup__button mfa-setup__button--primary"
                 data-testid="mfa-setup-complete-button"
               >
-                Ich habe die Codes gespeichert
+                {t('mfaSetup.buttons.codesStored')}
               </button>
             </div>
           )}
@@ -324,19 +335,17 @@ export const MFASetupPage: React.FC = () => {
           {/* Step 4: Done */}
           {step === 'done' && (
             <div className="mfa-setup__done" data-testid="mfa-setup-done">
-              <div className="mfa-setup__success-icon">
-                <span aria-hidden="true">✅</span>
+              <div className="mfa-setup__success-icon" data-testid="mfa-setup-success-icon">
+                <CheckCircleIcon className="mfa-setup__icon-svg mfa-setup__icon-svg--success" aria-label="Success" />
               </div>
-              <h2 className="mfa-setup__content-title">2FA aktiviert!</h2>
+              <h2 className="mfa-setup__content-title">{t('mfaSetup.success.title')}</h2>
               <p className="mfa-setup__content-description">
-                Ihr Konto ist jetzt mit Zwei-Faktor-Authentifizierung geschützt. Bei der nächsten
-                Anmeldung werden Sie nach einem Code aus Ihrer Authenticator-App gefragt.
+                {t('mfaSetup.success.description')}
               </p>
 
               <div className="mfa-setup__success-info">
                 <p>
-                  <strong>Wichtig:</strong> Bewahren Sie Ihre Backup-Codes sicher auf. Sie benötigen
-                  diese, falls Sie keinen Zugriff auf Ihre Authenticator-App haben.
+                  {t('mfaSetup.success.warning')}
                 </p>
               </div>
 
@@ -346,7 +355,7 @@ export const MFASetupPage: React.FC = () => {
                 className="mfa-setup__button mfa-setup__button--primary"
                 data-testid="mfa-setup-finish-button"
               >
-                Fertig
+                {t('mfaSetup.buttons.done')}
               </button>
             </div>
           )}

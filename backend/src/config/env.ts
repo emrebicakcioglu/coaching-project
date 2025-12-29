@@ -130,6 +130,19 @@ export const envSchema = z.object({
   AUDIT_LOG_API_REQUESTS: z.string().transform((v) => v === 'true').default('false'),
   // Log read-only requests (GET/HEAD/OPTIONS) when API logging is enabled (default: true)
   AUDIT_LOG_READ_ONLY: z.string().transform((v) => v !== 'false').default('true'),
+
+  // Encryption settings (STORY-041D: Jira Settings API)
+  // 32-byte (64 hex character) key for AES-256-GCM encryption of sensitive data
+  // Generate with: node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+  // Note: Transform empty string to undefined to handle docker-compose passing empty values
+  ENCRYPTION_KEY: z.string()
+    .transform((v) => (v === '' ? undefined : v))
+    .pipe(
+      z.string()
+        .length(64, 'ENCRYPTION_KEY must be a 64-character hex string')
+        .regex(/^[0-9a-fA-F]+$/, 'ENCRYPTION_KEY must be a valid hex string')
+        .optional()
+    ),
 });
 
 /**

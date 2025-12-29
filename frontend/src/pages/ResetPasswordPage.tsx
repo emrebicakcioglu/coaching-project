@@ -8,6 +8,7 @@
 
 import React, { useState, useCallback, useMemo, FormEvent, useEffect } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { passwordResetService } from '../services/authService';
 import {
   PasswordStrengthIndicator,
@@ -32,6 +33,8 @@ type TokenState = 'validating' | 'valid' | 'invalid';
  * ResetPasswordPage Component
  */
 export const ResetPasswordPage: React.FC = () => {
+  const { t } = useTranslation('auth');
+
   // Get token from URL
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -112,12 +115,12 @@ export const ResetPasswordPage: React.FC = () => {
 
       // Validate form
       if (!passwordValidation.isValid) {
-        setError('Das Passwort erfüllt nicht alle Anforderungen.');
+        setError(t('resetPassword.validation.passwordRequirements'));
         return;
       }
 
       if (!passwordsMatch) {
-        setError('Die Passwörter stimmen nicht überein.');
+        setError(t('resetPassword.validation.passwordMismatch'));
         return;
       }
 
@@ -134,7 +137,7 @@ export const ResetPasswordPage: React.FC = () => {
         // Redirect to login after 3 seconds
         setTimeout(() => {
           navigate('/login', {
-            state: { message: 'Ihr Passwort wurde erfolgreich zurückgesetzt. Sie können sich jetzt anmelden.' },
+            state: { message: t('resetPassword.success.message') },
           });
         }, 3000);
       } catch (err) {
@@ -142,14 +145,14 @@ export const ResetPasswordPage: React.FC = () => {
         const errorMessage =
           err instanceof Error
             ? err.message
-            : 'Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.';
+            : t('forgotPassword.errors.generic');
 
         // Check for common error patterns
         if (errorMessage.toLowerCase().includes('token') || errorMessage.toLowerCase().includes('expired')) {
           setTokenState('invalid');
-          setError('Der Link ist ungültig oder abgelaufen. Bitte fordern Sie einen neuen Link an.');
+          setError(t('resetPassword.error.message'));
         } else if (errorMessage.toLowerCase().includes('password')) {
-          setError('Das Passwort entspricht nicht den Anforderungen.');
+          setError(t('resetPassword.validation.passwordRequirements'));
         } else {
           setError(errorMessage);
         }
@@ -157,7 +160,7 @@ export const ResetPasswordPage: React.FC = () => {
         setIsLoading(false);
       }
     },
-    [token, formData.newPassword, passwordValidation.isValid, passwordsMatch, navigate]
+    [token, formData.newPassword, passwordValidation.isValid, passwordsMatch, navigate, t]
   );
 
   // Token is being validated
@@ -166,15 +169,15 @@ export const ResetPasswordPage: React.FC = () => {
       <div className="auth-page">
         <div className="auth-container">
           {/* Logo placeholder */}
-          <div className="auth-logo" aria-label="Logo">
+          <div className="auth-logo" aria-label={t('logo')}>
             <div className="auth-logo__placeholder" aria-hidden="true">
-              <span>LOGO</span>
+              <span>{t('logoText')}</span>
             </div>
           </div>
 
           <div className="auth-loading">
             <div className="auth-loading__spinner" aria-hidden="true" />
-            <p className="auth-loading__text">Link wird überprüft...</p>
+            <p className="auth-loading__text">{t('resetPassword.loading')}</p>
           </div>
         </div>
       </div>
@@ -187,14 +190,14 @@ export const ResetPasswordPage: React.FC = () => {
       <div className="auth-page">
         <div className="auth-container">
           {/* Logo placeholder */}
-          <div className="auth-logo" aria-label="Logo">
+          <div className="auth-logo" aria-label={t('logo')}>
             <div className="auth-logo__placeholder" aria-hidden="true">
-              <span>LOGO</span>
+              <span>{t('logoText')}</span>
             </div>
           </div>
 
           <div className="auth-header">
-            <h1 className="auth-title">Ungültiger Link</h1>
+            <h1 className="auth-title">{t('resetPassword.error.title')}</h1>
           </div>
 
           <div className="auth-error-state error-message">
@@ -202,20 +205,20 @@ export const ResetPasswordPage: React.FC = () => {
               ✕
             </div>
             <p className="auth-error-state__message">
-              Der Link zum Zurücksetzen des Passworts ist ungültig oder abgelaufen.
+              {t('resetPassword.error.message')}
               <span className="sr-only">Invalid or expired token</span>
             </p>
             <p className="auth-error-state__hint">
-              Bitte fordern Sie einen neuen Link an, falls Sie Ihr Passwort zurücksetzen möchten.
+              {t('resetPassword.error.hint')}
             </p>
           </div>
 
           <div className="auth-links">
             <Link to="/forgot-password" className="auth-button auth-button--primary">
-              Neuen Link anfordern
+              {t('resetPassword.error.requestNew')}
             </Link>
             <Link to="/login" className="auth-link">
-              Zurück zur Anmeldung
+              {t('resetPassword.backToLogin')}
             </Link>
           </div>
         </div>
@@ -229,14 +232,14 @@ export const ResetPasswordPage: React.FC = () => {
       <div className="auth-page">
         <div className="auth-container">
           {/* Logo placeholder */}
-          <div className="auth-logo" aria-label="Logo">
+          <div className="auth-logo" aria-label={t('logo')}>
             <div className="auth-logo__placeholder" aria-hidden="true">
-              <span>LOGO</span>
+              <span>{t('logoText')}</span>
             </div>
           </div>
 
           <div className="auth-header">
-            <h1 className="auth-title">Passwort zurückgesetzt</h1>
+            <h1 className="auth-title">{t('resetPassword.success.title')}</h1>
           </div>
 
           <div className="auth-success confirmation-message">
@@ -244,16 +247,16 @@ export const ResetPasswordPage: React.FC = () => {
               ✓
             </div>
             <p className="auth-success__message success-message">
-              Ihr Passwort wurde erfolgreich zurückgesetzt.
+              {t('resetPassword.success.message')}
             </p>
             <p className="auth-success__hint">
-              Sie werden in wenigen Sekunden zur Anmeldung weitergeleitet...
+              {t('resetPassword.success.redirect')}
             </p>
           </div>
 
           <div className="auth-links">
             <Link to="/login" className="auth-button auth-button--primary">
-              Jetzt anmelden
+              {t('resetPassword.success.loginNow')}
             </Link>
           </div>
         </div>
@@ -265,16 +268,16 @@ export const ResetPasswordPage: React.FC = () => {
     <div className="auth-page">
       <div className="auth-container">
         {/* Logo placeholder */}
-        <div className="auth-logo" aria-label="Logo">
+        <div className="auth-logo" aria-label={t('logo')}>
           <div className="auth-logo__placeholder" aria-hidden="true">
-            <span>LOGO</span>
+            <span>{t('logoText')}</span>
           </div>
         </div>
 
         <div className="auth-header">
-          <h1 className="auth-title">Neues Passwort festlegen</h1>
+          <h1 className="auth-title">{t('resetPassword.title')}</h1>
           <p className="auth-subtitle">
-            Bitte geben Sie Ihr neues Passwort ein.
+            {t('resetPassword.subtitle')}
           </p>
         </div>
 
@@ -292,7 +295,7 @@ export const ResetPasswordPage: React.FC = () => {
           {/* New Password Field */}
           <div className="auth-field">
             <label htmlFor="newPassword" className="auth-label">
-              Neues Passwort
+              {t('resetPassword.newPassword')}
             </label>
             <div className="auth-input-wrapper">
               <input
@@ -304,7 +307,7 @@ export const ResetPasswordPage: React.FC = () => {
                 className={`auth-input ${
                   formData.newPassword && !passwordValidation.isValid ? 'auth-input--error' : ''
                 }`}
-                placeholder="Mindestens 8 Zeichen"
+                placeholder={t('resetPassword.newPasswordPlaceholder')}
                 autoComplete="new-password"
                 autoFocus
                 required
@@ -315,7 +318,7 @@ export const ResetPasswordPage: React.FC = () => {
                 type="button"
                 className="auth-input-toggle"
                 onClick={togglePasswordVisibility}
-                aria-label={showPassword ? 'Passwort verbergen' : 'Passwort anzeigen'}
+                aria-label={showPassword ? t('resetPassword.aria.hidePassword') : t('resetPassword.aria.showPassword')}
               >
                 {showPassword ? '👁️' : '👁️‍🗨️'}
               </button>
@@ -331,7 +334,7 @@ export const ResetPasswordPage: React.FC = () => {
           {/* Confirm Password Field */}
           <div className="auth-field">
             <label htmlFor="confirmPassword" className="auth-label">
-              Passwort bestätigen
+              {t('resetPassword.confirmPassword')}
             </label>
             <input
               type={showPassword ? 'text' : 'password'}
@@ -342,19 +345,19 @@ export const ResetPasswordPage: React.FC = () => {
               className={`auth-input ${
                 formData.confirmPassword && !passwordsMatch ? 'auth-input--error' : ''
               }`}
-              placeholder="Passwort wiederholen"
+              placeholder={t('resetPassword.confirmPasswordPlaceholder')}
               autoComplete="new-password"
               required
               disabled={isLoading}
             />
             {formData.confirmPassword && !passwordsMatch && (
               <p className="auth-field-error validation-error" role="alert">
-                Die Passwörter stimmen nicht überein.
+                {t('resetPassword.validation.passwordMismatch')}
               </p>
             )}
             {formData.confirmPassword && passwordsMatch && formData.newPassword && (
               <p className="auth-field-success">
-                <span aria-hidden="true">✓</span> Passwörter stimmen überein
+                <span aria-hidden="true">✓</span> {t('resetPassword.validation.match')}
               </p>
             )}
           </div>
@@ -368,10 +371,10 @@ export const ResetPasswordPage: React.FC = () => {
             {isLoading ? (
               <>
                 <span className="auth-button__spinner" aria-hidden="true" />
-                Wird gespeichert...
+                {t('resetPassword.submitting')}
               </>
             ) : (
-              'Passwort speichern'
+              t('resetPassword.submit')
             )}
           </button>
         </form>
@@ -379,7 +382,7 @@ export const ResetPasswordPage: React.FC = () => {
         {/* Links */}
         <div className="auth-links">
           <Link to="/login" className="auth-link">
-            Zurück zur Anmeldung
+            {t('resetPassword.backToLogin')}
           </Link>
         </div>
       </div>

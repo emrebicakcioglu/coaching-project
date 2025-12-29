@@ -85,10 +85,10 @@ export const NavItem: React.FC<NavItemProps> = ({
     group
   `;
 
-  // State-based classes
+  // State-based classes - using CSS variables for dark mode support
   const stateClasses = isActive
     ? 'bg-primary-50 text-primary-700'
-    : 'text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100';
+    : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-background-surface)]';
 
   // Disabled classes
   const disabledClasses = item.disabled
@@ -116,7 +116,7 @@ export const NavItem: React.FC<NavItemProps> = ({
       <span
         className={`
           flex-shrink-0 w-5 h-5
-          ${isActive ? 'text-primary-600' : 'text-neutral-400 group-hover:text-neutral-600'}
+          ${isActive ? 'text-primary-600' : 'text-[var(--color-text-tertiary)] group-hover:text-[var(--color-text-secondary)]'}
           ${isCollapsed ? '' : 'mr-3'}
         `}
         aria-hidden="true"
@@ -150,7 +150,7 @@ export const NavItem: React.FC<NavItemProps> = ({
             <span
               className={`
                 ml-auto
-                text-neutral-400
+                text-[var(--color-text-tertiary)]
                 transition-transform duration-200
                 ${isExpanded ? 'rotate-180' : ''}
               `}

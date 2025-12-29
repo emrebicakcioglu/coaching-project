@@ -126,10 +126,7 @@ export class MFAService {
     email: string,
     request: AuthRequest,
   ): Promise<MFASetupResponseDto> {
-    const pool = this.databaseService.getPool();
-    if (!pool) {
-      throw new Error('Database pool not available');
-    }
+    const pool = this.databaseService.ensurePool();
 
     // Check if MFA is already enabled
     const userResult = await pool.query(
@@ -225,10 +222,7 @@ export class MFAService {
     code: string,
     request: AuthRequest,
   ): Promise<MFAVerifyResponseDto> {
-    const pool = this.databaseService.getPool();
-    if (!pool) {
-      throw new Error('Database pool not available');
-    }
+    const pool = this.databaseService.ensurePool();
 
     // Get user's MFA secret
     const userResult = await pool.query(
@@ -316,10 +310,7 @@ export class MFAService {
    * @returns Whether the code is valid
    */
   async verifyBackupCode(userId: number, code: string): Promise<boolean> {
-    const pool = this.databaseService.getPool();
-    if (!pool) {
-      throw new Error('Database pool not available');
-    }
+    const pool = this.databaseService.ensurePool();
 
     // Get all unused backup codes for the user
     const result = await pool.query<UserBackupCode>(
@@ -352,10 +343,7 @@ export class MFAService {
    * @returns Number of unused backup codes
    */
   async getRemainingBackupCodesCount(userId: number): Promise<number> {
-    const pool = this.databaseService.getPool();
-    if (!pool) {
-      throw new Error('Database pool not available');
-    }
+    const pool = this.databaseService.ensurePool();
 
     const result = await pool.query(
       'SELECT COUNT(*) as count FROM user_backup_codes WHERE user_id = $1 AND used = FALSE',
@@ -372,10 +360,7 @@ export class MFAService {
    * @returns Whether MFA is enabled
    */
   async isMFAEnabled(userId: number): Promise<boolean> {
-    const pool = this.databaseService.getPool();
-    if (!pool) {
-      throw new Error('Database pool not available');
-    }
+    const pool = this.databaseService.ensurePool();
 
     const result = await pool.query(
       'SELECT mfa_enabled FROM users WHERE id = $1',
@@ -396,10 +381,7 @@ export class MFAService {
    * @returns MFA secret or null if not set
    */
   async getMFASecret(userId: number): Promise<string | null> {
-    const pool = this.databaseService.getPool();
-    if (!pool) {
-      throw new Error('Database pool not available');
-    }
+    const pool = this.databaseService.ensurePool();
 
     const result = await pool.query(
       'SELECT mfa_secret FROM users WHERE id = $1',

@@ -9,6 +9,9 @@
   "settings": "Einstellungen",
   "help": "Hilfe",
   "languages": "Sprachen",
+  "demos": "Demos",
+  "gridDemo": "Grid Demo",
+  "responsiveDemo": "Responsive Demo",
   "sidebar": {
     "collapse": "Einklappen",
     "expand": "Ausklappen",
@@ -21,5 +24,9 @@
     "darkMode": "Dunkelmodus",
     "switchToLight": "Zu Hellmodus wechseln",
     "switchToDark": "Zu Dunkelmodus wechseln"
+  },
+  "language": {
+    "select": "Sprache auswählen",
+    "current": "Aktuelle Sprache"
   }
 }

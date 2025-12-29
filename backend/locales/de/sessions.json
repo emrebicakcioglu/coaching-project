@@ -6,11 +6,38 @@
     "text": "Wenn Sie ein unbekanntes Gerät sehen, beenden Sie die Session sofort und ändern Sie Ihr Passwort."
   },
   "list": {
+    "title": "Aktive Sessions",
+    "count_one": "{{count}} aktive Session",
+    "count_other": "{{count}} aktive Sessions",
+    "loading": "Sessions werden geladen...",
+    "empty": "Keine aktiven Sessions gefunden.",
+    "logoutAll": "Alle Geräte abmelden",
+    "terminating": "Wird beendet...",
     "current": "Aktuell",
     "terminate": "Beenden",
     "terminateAll": "Alle anderen Sessions beenden",
     "confirmTerminate": "Möchten Sie diese Session wirklich beenden?",
     "confirmTerminateAll": "Möchten Sie wirklich alle anderen Sessions beenden?"
+  },
+  "dialog": {
+    "title": "Alle Geräte abmelden?",
+    "message": "Sie werden auf allen anderen Geräten abgemeldet. Diese Aktion kann nicht rückgängig gemacht werden.",
+    "cancel": "Abbrechen",
+    "confirm": "Ja, alle abmelden"
+  },
+  "item": {
+    "currentBrowser": "Dieser Browser",
+    "lastActivity": "Letzte Aktivität:",
+    "justNow": "Gerade eben",
+    "minutesAgo_one": "Vor {{count}} Minute",
+    "minutesAgo_other": "Vor {{count}} Minuten",
+    "hoursAgo_one": "Vor {{count}} Stunde",
+    "hoursAgo_other": "Vor {{count}} Stunden",
+    "daysAgo_one": "Vor {{count}} Tag",
+    "daysAgo_other": "Vor {{count}} Tagen",
+    "terminateAriaLabel": "Session auf {{device}} beenden",
+    "logout": "Abmelden",
+    "terminating": "Wird beendet..."
   },
   "device": {
     "browser": "Browser",

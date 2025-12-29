@@ -53,5 +53,36 @@
     "created": "Benutzer \"{{name}}\" wurde erfolgreich erstellt.",
     "updated": "Benutzer \"{{name}}\" wurde erfolgreich aktualisiert.",
     "deleted": "Benutzer \"{{name}}\" wurde erfolgreich gelöscht."
+  },
+  "details": {
+    "title": "Benutzerdetails",
+    "loading": "Benutzerdetails werden geladen...",
+    "backToUsers": "Zurück zu Benutzern",
+    "userNotFound": "Benutzer nicht gefunden",
+    "invalidUserId": "Ungültige Benutzer-ID",
+    "loadError": "Benutzerdetails konnten nicht geladen werden. Bitte versuchen Sie es erneut.",
+    "cards": {
+      "userInfo": "Benutzerinformationen",
+      "roleManagement": "Rollenverwaltung",
+      "permissions": "Aggregierte Berechtigungen"
+    },
+    "fields": {
+      "name": "Name",
+      "email": "E-Mail",
+      "status": "Status",
+      "mfaEnabled": "MFA aktiviert",
+      "lastLogin": "Letzter Login",
+      "created": "Erstellt",
+      "updated": "Aktualisiert"
+    },
+    "values": {
+      "yes": "Ja",
+      "no": "Nein",
+      "never": "Nie"
+    },
+    "permissions": {
+      "subtitle": "Berechtigungen, die durch alle zugewiesenen Rollen gewährt werden:",
+      "none": "Keine Berechtigungen zugewiesen. Weisen Sie Rollen zu, um Berechtigungen zu gewähren."
+    }
   }
 }

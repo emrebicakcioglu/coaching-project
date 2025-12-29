@@ -1,6 +1,7 @@
 /**
  * RegisterPage Component
  * STORY-023: User Registration
+ * STORY-3: Register Page UI Audit - Logo and UI consistency
  *
  * Page component for user registration.
  * Located at /register in the application.
@@ -13,12 +14,14 @@
  * - Error handling with clear messages
  * - Full keyboard navigation
  * - ARIA accessibility labels
+ * - Consistent branding with shared AuthLogo component
  */
 
 import React, { useState, useCallback, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts';
-import { RegisterForm, RegisterFormData } from '../components/auth/RegisterForm';
+import { RegisterForm, RegisterFormData, AuthLogo } from '../components/auth';
 import { registrationService } from '../services/authService';
 import './AuthPages.css';
 
@@ -26,6 +29,7 @@ import './AuthPages.css';
  * RegisterPage Component
  */
 export const RegisterPage: React.FC = () => {
+  const { t } = useTranslation('auth');
   const navigate = useNavigate();
   const { isAuthenticated, isLoading: authLoading } = useAuth();
 
@@ -72,20 +76,20 @@ export const RegisterPage: React.FC = () => {
         });
       } catch (err) {
         // Handle specific error cases
-        let errorMessage = 'Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.';
+        let errorMessage = t('register.errors.generic');
 
         if (err instanceof Error) {
           const errorStr = err.message.toLowerCase();
           if (errorStr.includes('409') || errorStr.includes('exists') || errorStr.includes('conflict')) {
-            errorMessage = 'Diese E-Mail-Adresse ist bereits registriert.';
+            errorMessage = t('register.errors.emailExists');
           } else if (errorStr.includes('400') || errorStr.includes('validation')) {
-            errorMessage = 'Bitte überprüfen Sie Ihre Eingaben.';
+            errorMessage = t('register.errors.validation');
           } else if (errorStr.includes('429') || errorStr.includes('too many')) {
-            errorMessage = 'Zu viele Registrierungsversuche. Bitte warten Sie einen Moment.';
+            errorMessage = t('register.errors.tooManyAttempts');
           } else if (errorStr.includes('network') || errorStr.includes('fetch')) {
-            errorMessage = 'Netzwerkfehler. Bitte überprüfen Sie Ihre Internetverbindung.';
+            errorMessage = t('register.errors.network');
           } else if (errorStr.includes('password') && errorStr.includes('match')) {
-            errorMessage = 'Die Passwörter stimmen nicht überein.';
+            errorMessage = t('register.errors.passwordMismatch');
           }
         }
 
@@ -94,7 +98,7 @@ export const RegisterPage: React.FC = () => {
         setIsLoading(false);
       }
     },
-    [navigate]
+    [navigate, t]
   );
 
   // Show loading while checking auth state
@@ -102,9 +106,9 @@ export const RegisterPage: React.FC = () => {
     return (
       <div className="auth-page" data-testid="register-page">
         <div className="auth-container">
-          <div className="auth-loading" role="status" aria-label="Wird geladen">
+          <div className="auth-loading" role="status" aria-label={t('loading')}>
             <div className="auth-loading__spinner" aria-hidden="true" />
-            <p className="auth-loading__text">Wird geladen...</p>
+            <p className="auth-loading__text">{t('loading')}</p>
           </div>
         </div>
       </div>
@@ -114,19 +118,15 @@ export const RegisterPage: React.FC = () => {
   return (
     <div className="auth-page" data-testid="register-page">
       <div className="auth-container auth-container--register" data-testid="register-container">
-        {/* Logo placeholder */}
-        <div className="auth-logo" aria-label="Logo">
-          <div className="auth-logo__placeholder" aria-hidden="true">
-            <span>LOGO</span>
-          </div>
-        </div>
+        {/* Logo - STORY-3: Using shared AuthLogo component for consistency */}
+        <AuthLogo data-testid="register-auth-logo" />
 
         <div className="auth-header">
           <h1 className="auth-title" data-testid="register-title">
-            Registrieren
+            {t('register.title')}
           </h1>
           <p className="auth-subtitle">
-            Erstellen Sie ein neues Konto.
+            {t('register.subtitle')}
           </p>
         </div>
 
@@ -142,14 +142,14 @@ export const RegisterPage: React.FC = () => {
         {/* Additional Links */}
         <div className="auth-footer" data-testid="register-footer">
           <p className="auth-footer__text">
-            Bereits registriert?{' '}
+            {t('register.hasAccount')}{' '}
             <Link
               to="/login"
               className="auth-link"
               tabIndex={isLoading ? -1 : 0}
               data-testid="login-link"
             >
-              Anmelden
+              {t('register.login')}
             </Link>
           </p>
         </div>

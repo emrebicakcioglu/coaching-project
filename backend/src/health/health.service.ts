@@ -7,6 +7,7 @@
  * Stories:
  * - STORY-021A: API-Basis-Infrastruktur
  * - STORY-029: Health Status (SMTP, MinIO checks, parallel execution)
+ * - 002-REWORK-002: Fehlende Health-Check Endpoints (liveness/readiness probes)
  *
  * Status Levels:
  * - healthy: All checks passing
@@ -25,6 +26,8 @@ import {
   HealthCheckResponseDto,
   ExtendedHealthCheckResponseDto,
   ComponentHealthDto,
+  LivenessResponseDto,
+  ReadinessResponseDto,
 } from './dto';
 
 /**
@@ -134,6 +137,51 @@ export class HealthService {
       ...healthCheck,
       environment: process.env.NODE_ENV || 'development',
       version: process.env.npm_package_version || '1.0.0',
+    };
+  }
+
+  /**
+   * Liveness probe check (Story: 002-REWORK-002)
+   *
+   * Minimal check indicating the application is running.
+   * Does not check any dependencies for fast response time (< 100ms).
+   * Used by Kubernetes liveness probes.
+   *
+   * @returns LivenessResponseDto - Simple status response
+   */
+  checkLiveness(): LivenessResponseDto {
+    return { status: 'ok' };
+  }
+
+  /**
+   * Readiness probe check (Story: 002-REWORK-002)
+   *
+   * Checks if all critical dependencies are reachable.
+   * Returns 'ok' only if all dependencies are healthy.
+   * Used by Kubernetes readiness probes.
+   *
+   * @returns Promise<{ response: ReadinessResponseDto; isReady: boolean }>
+   */
+  async checkReadiness(): Promise<{
+    response: ReadinessResponseDto;
+    isReady: boolean;
+  }> {
+    // Check database connectivity (critical dependency)
+    const dbHealth = await this.checkDatabase();
+
+    const checks: ReadinessResponseDto['checks'] = {
+      database: { status: dbHealth.status },
+    };
+
+    // All dependencies must be healthy for the app to be ready
+    const isReady = dbHealth.status === 'healthy';
+
+    return {
+      response: {
+        status: 'ok',
+        checks,
+      },
+      isReady,
     };
   }
 

@@ -2,8 +2,9 @@
  * Feedback Controller
  * STORY-038A: Feedback-Backend API
  * STORY-038B: Feedback Rate Limiting & Email Queue
+ * STORY-002-REWORK-003: Fixed HTTP 500 error - improved error handling
  *
- * REST API endpoint for submitting user feedback with screenshots.
+ * REST API endpoint for submitting user feedback with optional screenshots.
  * Protected by JWT authentication and rate limiting.
  *
  * Features (STORY-038B):
@@ -11,8 +12,13 @@
  * - Async email queue processing
  * - Enhanced browser info and route capture
  *
+ * Features (STORY-002-REWORK-003):
+ * - Screenshot is now optional
+ * - Improved error handling for storage/email failures
+ * - Graceful degradation when MinIO is unavailable
+ *
  * API Endpoints:
- *   POST /api/feedback - Submit user feedback with screenshot
+ *   POST /api/feedback - Submit user feedback with optional screenshot
  */
 
 import {
@@ -63,11 +69,11 @@ export class FeedbackController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Submit user feedback',
-    description: 'Submit feedback with an optional screenshot. The screenshot is sent as an email attachment to the support team.',
+    description: 'Submit feedback with an optional screenshot. The screenshot is stored in MinIO and a notification email is sent to the support team. Feedback can be submitted without a screenshot.',
   })
   @ApiBody({
     type: SubmitFeedbackDto,
-    description: 'Feedback submission data with screenshot',
+    description: 'Feedback submission data with optional screenshot',
   })
   @ApiResponse({
     status: 200,

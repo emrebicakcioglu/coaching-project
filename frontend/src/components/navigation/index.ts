@@ -16,3 +16,7 @@ export { Logo, type LogoProps } from './Logo';
 export { MobileSidebar, type MobileSidebarProps, MOBILE_SIDEBAR_WIDTH } from './MobileSidebar';
 export { HamburgerButton, type HamburgerButtonProps } from './HamburgerButton';
 export { SidebarOverlay, type SidebarOverlayProps } from './SidebarOverlay';
+
+// Theme & Language Components
+export { DarkModeToggle, type DarkModeToggleProps } from './DarkModeToggle';
+export { LanguageSelector, type LanguageSelectorProps } from './LanguageSelector';

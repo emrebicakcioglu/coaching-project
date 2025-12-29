@@ -1,12 +1,16 @@
 /**
  * Settings Components Index
  * STORY-013B: In-App Settings Frontend UI
+ * STORY-106: Settings Page UI Audit - Added TabNavigation for unified styling
  *
  * Exports all settings-related components for easy importing.
  */
 
 export { SettingsTabs } from './SettingsTabs';
 export type { SettingsTabsProps, SettingsTab } from './SettingsTabs';
+
+export { TabNavigation } from './TabNavigation';
+export type { TabNavigationProps, TabItem } from './TabNavigation';
 
 export { FormField } from './FormField';
 export type { FormFieldProps, FormFieldInputType, SelectOption } from './FormField';

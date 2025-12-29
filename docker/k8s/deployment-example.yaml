@@ -1,0 +1,322 @@
+# ======================================
+# Kubernetes Deployment Example
+# ======================================
+# Example Kubernetes deployment configuration for Core Application
+#
+# This file provides templates for deploying the application to Kubernetes.
+# Adjust resource limits, replicas, and secrets according to your environment.
+#
+# Story: 002-REWORK-002 (Health Check Endpoints)
+#
+# Usage:
+#   kubectl apply -f deployment-example.yaml
+#   kubectl apply -f secrets.yaml  # Create separately with your values
+#
+# ======================================
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: core-app
+
+---
+# =====================================
+# Backend API Deployment
+# =====================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: core-app-api
+  namespace: core-app
+  labels:
+    app: core-app
+    component: api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: core-app
+      component: api
+  template:
+    metadata:
+      labels:
+        app: core-app
+        component: api
+    spec:
+      containers:
+        - name: api
+          image: core-app-backend:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 14102
+              name: http
+          env:
+            - name: NODE_ENV
+              value: "production"
+            - name: APP_PORT
+              value: "14102"
+            - name: APP_HOST
+              value: "0.0.0.0"
+            # Database connection from secret
+            - name: DB_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: core-app-secrets
+                  key: db-host
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: core-app-secrets
+                  key: db-password
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: core-app-secrets
+                  key: jwt-secret
+            # Add more environment variables from ConfigMap/Secrets
+          # Liveness probe - Fast check if app is running (002-REWORK-002)
+          # Does NOT check dependencies, responds in < 100ms
+          livenessProbe:
+            httpGet:
+              path: /api/health/live
+              port: 14102
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          # Readiness probe - Checks if app can serve traffic (002-REWORK-002)
+          # Checks database connectivity, returns 503 if unhealthy
+          readinessProbe:
+            httpGet:
+              path: /api/health/ready
+              port: 14102
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 10
+            failureThreshold: 3
+          # Startup probe - For slow-starting containers
+          startupProbe:
+            httpGet:
+              path: /api/health/live
+              port: 14102
+            initialDelaySeconds: 0
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 30  # 30 * 5 = 150 seconds max startup time
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "1000m"
+
+---
+# =====================================
+# Backend API Service
+# =====================================
+apiVersion: v1
+kind: Service
+metadata:
+  name: core-app-api
+  namespace: core-app
+  labels:
+    app: core-app
+    component: api
+spec:
+  type: ClusterIP
+  ports:
+    - port: 14102
+      targetPort: 14102
+      protocol: TCP
+      name: http
+  selector:
+    app: core-app
+    component: api
+
+---
+# =====================================
+# Frontend Deployment
+# =====================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: core-app-frontend
+  namespace: core-app
+  labels:
+    app: core-app
+    component: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: core-app
+      component: frontend
+  template:
+    metadata:
+      labels:
+        app: core-app
+        component: frontend
+    spec:
+      containers:
+        - name: frontend
+          image: core-app-frontend:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+              name: http
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 3
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "250m"
+
+---
+# =====================================
+# Frontend Service
+# =====================================
+apiVersion: v1
+kind: Service
+metadata:
+  name: core-app-frontend
+  namespace: core-app
+  labels:
+    app: core-app
+    component: frontend
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP
+      name: http
+  selector:
+    app: core-app
+    component: frontend
+
+---
+# =====================================
+# Ingress (Optional)
+# =====================================
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: core-app-ingress
+  namespace: core-app
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - app.example.com
+      secretName: core-app-tls
+  rules:
+    - host: app.example.com
+      http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: core-app-api
+                port:
+                  number: 14102
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: core-app-frontend
+                port:
+                  number: 80
+
+---
+# =====================================
+# Secrets Template (DO NOT COMMIT WITH VALUES!)
+# =====================================
+# Create this separately with your actual values:
+# kubectl create secret generic core-app-secrets \
+#   --from-literal=db-host=postgres.default.svc.cluster.local \
+#   --from-literal=db-password=your-password \
+#   --from-literal=jwt-secret=your-jwt-secret-min-32-chars \
+#   --namespace=core-app
+apiVersion: v1
+kind: Secret
+metadata:
+  name: core-app-secrets
+  namespace: core-app
+type: Opaque
+data:
+  # Base64 encoded values (use: echo -n 'value' | base64)
+  db-host: cG9zdGdyZXM=  # "postgres"
+  db-password: ""  # Replace with actual password
+  jwt-secret: ""   # Replace with actual JWT secret
+
+---
+# =====================================
+# ConfigMap for non-sensitive configuration
+# =====================================
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: core-app-config
+  namespace: core-app
+data:
+  NODE_ENV: "production"
+  APP_PORT: "14102"
+  DB_PORT: "5432"
+  DB_NAME: "core_app"
+  LOG_LEVEL: "info"
+  SWAGGER_ENABLED: "false"
+  DEFAULT_LANGUAGE: "en"
+  SUPPORTED_LANGUAGES: "en,de"
+
+---
+# =====================================
+# Horizontal Pod Autoscaler
+# =====================================
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: core-app-api-hpa
+  namespace: core-app
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: core-app-api
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80

@@ -1,9 +1,19 @@
 /**
  * Role Badge Styles
  * STORY-007B: User Role Assignment
+ * STORY-104: Users Page UI Audit
  *
  * Styling for the RoleBadge component with different variants
- * for different role types (admin, moderator, editor, etc.)
+ * for different role types (admin, manager, moderator, editor, etc.)
+ *
+ * Color Scheme (STORY-104):
+ * - Admin: Red (high privilege)
+ * - Manager: Orange/Amber (elevated privilege)
+ * - Moderator: Purple
+ * - Editor: Blue
+ * - User: Blue (standard user)
+ * - Viewer/Guest: Gray
+ * - Default: Green
  */
 
 .role-badge {
@@ -57,7 +67,7 @@
   box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.2);
 }
 
-/* Variant: Admin - Red/Orange */
+/* Variant: Admin - Red (high privilege) */
 .role-badge--admin {
   background-color: #fee2e2;
   color: #b91c1c;
@@ -66,6 +76,17 @@
 
 .role-badge--admin .role-badge__remove:hover {
   background: rgba(185, 28, 28, 0.2);
+}
+
+/* Variant: Manager - Orange/Amber (elevated privilege) - STORY-104 */
+.role-badge--manager {
+  background-color: #fef3c7;
+  color: #b45309;
+  border: 1px solid #fde68a;
+}
+
+.role-badge--manager .role-badge__remove:hover {
+  background: rgba(180, 83, 9, 0.2);
 }
 
 /* Variant: Moderator - Purple */
@@ -87,6 +108,17 @@
 }
 
 .role-badge--editor .role-badge__remove:hover {
+  background: rgba(29, 78, 216, 0.2);
+}
+
+/* Variant: User - Blue (standard user) - STORY-104 */
+.role-badge--user {
+  background-color: #dbeafe;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+}
+
+.role-badge--user .role-badge__remove:hover {
   background: rgba(29, 78, 216, 0.2);
 }
 

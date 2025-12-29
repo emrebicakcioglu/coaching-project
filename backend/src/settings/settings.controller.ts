@@ -3,15 +3,17 @@
  * STORY-021B: Resource Endpoints
  * STORY-022: Swagger/OpenAPI Documentation
  * STORY-017: Theme-System Backend
+ * STORY-041: Feedback Feature Flag
  *
  * REST API controller for application settings management.
  * Provides endpoints for getting and updating app settings.
  *
  * Routes:
- * - GET  /api/v1/settings        - Get all settings
- * - PUT  /api/v1/settings        - Update settings
- * - GET  /api/v1/settings/theme  - Get theme settings (enhanced with nested colors)
- * - PUT  /api/v1/settings/theme  - Update theme settings (with hex color validation)
+ * - GET  /api/v1/settings         - Get all settings
+ * - PUT  /api/v1/settings         - Update settings
+ * - GET  /api/v1/settings/theme   - Get theme settings (enhanced with nested colors)
+ * - PUT  /api/v1/settings/theme   - Update theme settings (with hex color validation)
+ * - GET  /api/v1/settings/public  - Get public settings (no auth) (STORY-041)
  */
 
 import {
@@ -32,10 +34,13 @@ import {
 } from '@nestjs/swagger';
 import { Request } from 'express';
 import { SettingsService } from './settings.service';
+import { GeneralSettingsService } from './general-settings.service';
 import { UpdateSettingsDto, UpdateThemeSettingsDto } from './dto/update-settings.dto';
 import { SettingsResponseDto, ThemeSettingsResponseDto } from './dto/settings-response.dto';
+import { PublicSettingsResponseDto } from './dto/general-settings.dto';
 import { RateLimit } from '../common/guards/rate-limit.guard';
 import { AuthService } from '../auth/auth.service';
+import { Public } from '../common/guards/jwt-auth.guard';
 
 /**
  * Extended Request interface with user and requestId
@@ -55,6 +60,8 @@ export class SettingsController {
   constructor(
     @Inject(forwardRef(() => SettingsService))
     private readonly settingsService: SettingsService,
+    @Inject(forwardRef(() => GeneralSettingsService))
+    private readonly generalSettingsService: GeneralSettingsService,
     @Inject(forwardRef(() => AuthService))
     private readonly authService: AuthService,
   ) {}
@@ -149,6 +156,30 @@ export class SettingsController {
   ): Promise<ThemeSettingsResponseDto> {
     const userId = this.extractUserIdFromAuthHeader(authHeader);
     return this.settingsService.updateThemeSettings(updateThemeDto, userId, request);
+  }
+
+  /**
+   * Get public settings
+   * STORY-041: Feedback Feature Flag
+   *
+   * Returns minimal settings for unauthenticated clients.
+   * Includes feature flags needed for public UI decisions (e.g., feedback_enabled).
+   */
+  @Get('public')
+  @Public()
+  @RateLimit(200, 60) // 200 requests per minute
+  @ApiOperation({
+    summary: 'Get public settings',
+    description: 'Retrieve public settings including feature flags. No authentication required. STORY-041.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Public settings retrieved successfully',
+    type: PublicSettingsResponseDto,
+  })
+  @ApiResponse({ status: 429, description: 'Too many requests' })
+  async getPublicSettings(): Promise<PublicSettingsResponseDto> {
+    return this.generalSettingsService.getPublicSettings();
   }
 
   /**

@@ -2,16 +2,30 @@
  * Roles Page
  * STORY-016A: Context Menu Core Navigation
  * STORY-025B: Roles Management UI
+ * STORY-105: Roles Page UI Audit
+ * STORY-002-005: Roles Page i18n Support for Role Descriptions
  *
  * Roles and permissions management page with full CRUD functionality.
+ *
+ * UI Audit Fixes (STORY-105):
+ * - Action buttons use consistent Button component (matching Users page)
+ * - Header button uses Button component with primary variant
+ * - Role icons are role-specific (shield for admin, user icons for others)
+ * - System badge only shows for system roles (is_system=true)
+ *
+ * i18n Support (STORY-002-005):
+ * - Role descriptions are translated based on role name
+ * - Falls back to database description for custom roles without translations
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Container } from '../components/layout';
 import { rolesService, Role } from '../services/rolesService';
+import { logger } from '../services/loggerService';
 import { useAuth } from '../contexts/AuthContext';
 import { Toast, ToastType } from '../components/feedback/Toast';
+import { Button, Badge } from '../components/ui';
 import {
   CreateRoleModal,
   EditRoleModal,
@@ -33,6 +47,30 @@ interface ToastState {
  */
 export const RolesPage: React.FC = () => {
   const { t } = useTranslation('roles');
+
+  /**
+   * Get translated role description
+   * STORY-002-005: Roles Page i18n Support for Role Descriptions
+   *
+   * Translates role descriptions based on the role name and current language.
+   * Falls back to the original description from the database if no translation exists.
+   *
+   * @param role - The role object
+   * @returns Translated description or original description
+   */
+  const getRoleDescription = (role: Role): string => {
+    const roleName = role.name.toLowerCase();
+    const translationKey = `descriptions.${roleName}`;
+    const translated = t(translationKey, { defaultValue: '' });
+
+    // If translation exists and is not empty, use it
+    // Otherwise fall back to the database description
+    if (translated && translated !== translationKey) {
+      return translated;
+    }
+
+    return role.description || '-';
+  };
 
   // Data state
   const [roles, setRoles] = useState<Role[]>([]);
@@ -61,6 +99,111 @@ export const RolesPage: React.FC = () => {
   const borderStyle = { borderColor: 'var(--color-border-default, #e5e7eb)' };
 
   /**
+   * Get role-specific icon based on role name
+   * STORY-105: Replace generic checkmark with meaningful role icons
+   */
+  const getRoleIcon = (roleName: string): React.ReactNode => {
+    const name = roleName.toLowerCase();
+
+    // Shield icon for admin roles
+    if (name === 'admin' || name === 'administrator') {
+      return (
+        <svg
+          className="w-4 h-4 text-red-600"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+          />
+        </svg>
+      );
+    }
+
+    // Star icon for manager roles
+    if (name === 'manager') {
+      return (
+        <svg
+          className="w-4 h-4 text-amber-600"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"
+          />
+        </svg>
+      );
+    }
+
+    // User icon for user/viewer/guest roles
+    if (name === 'user' || name === 'viewer' || name === 'guest') {
+      return (
+        <svg
+          className="w-4 h-4 text-blue-600"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+          />
+        </svg>
+      );
+    }
+
+    // Default: key/lock icon for other roles (moderator, editor, etc.)
+    return (
+      <svg
+        className="w-4 h-4 text-primary-600"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+        aria-hidden="true"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"
+        />
+      </svg>
+    );
+  };
+
+  /**
+   * Get role icon background color based on role name
+   * STORY-105: Consistent background colors for role icons
+   */
+  const getRoleIconBgClass = (roleName: string): string => {
+    const name = roleName.toLowerCase();
+
+    if (name === 'admin' || name === 'administrator') {
+      return 'bg-red-100';
+    }
+    if (name === 'manager') {
+      return 'bg-amber-100';
+    }
+    if (name === 'user' || name === 'viewer' || name === 'guest') {
+      return 'bg-blue-100';
+    }
+    return 'bg-primary-100';
+  };
+
+  /**
    * Fetch roles from API
    */
   const fetchRoles = useCallback(async () => {
@@ -70,7 +213,7 @@ export const RolesPage: React.FC = () => {
       setRoles(data);
       setError(null);
     } catch (err) {
-      console.error('Failed to fetch roles:', err);
+      logger.error('Failed to fetch roles', err);
       setError(t('error'));
     } finally {
       setLoading(false);
@@ -163,26 +306,25 @@ export const RolesPage: React.FC = () => {
   };
 
   return (
-    <Container className="py-6" data-testid="roles-management-page">
+    <Container className="py-8" data-testid="roles-management-page">
       {/* Page Header */}
-      <div className="mb-8 flex items-center justify-between">
+      <div className="page-header page-header--with-actions">
         <div>
-          <h1 className="text-2xl font-bold" style={textPrimaryStyle}>
+          <h1 className="page-title">
             {t('title')}
           </h1>
-          <p className="mt-1 text-sm" style={textSecondaryStyle}>
+          <p className="page-subtitle">
             {t('subtitle')}
           </p>
         </div>
         {canCreateRole && (
-          <button
-            type="button"
-            className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+          <Button
+            variant="primary"
             onClick={handleCreateClick}
             data-testid="new-role-button"
           >
             {t('newRole')}
-          </button>
+          </Button>
         )}
       </div>
 
@@ -241,39 +383,33 @@ export const RolesPage: React.FC = () => {
               ) : (
                 roles.map((role) => (
                   <tr key={role.id} style={{...cardStyle}} className="" data-testid={`role-row-${role.id}`}>
+                    {/* STORY-105: Role-specific icons and System badge only for system roles */}
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
-                        <div className="flex-shrink-0 w-8 h-8 bg-primary-100 rounded-lg flex items-center justify-center">
-                          <svg
-                            className="w-4 h-4 text-primary-600"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                            aria-hidden="true"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-                            />
-                          </svg>
+                        <div className={`flex-shrink-0 w-8 h-8 ${getRoleIconBgClass(role.name)} rounded-lg flex items-center justify-center`}
+                          data-testid={`role-icon-${role.id}`}
+                        >
+                          {getRoleIcon(role.name)}
                         </div>
                         <div className="ml-4">
                           <div className="text-sm font-medium" style={textPrimaryStyle}>
                             {role.name}
                           </div>
                           {role.is_system && (
-                            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-neutral-100 text-neutral-600">
+                            <Badge
+                              variant="neutral"
+                              size="sm"
+                              data-testid={`role-system-badge-${role.id}`}
+                            >
                               {t('badges.system')}
-                            </span>
+                            </Badge>
                           )}
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-6 py-4" data-testid={`role-description-${role.id}`}>
                       <div className="text-sm" style={textSecondaryStyle}>
-                        {role.description || '-'}
+                        {getRoleDescription(role)}
                       </div>
                     </td>
                     <td className="px-6 py-4">
@@ -286,29 +422,43 @@ export const RolesPage: React.FC = () => {
                         {t('table.usersCount', { count: role.userCount || 0 })}
                       </div>
                     </td>
+                    {/* STORY-105: Standardized action buttons using Button component (matching Users page) */}
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      {canUpdateRole && (
-                        <button
-                          type="button"
-                          className="text-primary-600 hover:text-primary-900 mr-4"
-                          onClick={() => handleEditClick(role)}
-                          data-testid={`edit-role-button-${role.id}`}
-                          aria-label={t('actions.editLabel', { name: role.name })}
-                        >
-                          {t('actions.edit')}
-                        </button>
-                      )}
-                      {canDeleteRole && !role.is_system && (
-                        <button
-                          type="button"
-                          className="text-red-600 hover:text-red-900"
-                          onClick={() => handleDeleteClick(role)}
-                          data-testid={`delete-role-button-${role.id}`}
-                          aria-label={t('actions.deleteLabel', { name: role.name })}
-                        >
-                          {t('actions.delete')}
-                        </button>
-                      )}
+                      <div className="flex items-center justify-end gap-2">
+                        {canUpdateRole && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleEditClick(role)}
+                            data-testid={`edit-role-button-${role.id}`}
+                            title={t('actions.editLabel', { name: role.name })}
+                            aria-label={t('actions.editLabel', { name: role.name })}
+                          >
+                            {t('actions.edit')}
+                          </Button>
+                        )}
+                        {canDeleteRole && !role.is_system && (
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => handleDeleteClick(role)}
+                            data-testid={`delete-role-button-${role.id}`}
+                            title={t('actions.deleteLabel', { name: role.name })}
+                            aria-label={t('actions.deleteLabel', { name: role.name })}
+                          >
+                            {t('actions.delete')}
+                          </Button>
+                        )}
+                        {role.is_system && (
+                          <span
+                            className="text-xs text-neutral-400 italic"
+                            data-testid={`role-protected-indicator-${role.id}`}
+                            title={t('actions.protectedRole')}
+                          >
+                            {t('actions.protected')}
+                          </span>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))

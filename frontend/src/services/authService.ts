@@ -68,9 +68,11 @@ export interface LoginSecurityStatus {
 /**
  * Extended login error response with CAPTCHA info
  * STORY-CAPTCHA: Login Security
+ * STORY-002-REWORK-001: Added errorCode for i18n localization
  */
 export interface LoginErrorWithCaptcha {
   message: string;
+  errorCode?: string;
   requiresCaptcha?: boolean;
   captcha?: CaptchaChallenge;
   delaySeconds?: number;
@@ -119,8 +121,93 @@ export interface TerminateAllOptions {
 
 /**
  * In-memory token storage (more secure than localStorage for access token)
+ * Initialize from localStorage to persist across page refreshes
  */
-let accessToken: string | null = null;
+let accessToken: string | null = localStorage.getItem(ACCESS_TOKEN_KEY);
+
+/**
+ * JWT Payload interface for token decoding
+ */
+interface JwtPayload {
+  sub: number;
+  email: string;
+  exp: number;
+  iat: number;
+}
+
+/**
+ * Decode a JWT token without verification
+ * Used only for reading expiration time on the client side
+ */
+const decodeJwt = (token: string): JwtPayload | null => {
+  try {
+    const parts = token.split('.');
+    if (parts.length !== 3) return null;
+
+    const payload = parts[1];
+    // Handle base64url encoding
+    const base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
+    );
+    return JSON.parse(jsonPayload);
+  } catch {
+    return null;
+  }
+};
+
+/**
+ * Check if a token is expired
+ * @param token - JWT token to check
+ * @param bufferSeconds - Buffer time before actual expiration (default: 60 seconds)
+ * @returns true if token is expired or will expire within buffer time
+ */
+const isTokenExpired = (token: string | null, bufferSeconds: number = 60): boolean => {
+  if (!token) return true;
+
+  const payload = decodeJwt(token);
+  if (!payload || !payload.exp) return true;
+
+  // Check if token expires within buffer time
+  const expirationTime = payload.exp * 1000; // Convert to milliseconds
+  const currentTime = Date.now();
+  const bufferTime = bufferSeconds * 1000;
+
+  return currentTime >= (expirationTime - bufferTime);
+};
+
+/**
+ * Get token expiration time in milliseconds
+ * @returns Expiration timestamp or null if no valid token
+ */
+const getTokenExpirationTime = (token: string | null): number | null => {
+  if (!token) return null;
+
+  const payload = decodeJwt(token);
+  if (!payload || !payload.exp) return null;
+
+  return payload.exp * 1000; // Convert to milliseconds
+};
+
+/**
+ * Event name for auth state changes
+ * Components can listen to this event to react to auth changes
+ */
+export const AUTH_STATE_CHANGE_EVENT = 'auth-state-change';
+
+/**
+ * Dispatch auth state change event
+ */
+const dispatchAuthStateChange = (isAuthenticated: boolean, reason: string) => {
+  window.dispatchEvent(
+    new CustomEvent(AUTH_STATE_CHANGE_EVENT, {
+      detail: { isAuthenticated, reason },
+    })
+  );
+};
 
 /**
  * Flag to prevent multiple refresh requests
@@ -164,8 +251,14 @@ const createApiClient = (): AxiosInstance => {
   // Request interceptor - add access token to requests
   client.interceptors.request.use(
     (config: InternalAxiosRequestConfig) => {
-      if (accessToken && config.headers) {
-        config.headers.Authorization = `Bearer ${accessToken}`;
+      // Use in-memory token first, fall back to localStorage
+      const token = accessToken || localStorage.getItem(ACCESS_TOKEN_KEY);
+      if (token && config.headers) {
+        config.headers.Authorization = `Bearer ${token}`;
+        // Sync in-memory token if it was retrieved from localStorage
+        if (!accessToken && token) {
+          accessToken = token;
+        }
       }
       return config;
     },
@@ -238,6 +331,9 @@ const createApiClient = (): AxiosInstance => {
           // Refresh failed - clear tokens and redirect to login
           processQueue(refreshError as Error, null);
           authService.clearTokens();
+
+          // Dispatch auth state change event so UI can react
+          dispatchAuthStateChange(false, 'token_refresh_failed');
 
           // Redirect to login page
           window.location.href = '/login';
@@ -371,9 +467,60 @@ export const authService = {
 
   /**
    * Check if user is authenticated
+   * IMPORTANT: Now checks token expiration, not just presence
+   * This prevents users from appearing authenticated with expired tokens
    */
   isAuthenticated(): boolean {
-    return !!accessToken || !!localStorage.getItem(REFRESH_TOKEN_KEY);
+    const token = accessToken || localStorage.getItem(ACCESS_TOKEN_KEY);
+    const refreshToken = localStorage.getItem(REFRESH_TOKEN_KEY);
+
+    // If access token exists and is not expired, user is authenticated
+    if (token && !isTokenExpired(token, 0)) {
+      return true;
+    }
+
+    // If access token is expired but refresh token exists and is not expired,
+    // user can be re-authenticated (refresh will happen on next API call)
+    if (refreshToken && !isTokenExpired(refreshToken, 0)) {
+      return true;
+    }
+
+    return false;
+  },
+
+  /**
+   * Check if access token is about to expire
+   * Used for proactive token refresh before expiration
+   * @param bufferSeconds - Time before expiration to consider "about to expire" (default: 60s)
+   */
+  isTokenAboutToExpire(bufferSeconds: number = 60): boolean {
+    const token = accessToken || localStorage.getItem(ACCESS_TOKEN_KEY);
+    return isTokenExpired(token, bufferSeconds);
+  },
+
+  /**
+   * Get time until token expiration in milliseconds
+   * @returns Time until expiration, or 0 if expired/no token
+   */
+  getTimeUntilExpiration(): number {
+    const token = accessToken || localStorage.getItem(ACCESS_TOKEN_KEY);
+    const expirationTime = getTokenExpirationTime(token);
+
+    if (!expirationTime) return 0;
+
+    const remaining = expirationTime - Date.now();
+    return remaining > 0 ? remaining : 0;
+  },
+
+  /**
+   * Force logout and redirect to login
+   * Used when session has expired and cannot be recovered
+   */
+  forceLogout(reason: string = 'session_expired'): void {
+    console.warn(`Force logout triggered: ${reason}`);
+    this.clearTokens();
+    dispatchAuthStateChange(false, reason);
+    window.location.href = '/login';
   },
 
   /**
@@ -616,13 +763,15 @@ export const captchaService = {
 
   /**
    * Parse CAPTCHA info from error response
+   * STORY-002-REWORK-001: Updated to include errorCode for i18n localization
    */
   parseCaptchaFromError(error: unknown): LoginErrorWithCaptcha | null {
     if (axios.isAxiosError(error) && error.response?.data) {
       const data = error.response.data;
       if (data.requiresCaptcha) {
         return {
-          message: data.message || 'CAPTCHA erforderlich',
+          message: data.message || 'CAPTCHA_REQUIRED',
+          errorCode: data.errorCode || data.message,
           requiresCaptcha: true,
           captcha: data.captcha,
           delaySeconds: data.delaySeconds,

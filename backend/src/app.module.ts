@@ -18,6 +18,8 @@
  * - STORY-026A: MinIO Setup (File Storage)
  * - STORY-030: Application Versioning
  * - STORY-034: Maintenance Mode
+ * - STORY-041D: Jira Settings API
+ * - STORY-041E: Jira Ticket Creation
  */
 
 import { Module, OnModuleInit, MiddlewareConsumer, NestModule } from '@nestjs/common';
@@ -35,6 +37,7 @@ import { MFAModule } from './mfa/mfa.module';
 import { FeedbackModule } from './feedback/feedback.module';
 import { StorageModule } from './storage/storage.module';
 import { VersionModule } from './version/version.module';
+import { JiraModule } from './jira/jira.module';
 import { DesignModule } from './design/design.module';
 import { LanguagesModule } from './languages/languages.module';
 import { WinstonLoggerService } from './common/services/logger.service';
@@ -83,6 +86,10 @@ import { RateLimitGuard } from './common/guards/rate-limit.guard';
 
     // STORY-030: Application Versioning
     VersionModule,
+
+    // STORY-041D: Jira Settings API
+    // STORY-041E: Jira Ticket Creation
+    JiraModule,
 
     // Design System: Color Schemes Management
     DesignModule,

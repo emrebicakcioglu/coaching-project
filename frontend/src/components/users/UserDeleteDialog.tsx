@@ -19,6 +19,7 @@
 import React, { useState } from 'react';
 import { ResponsiveModal } from '../responsive';
 import { usersService, User } from '../../services/usersService';
+import { logger } from '../../services/loggerService';
 import './UserDeleteDialog.css';
 
 /**
@@ -63,7 +64,7 @@ export const UserDeleteDialog: React.FC<UserDeleteDialogProps> = ({
       onSuccess?.();
       onClose();
     } catch (err: unknown) {
-      console.error('Failed to delete user:', err);
+      logger.error('Failed to delete user', err);
       const apiError = err as { response?: { data?: { message?: string } } };
       setError(
         apiError.response?.data?.message ||

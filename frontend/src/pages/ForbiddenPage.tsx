@@ -1,6 +1,7 @@
 /**
  * ForbiddenPage Component
  * STORY-008B: Permission-System (Frontend)
+ * STORY-109: Forbidden (403) Page UI Audit
  *
  * Page displayed when a user attempts to access a resource
  * for which they lack the required permission.
@@ -10,10 +11,19 @@
  * - Navigation options (go back, go to dashboard)
  * - Responsive design
  * - WCAG 2.1 Level AA accessibility
+ *
+ * STORY-109 UI Audit Fixes:
+ * - Button styling consistency with MFA page pattern
+ * - Primary action (Dashboard) uses filled blue button
+ * - Secondary action (Back) uses outlined white button
+ * - Consistent 403 error code typography (orange/amber)
+ * - Enhanced support link visibility with HelpIcon
  */
 
 import React, { useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { HelpIcon } from '../components/icons';
 import './AuthPages.css';
 
 /**
@@ -23,6 +33,7 @@ import './AuthPages.css';
  * permissions to view a resource.
  */
 export const ForbiddenPage: React.FC = () => {
+  const { t } = useTranslation('errors');
   const navigate = useNavigate();
 
   /**
@@ -68,19 +79,16 @@ export const ForbiddenPage: React.FC = () => {
             data-testid="forbidden-title"
             style={{ color: 'var(--color-warning-600, #d97706)' }}
           >
-            Zugriff verweigert
+            {t('forbidden.title')}
           </h1>
           <p className="auth-subtitle" data-testid="forbidden-message">
-            Sie haben keine Berechtigung, auf diese Seite zuzugreifen.
-            <br />
-            Bitte wenden Sie sich an Ihren Administrator, wenn Sie der Meinung sind,
-            dass dies ein Fehler ist.
+            {t('forbidden.message')}
           </p>
         </div>
 
-        {/* Error Code Display */}
+        {/* Error Code Display - STORY-109: Consistent orange/amber typography */}
         <div
-          className="auth-form"
+          className="auth-form forbidden-page__error-code"
           style={{
             backgroundColor: 'var(--color-neutral-50, #f9fafb)',
             borderRadius: '8px',
@@ -91,72 +99,99 @@ export const ForbiddenPage: React.FC = () => {
           data-testid="error-code"
         >
           <span
+            className="forbidden-page__code-number"
             style={{
               fontSize: '3rem',
               fontWeight: '700',
-              color: 'var(--color-neutral-400, #9ca3af)',
+              color: 'var(--color-warning-500, #f59e0b)',
               letterSpacing: '0.1em',
             }}
             aria-hidden="true"
+            data-testid="error-code-number"
           >
             403
           </span>
           <p
+            className="forbidden-page__code-label"
             style={{
               fontSize: '0.875rem',
               color: 'var(--color-neutral-500, #6b7280)',
               marginTop: '0.5rem',
             }}
+            data-testid="error-code-label"
           >
-            Forbidden
+            {t('forbidden.code')}
           </p>
         </div>
 
-        {/* Action Buttons */}
+        {/* Action Buttons - STORY-109: Clear button hierarchy matching MFA page pattern */}
         <div
-          className="auth-form"
+          className="auth-form forbidden-page__actions"
           style={{
             display: 'flex',
-            flexDirection: 'column',
+            flexDirection: 'row',
             gap: '0.75rem',
+            justifyContent: 'center',
           }}
+          data-testid="forbidden-actions"
         >
+          {/* Secondary action - Go Back (outlined) */}
           <button
             type="button"
-            className="auth-button"
+            className="auth-button auth-button--secondary forbidden-page__button forbidden-page__button--secondary"
             onClick={handleGoBack}
             data-testid="go-back-button"
-          >
-            Zurück zur vorherigen Seite
-          </button>
-          <Link
-            to="/dashboard"
-            className="auth-button auth-button--secondary"
-            data-testid="dashboard-link"
             style={{
               backgroundColor: 'transparent',
               border: '1px solid var(--color-neutral-300, #d1d5db)',
               color: 'var(--color-neutral-700, #374151)',
+              flex: '1',
+              maxWidth: '180px',
+            }}
+          >
+            {t('forbidden.buttons.goBack')}
+          </button>
+          {/* Primary action - Dashboard (filled blue) */}
+          <Link
+            to="/dashboard"
+            className="auth-button auth-button--primary forbidden-page__button forbidden-page__button--primary"
+            data-testid="dashboard-link"
+            style={{
+              backgroundColor: '#2563eb',
+              color: '#ffffff',
+              border: 'none',
               textDecoration: 'none',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
+              flex: '1',
+              maxWidth: '180px',
             }}
           >
-            Zum Dashboard
+            {t('forbidden.buttons.dashboard')}
           </Link>
         </div>
 
-        {/* Help Footer */}
-        <div className="auth-footer" data-testid="forbidden-footer">
+        {/* Help Footer - STORY-109: Enhanced support link visibility with icon */}
+        <div className="auth-footer forbidden-page__footer" data-testid="forbidden-footer">
           <p className="auth-footer__text">
-            Brauchen Sie Hilfe?{' '}
             <Link
               to="/help"
-              className="auth-link"
+              className="auth-link forbidden-page__support-link"
               data-testid="help-link"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                fontWeight: '500',
+              }}
             >
-              Kontaktieren Sie den Support
+              <HelpIcon
+                className="forbidden-page__help-icon"
+                aria-hidden="true"
+                data-testid="help-link-icon"
+              />
+              {t('forbidden.links.support')}
             </Link>
           </p>
         </div>

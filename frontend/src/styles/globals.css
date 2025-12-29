@@ -34,6 +34,164 @@
   --color-background-surface: #f9fafb;
   --color-background-input: #ffffff;
 
+  /* Input Colors - Normal State */
+  --color-input-background: #ffffff;
+  --color-input-text: #111827;
+  --color-input-border: #d1d5db;
+  --color-input-placeholder: #9ca3af;
+  --color-input-focus-border: #2563eb;
+  --color-input-focus-ring: rgba(37, 99, 235, 0.2);
+
+  /* Input Colors - Error State */
+  --color-input-error-background: #fef2f2;
+  --color-input-error-text: #991b1b;
+  --color-input-error-border: #ef4444;
+  --color-input-error-placeholder: #f87171;
+  --color-input-error-focus-border: #dc2626;
+  --color-input-error-focus-ring: rgba(239, 68, 68, 0.2);
+
+  /* Input Colors - Disabled State */
+  --color-input-disabled-background: #f3f4f6;
+  --color-input-disabled-text: #9ca3af;
+  --color-input-disabled-border: #e5e7eb;
+  --color-input-disabled-placeholder: #d1d5db;
+
+  /* Button Colors - Normal */
+  --color-button-normal-bg: #2563eb;
+  --color-button-normal-text: #ffffff;
+  --color-button-normal-border: #2563eb;
+  --color-button-normal-hover-bg: #1d4ed8;
+  --color-button-normal-hover-text: #ffffff;
+  --color-button-normal-hover-border: #1d4ed8;
+
+  /* Button Colors - Inactive */
+  --color-button-inactive-bg: #e5e7eb;
+  --color-button-inactive-text: #6b7280;
+  --color-button-inactive-border: #e5e7eb;
+  --color-button-inactive-hover-bg: #d1d5db;
+  --color-button-inactive-hover-text: #4b5563;
+  --color-button-inactive-hover-border: #d1d5db;
+
+  /* Button Colors - Abort */
+  --color-button-abort-bg: #ffffff;
+  --color-button-abort-text: #6b7280;
+  --color-button-abort-border: #d1d5db;
+  --color-button-abort-hover-bg: #f3f4f6;
+  --color-button-abort-hover-text: #374151;
+  --color-button-abort-hover-border: #9ca3af;
+
+  /* Button Colors - Special */
+  --color-button-special-bg: #7c3aed;
+  --color-button-special-text: #ffffff;
+  --color-button-special-border: #7c3aed;
+  --color-button-special-hover-bg: #6d28d9;
+  --color-button-special-hover-text: #ffffff;
+  --color-button-special-hover-border: #6d28d9;
+
+  /* Button Colors - Danger */
+  --color-button-danger-bg: #ef4444;
+  --color-button-danger-text: #ffffff;
+  --color-button-danger-border: #ef4444;
+  --color-button-danger-hover-bg: #dc2626;
+  --color-button-danger-hover-text: #ffffff;
+  --color-button-danger-hover-border: #dc2626;
+
+  /* Button Colors - Success */
+  --color-button-success-bg: #10b981;
+  --color-button-success-text: #ffffff;
+  --color-button-success-border: #10b981;
+  --color-button-success-hover-bg: #059669;
+  --color-button-success-hover-text: #ffffff;
+  --color-button-success-hover-border: #059669;
+
+  /* Typography - Headings */
+  --typography-h1-size: 2.25rem;
+  --typography-h1-weight: 700;
+  --typography-h1-line-height: 2.5rem;
+  --typography-h1-color: #111827;
+  --typography-h2-size: 1.875rem;
+  --typography-h2-weight: 600;
+  --typography-h2-line-height: 2.25rem;
+  --typography-h2-color: #111827;
+  --typography-h3-size: 1.5rem;
+  --typography-h3-weight: 600;
+  --typography-h3-line-height: 2rem;
+  --typography-h3-color: #111827;
+  --typography-h4-size: 1.25rem;
+  --typography-h4-weight: 600;
+  --typography-h4-line-height: 1.75rem;
+  --typography-h4-color: #111827;
+  --typography-h5-size: 1.125rem;
+  --typography-h5-weight: 600;
+  --typography-h5-line-height: 1.75rem;
+  --typography-h5-color: #111827;
+  --typography-h6-size: 1rem;
+  --typography-h6-weight: 600;
+  --typography-h6-line-height: 1.5rem;
+  --typography-h6-color: #111827;
+
+  /* Typography - Body */
+  --typography-body-large-size: 1.125rem;
+  --typography-body-large-weight: 400;
+  --typography-body-large-line-height: 1.75rem;
+  --typography-body-large-color: #374151;
+  --typography-body-normal-size: 1rem;
+  --typography-body-normal-weight: 400;
+  --typography-body-normal-line-height: 1.5rem;
+  --typography-body-normal-color: #374151;
+  --typography-body-small-size: 0.875rem;
+  --typography-body-small-weight: 400;
+  --typography-body-small-line-height: 1.25rem;
+  --typography-body-small-color: #6b7280;
+
+  /* Card Colors - DESIGN_SYSTEM: border matches --color-border-default */
+  --color-card-default-bg: #ffffff;
+  --color-card-default-border: var(--color-border-default, #2b2d31);
+  --color-card-default-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --color-card-default-radius: 8px;
+  --color-card-elevated-bg: #ffffff;
+  --color-card-elevated-border: transparent;
+  --color-card-elevated-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --color-card-elevated-radius: 8px;
+  --color-card-flat-bg: #f9fafb;
+  --color-card-flat-border: transparent;
+  --color-card-flat-shadow: none;
+  --color-card-flat-radius: 8px;
+
+  /* Badge Colors */
+  --color-badge-default-bg: #e5e7eb;
+  --color-badge-default-text: #374151;
+  --color-badge-primary-bg: #dbeafe;
+  --color-badge-primary-text: #1e40af;
+  --color-badge-secondary-bg: #e0e7ff;
+  --color-badge-secondary-text: #3730a3;
+  --color-badge-success-bg: #d1fae5;
+  --color-badge-success-text: #065f46;
+  --color-badge-warning-bg: #fef3c7;
+  --color-badge-warning-text: #92400e;
+  --color-badge-error-bg: #fee2e2;
+  --color-badge-error-text: #991b1b;
+  --color-badge-info-bg: #dbeafe;
+  --color-badge-info-text: #1e40af;
+
+  /* Alert Colors */
+  --color-alert-success-bg: #ecfdf5;
+  --color-alert-success-border: #10b981;
+  --color-alert-success-text: #065f46;
+  --color-alert-success-icon: #10b981;
+  --color-alert-warning-bg: #fffbeb;
+  --color-alert-warning-border: #f59e0b;
+  --color-alert-warning-text: #92400e;
+  --color-alert-warning-icon: #f59e0b;
+  --color-alert-error-bg: #fef2f2;
+  --color-alert-error-border: #ef4444;
+  --color-alert-error-text: #991b1b;
+  --color-alert-error-icon: #ef4444;
+  --color-alert-info-bg: #eff6ff;
+  --color-alert-info-border: #3b82f6;
+  --color-alert-info-text: #1e40af;
+  --color-alert-info-icon: #3b82f6;
+
   /* Border Colors */
   --color-border-default: #e5e7eb;
   --color-border-light: #f3f4f6;
@@ -231,6 +389,107 @@
       max-width: var(--container-lg);
       padding-left: var(--spacing-xl);
       padding-right: var(--spacing-xl);
+    }
+  }
+
+  /* Button Hover Styles - applies theme hover colors */
+  button[style*="--btn-hover-bg"]:hover:not(:disabled) {
+    background-color: var(--btn-hover-bg) !important;
+    color: var(--btn-hover-text) !important;
+    border-color: var(--btn-hover-border) !important;
+  }
+
+  /* ========================================
+     Page Layout Utilities
+     Consistent page structure across all main pages
+     ======================================== */
+
+  /* Page Header - container for title and subtitle */
+  .page-header {
+    margin-bottom: var(--spacing-xl);
+  }
+
+  /* Page Title - H1 styling */
+  .page-title {
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1.25;
+    color: var(--color-text-primary, #111827);
+    margin: 0;
+  }
+
+  /* Page Subtitle - description below title */
+  .page-subtitle {
+    font-size: 0.875rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: var(--color-text-secondary, #6b7280);
+    margin-top: 0.25rem;
+    margin-bottom: 0;
+  }
+
+  /* Section Title - H2 styling */
+  .section-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    line-height: 1.33;
+    color: var(--color-text-primary, #111827);
+    margin: 0 0 var(--spacing-lg) 0;
+  }
+
+  /* Subsection Title - H3 styling */
+  .subsection-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--color-text-primary, #111827);
+    margin: 0 0 var(--spacing-md) 0;
+  }
+
+  /* Card Title - H4 styling */
+  .card-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    line-height: 1.5;
+    color: var(--color-text-primary, #111827);
+    margin: 0;
+  }
+
+  /* Card Description - text below card title */
+  .card-description {
+    font-size: 0.875rem;
+    color: var(--color-text-secondary, #6b7280);
+    margin-top: 0.25rem;
+    margin-bottom: 0;
+  }
+
+  /* Page Actions - container for action buttons in header */
+  .page-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+  }
+
+  /* Page Header with actions - flex layout */
+  .page-header--with-actions {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--spacing-md);
+  }
+
+  @media (max-width: 640px) {
+    .page-title {
+      font-size: 1.5rem;
+    }
+
+    .page-header--with-actions {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .page-actions {
+      justify-content: flex-start;
     }
   }
 

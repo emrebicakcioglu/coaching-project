@@ -8,9 +8,11 @@
 
 import React, { useEffect, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Container } from '../components/layout';
 import { SessionsList } from '../components/sessions/SessionsList';
 import { Session } from '../components/sessions/SessionItem';
 import { authService } from '../services/authService';
+import { useAuth } from '../contexts/AuthContext';
 import '../components/sessions/Sessions.css';
 
 /**
@@ -18,6 +20,7 @@ import '../components/sessions/Sessions.css';
  */
 export const SessionsPage: React.FC = () => {
   const { t } = useTranslation('sessions');
+  const { user } = useAuth();
   const [sessions, setSessions] = useState<Session[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -85,16 +88,17 @@ export const SessionsPage: React.FC = () => {
   }, [fetchSessions]);
 
   return (
-    <div className="sessions-page">
-      <div className="sessions-page__header">
-        <h1 className="sessions-page__title">{t('title')}</h1>
-        <p className="sessions-page__description">
+    <Container className="py-8">
+      <div className="page-header">
+        <h1 className="page-title">{t('title')}</h1>
+        <p className="page-subtitle">
           {t('description')}
         </p>
       </div>
 
       <SessionsList
         sessions={sessions}
+        username={user?.name}
         onTerminateSession={handleTerminateSession}
         onTerminateAll={handleTerminateAll}
         isLoading={isLoading}
@@ -102,13 +106,13 @@ export const SessionsPage: React.FC = () => {
       />
 
       {!isLoading && !error && sessions.length > 0 && (
-        <div className="sessions-page__info">
-          <p className="sessions-page__security-tip">
+        <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <p className="text-sm text-blue-800">
             <strong>{t('securityTip.label')}</strong> {t('securityTip.text')}
           </p>
         </div>
       )}
-    </div>
+    </Container>
   );
 };
 

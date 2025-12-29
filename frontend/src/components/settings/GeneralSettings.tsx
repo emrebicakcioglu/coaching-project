@@ -1,18 +1,22 @@
 /**
  * General Settings Component
  * STORY-013B: In-App Settings Frontend UI
+ * STORY-106: Settings Page UI Audit - Standardized form spacing and button separator
+ * STORY-002-003: Settings Page i18n Support
  *
  * Form component for managing general application settings.
  * Includes support email and session timeout configuration.
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { FormField } from './FormField';
 import {
   settingsService,
   GeneralSettings as GeneralSettingsType,
   UpdateGeneralSettingsDto,
 } from '../../services/settingsService';
+import { logger } from '../../services/loggerService';
 
 /**
  * Form errors interface
@@ -51,6 +55,8 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
   onSaveError,
   onUnsavedChanges,
 }) => {
+  const { t } = useTranslation('settings');
+
   // Form state
   const [formData, setFormData] = useState<GeneralSettingsType>({
     support_email: null,
@@ -76,8 +82,8 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
         setOriginalData(settings);
         setErrors({});
       } catch (error) {
-        console.error('Failed to load general settings:', error);
-        onSaveError?.('Fehler beim Laden der Einstellungen');
+        logger.error('Failed to load general settings', error);
+        onSaveError?.(t('admin.general.loadError'));
       } finally {
         setIsLoading(false);
       }
@@ -110,7 +116,7 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
 
     // Validate email (if provided)
     if (formData.support_email && !EMAIL_REGEX.test(formData.support_email)) {
-      newErrors.support_email = 'Bitte geben Sie eine gültige E-Mail-Adresse ein';
+      newErrors.support_email = t('admin.general.validation.invalidEmail');
     }
 
     // Validate session timeout
@@ -118,8 +124,7 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
       formData.session_timeout_minutes < 1 ||
       formData.session_timeout_minutes > 1440
     ) {
-      newErrors.session_timeout_minutes =
-        'Session-Timeout muss zwischen 1 und 1440 Minuten liegen';
+      newErrors.session_timeout_minutes = t('admin.general.validation.sessionTimeoutRange');
     }
 
     // Validate warning time
@@ -127,19 +132,17 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
       formData.warning_before_timeout_minutes < 1 ||
       formData.warning_before_timeout_minutes > 60
     ) {
-      newErrors.warning_before_timeout_minutes =
-        'Warnzeit muss zwischen 1 und 60 Minuten liegen';
+      newErrors.warning_before_timeout_minutes = t('admin.general.validation.warningTimeRange');
     }
 
     // Warning time should be less than session timeout
     if (formData.warning_before_timeout_minutes >= formData.session_timeout_minutes) {
-      newErrors.warning_before_timeout_minutes =
-        'Warnzeit muss kleiner als Session-Timeout sein';
+      newErrors.warning_before_timeout_minutes = t('admin.general.validation.warningTimeLessThanTimeout');
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
-  }, [formData]);
+  }, [formData, t]);
 
   /**
    * Handle field change
@@ -187,11 +190,11 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
       setFormData(updatedSettings);
       setOriginalData(updatedSettings);
       setHasUnsavedChanges(false);
-      onSaveSuccess?.('Allgemeine Einstellungen wurden gespeichert');
+      onSaveSuccess?.(t('admin.general.saveSuccess'));
     } catch (error) {
-      console.error('Failed to save general settings:', error);
-      setErrors({ general: 'Fehler beim Speichern der Einstellungen' });
-      onSaveError?.('Fehler beim Speichern der Einstellungen');
+      logger.error('Failed to save general settings', error);
+      setErrors({ general: t('admin.general.saveError') });
+      onSaveError?.(t('admin.general.saveError'));
     } finally {
       setIsSaving(false);
     }
@@ -216,7 +219,7 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
         data-testid="general-settings-loading"
       >
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600" />
-        <span className="ml-3 text-neutral-600">Einstellungen werden geladen...</span>
+        <span className="ml-3 text-neutral-600">{t('admin.loading')}</span>
       </div>
     );
   }
@@ -224,7 +227,7 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
   return (
     <form
       onSubmit={handleSubmit}
-      className="space-y-6"
+      className="space-y-6" // STORY-106: 24px spacing between form groups
       data-testid="general-settings"
     >
       {/* General error */}
@@ -240,8 +243,8 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
 
       {/* Support Email */}
       <FormField
-        label="Support E-Mail"
-        description="E-Mail-Adresse für Support-Anfragen (wird im Footer angezeigt)"
+        label={t('admin.general.supportEmail')}
+        description={t('admin.general.supportEmailDescription')}
         name="support_email"
         type="email"
         value={formData.support_email || ''}
@@ -253,8 +256,8 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
 
       {/* Session Timeout */}
       <FormField
-        label="Session-Timeout"
-        description="Zeit in Minuten bis zur automatischen Abmeldung (1-1440)"
+        label={t('admin.general.sessionTimeout')}
+        description={t('admin.general.sessionTimeoutDescription')}
         name="session_timeout_minutes"
         type="number"
         value={formData.session_timeout_minutes}
@@ -268,8 +271,8 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
 
       {/* Show Timeout Warning */}
       <FormField
-        label="Timeout-Warnung anzeigen"
-        description="Warnung vor automatischer Abmeldung anzeigen"
+        label={t('admin.general.showTimeoutWarning')}
+        description={t('admin.general.showTimeoutWarningDescription')}
         name="show_timeout_warning"
         type="toggle"
         value={formData.show_timeout_warning}
@@ -280,8 +283,8 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
       {/* Warning Time */}
       {formData.show_timeout_warning && (
         <FormField
-          label="Warnzeit vor Timeout"
-          description="Minuten vor Timeout, um Warnung anzuzeigen (1-60)"
+          label={t('admin.general.warningTime')}
+          description={t('admin.general.warningTimeDescription')}
           name="warning_before_timeout_minutes"
           type="number"
           value={formData.warning_before_timeout_minutes}
@@ -308,29 +311,31 @@ export const GeneralSettings: React.FC<GeneralSettingsProps> = ({
               d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
             />
           </svg>
-          <span>Sie haben ungespeicherte Änderungen</span>
+          <span>{t('admin.unsavedChanges')}</span>
         </div>
       )}
 
-      {/* Action Buttons */}
-      <div className="flex justify-end gap-3 pt-4 border-t border-neutral-200">
-        <button
-          type="button"
-          onClick={handleReset}
-          disabled={!hasUnsavedChanges || isSaving}
-          className="px-4 py-2 text-sm font-medium text-neutral-700 bg-white border border-neutral-300 rounded-md hover:bg-neutral-50 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
-          data-testid="reset-button"
-        >
-          Zurücksetzen
-        </button>
-        <button
-          type="submit"
-          disabled={!hasUnsavedChanges || isSaving}
-          className="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
-          data-testid="save-button"
-        >
-          {isSaving ? 'Wird gespeichert...' : 'Speichern'}
-        </button>
+      {/* STORY-106: Visual separator between form fields and action buttons */}
+      <div className="pt-6 mt-6 border-t border-[var(--color-border-default,#e5e7eb)]">
+        <div className="flex justify-end gap-3">
+          <button
+            type="button"
+            onClick={handleReset}
+            disabled={!hasUnsavedChanges || isSaving}
+            className="px-4 py-2 text-sm font-medium text-[var(--color-text-primary,#374151)] bg-[var(--color-background-card,#ffffff)] border border-[var(--color-border-default,#d1d5db)] rounded-md hover:bg-neutral-50 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+            data-testid="reset-button"
+          >
+            {t('admin.buttons.reset')}
+          </button>
+          <button
+            type="submit"
+            disabled={!hasUnsavedChanges || isSaving}
+            className="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+            data-testid="save-button"
+          >
+            {isSaving ? t('admin.buttons.saving') : t('admin.buttons.save')}
+          </button>
+        </div>
       </div>
     </form>
   );

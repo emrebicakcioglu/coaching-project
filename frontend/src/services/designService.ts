@@ -15,9 +15,13 @@
  * - POST   /api/v1/design/schemes/:id/duplicate - Duplicate scheme
  */
 
-import axios from 'axios';
+import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:14102/api/v1';
+
+// Token storage keys (shared with authService)
+const ACCESS_TOKEN_KEY = 'access_token';
+const REFRESH_TOKEN_KEY = 'refresh_token';
 
 /**
  * Button style configuration
@@ -292,12 +296,55 @@ const designApi = axios.create({
  * Add auth token to requests
  */
 designApi.interceptors.request.use((config) => {
-  const token = localStorage.getItem('access_token');
+  const token = localStorage.getItem(ACCESS_TOKEN_KEY);
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
 });
+
+/**
+ * Handle 401 errors with token refresh
+ * Note: Design API calls should not redirect to login on failure
+ * as they may be used on public pages for theme loading
+ */
+designApi.interceptors.response.use(
+  (response) => response,
+  async (error: AxiosError) => {
+    const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
+
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+
+      // Don't try to refresh or redirect for design requests - just reject
+      // The design service will handle fallbacks appropriately
+      const refreshToken = localStorage.getItem(REFRESH_TOKEN_KEY);
+      if (!refreshToken) {
+        return Promise.reject(error);
+      }
+
+      try {
+        const response = await axios.post(`${API_BASE_URL}/auth/refresh`, {
+          refresh_token: refreshToken,
+        });
+
+        // Store new tokens
+        localStorage.setItem(ACCESS_TOKEN_KEY, response.data.access_token);
+        localStorage.setItem(REFRESH_TOKEN_KEY, response.data.refresh_token);
+
+        // Retry the original request with new token
+        if (originalRequest.headers) {
+          originalRequest.headers.Authorization = `Bearer ${response.data.access_token}`;
+        }
+        return designApi(originalRequest);
+      } catch {
+        // Refresh failed - don't redirect, just reject the error
+        // The calling code will handle fallbacks
+      }
+    }
+    return Promise.reject(error);
+  }
+);
 
 /**
  * Design Service

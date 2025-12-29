@@ -98,7 +98,24 @@ export const DarkModeProvider: React.FC<DarkModeProviderProps> = ({
   }>({ lightSchemeId: null, darkSchemeId: null });
 
   /**
+   * Apply CSS class for dark mode (works without backend schemes)
+   * IMPORTANT: This is the fallback that ensures dark mode always works,
+   * even if backend schemes are not configured. This prevents the toggle
+   * from disappearing or becoming non-functional.
+   */
+  const applyCssClass = useCallback((dark: boolean) => {
+    const htmlElement = document.documentElement;
+    if (dark) {
+      htmlElement.classList.add('dark');
+    } else {
+      htmlElement.classList.remove('dark');
+    }
+  }, []);
+
+  /**
    * Load scheme modes and preference on mount
+   * IMPORTANT: The toggle now ALWAYS works, even without backend schemes.
+   * This prevents the recurring bug where the toggle disappears.
    */
   useEffect(() => {
     const initialize = async () => {
@@ -106,26 +123,42 @@ export const DarkModeProvider: React.FC<DarkModeProviderProps> = ({
         setIsLoading(true);
         setError(null);
 
-        // Load scheme mode assignments
-        const modes = await designService.getSchemeModes();
-        setSchemeModes(modes);
-
-        // Check if both modes are configured
-        const configured = modes.lightSchemeId !== null && modes.darkSchemeId !== null;
-        setIsConfigured(configured);
-
-        // Load preference from localStorage
+        // Load preference from localStorage first (always works)
         const preferDark = themeService.getDarkModePreference();
         setIsDarkMode(preferDark);
 
-        // If configured and preference doesn't match current theme, apply it
-        if (configured && preferDark && modes.darkSchemeId) {
-          await designService.applyScheme(modes.darkSchemeId);
-          window.dispatchEvent(new CustomEvent('theme-changed'));
-        } else if (configured && !preferDark && modes.lightSchemeId) {
-          // Only apply if not already the active scheme
-          await designService.applyScheme(modes.lightSchemeId);
-          window.dispatchEvent(new CustomEvent('theme-changed'));
+        // ALWAYS apply CSS class based on preference - this works without backend
+        applyCssClass(preferDark);
+
+        // Check if user has an access token (likely authenticated)
+        const hasToken = !!localStorage.getItem('access_token');
+
+        if (hasToken) {
+          try {
+            // Load scheme mode assignments
+            const modes = await designService.getSchemeModes();
+            setSchemeModes(modes);
+
+            // Check if both modes are configured
+            const configured = modes.lightSchemeId !== null && modes.darkSchemeId !== null;
+            setIsConfigured(configured);
+
+            // If configured, apply the appropriate backend scheme
+            if (configured && preferDark && modes.darkSchemeId) {
+              await designService.applyScheme(modes.darkSchemeId);
+              window.dispatchEvent(new CustomEvent('theme-changed'));
+            } else if (configured && !preferDark && modes.lightSchemeId) {
+              await designService.applyScheme(modes.lightSchemeId);
+              window.dispatchEvent(new CustomEvent('theme-changed'));
+            }
+          } catch (err) {
+            // API call failed - but CSS class is already applied, toggle still works
+            console.warn('Failed to load scheme modes (possibly not authenticated):', err);
+            setIsConfigured(false);
+          }
+        } else {
+          // Not authenticated - toggle still works with CSS class fallback
+          setIsConfigured(false);
         }
       } catch (err) {
         console.error('Failed to initialize dark mode:', err);
@@ -136,40 +169,43 @@ export const DarkModeProvider: React.FC<DarkModeProviderProps> = ({
     };
 
     initialize();
-  }, []);
+  }, [applyCssClass]);
 
   /**
    * Apply a specific mode
+   * IMPORTANT: This now always works - even without backend schemes configured.
+   * If schemes are available, they are applied. Otherwise, only CSS class is toggled.
+   * This prevents the recurring bug where the toggle stops working.
    */
   const applyMode = useCallback(
     async (dark: boolean) => {
-      if (!isConfigured) {
-        console.warn('Dark mode not configured: Both light and dark schemes must be assigned');
-        return;
-      }
-
-      const schemeId = dark ? schemeModes.darkSchemeId : schemeModes.lightSchemeId;
-      if (!schemeId) {
-        console.warn(`${dark ? 'Dark' : 'Light'} scheme not configured`);
-        return;
-      }
-
       setIsLoading(true);
       setError(null);
 
       try {
-        await designService.applyScheme(schemeId);
+        // Always apply CSS class and save preference - this works without backend
+        applyCssClass(dark);
         setIsDarkMode(dark);
         themeService.setDarkModePreference(dark);
+
+        // If schemes are configured, also apply the backend scheme
+        if (isConfigured) {
+          const schemeId = dark ? schemeModes.darkSchemeId : schemeModes.lightSchemeId;
+          if (schemeId) {
+            await designService.applyScheme(schemeId);
+          }
+        }
+
         window.dispatchEvent(new CustomEvent('theme-changed'));
       } catch (err) {
         console.error('Failed to apply theme:', err);
         setError(`Failed to switch to ${dark ? 'dark' : 'light'} mode`);
+        // Even if backend fails, the CSS class and localStorage are already applied
       } finally {
         setIsLoading(false);
       }
     },
-    [isConfigured, schemeModes]
+    [isConfigured, schemeModes, applyCssClass]
   );
 
   /**

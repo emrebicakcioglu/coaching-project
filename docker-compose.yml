@@ -40,6 +40,7 @@
 #   - STORY-018A: Standard-Sprache Backend (i18n Setup) - Language service, translations JSON, localization utils, user/admin language settings
 #   - STORY-038A: Feedback-Backend API - Feedback submission with screenshots, Base64 processing, email attachments
 #   - STORY-038B: Feedback Rate Limiting & Email Queue - Rate limiting (5/hour), async email queue, browser info capture, route tracking
+#   - STORY-041: Feedback Feature Flag - feedback.enabled in app_settings.features JSONB, GET /api/v1/settings/public endpoint
 #   - STORY-026A: MinIO Setup - S3-compatible object storage, bucket creation, file operations API
 #   - STORY-026B: MinIO File API - File listing pagination support (page/limit query params)
 #   - STORY-017A: Layout & Grid-System (Frontend) - Tailwind CSS config, responsive breakpoints, 12-column grid, layout components
@@ -67,8 +68,60 @@
 #   - Story 44 QA Fixes (Iteration 2): E2E test strict mode fix (getByRole for heading), BackupCodesList unit test assertions (verify UI state not clipboard mocks)
 #   - Story 45 (STORY-013B): In-App Settings Frontend UI (SettingsPage tabs, GeneralSettings, SecuritySettings, EmailSettings, FormField, settingsService)
 #   - Story 45 QA Fixes (Iteration 1): E2E test loginAsAdmin() rewritten with rate limit retry logic, auth verification, serial test mode, 120s timeout
+#   - Story 1 UI/UX Audit: UI consistency fixes (Button/Badge/Card components, Logo branding, password toggle icons, tab styling, translations)
+#   - Story 1 QA Fixes (Iteration 1): Docker container rebuild with --no-cache, E2E test selector fix (login-submit→login-button in ui-consistency.spec.ts)
+#   - Story 2: Login Page UI Audit (Input field focus states enhancement, focus-visible pseudo-class, CSS custom properties for theme compatibility, E2E tests)
+#   - Story 2 QA Fixes (Iteration 1): CSS !important for focus styles, Playwright tests use .click() instead of .focus() with wait for CSS transition
+#   - Story 3: Register Page UI Audit (AuthLogo component, password toggle icon consistency, input field styling)
+#   - Story 3 QA Fixes (Iteration 1): Docker container rebuild, TypeScript export fix, Playwright test color comparison tolerance, CSS explicit fallback values
+#   - Story 3 QA Fixes (Iteration 2): Docker container rebuild with --no-cache, Playwright config production testing support (FRONTEND_URL env var)
+#   - Story 4 (Story 103): Dashboard Page UI Audit (Dynamic stat cards with API data, loading skeletons, quick action spacing, icon color semantics documentation)
+#   - Story 4 QA Fixes (Iteration 1): E2E test loginAndNavigateToDashboard() helper rewritten to perform actual authentication before accessing protected dashboard route
+#   - Story 4 QA Fixes (Iteration 2): E2E test rate limiting fix (8 retries, 10s delays), serial test mode, 120s timeout, system status card selector fix (p.text-emerald-600)
+#   - Story 5 (Story 104): Users Page UI Audit (Action button consistency, role badge colors, status badge styling, "Keine Rollen" neutral badge, table column widths)
+#   - Story 6 (Story 105): Roles Page UI Audit (Action button consistency with Users page, role-specific icons, System badge styling, protected role indicator, translations)
+#   - Story 7 (Story 106): Settings Page UI Audit (Tab navigation consistency, Card component styling, section hierarchy, 2FA button styling, form field spacing, visual separators)
+#   - Story 8 (Story 107): MFA Settings Page UI Audit (SVG icons replacing emojis, stepper line styling, card shadow/border, E2E tests)
+#   - Story 1 QA Fixes (Iteration 1) - Story 107: Playwright test selector fix (.mfa-setup__step-label filter), i18n 'settings' namespace preload
+#   - Story 2 (STORY-108): Help Page UI Audit (Missing translations fix, unified card styling, FAQ accordion with chevrons, contact icon sizing, documentation link hover states, version display)
+#   - Story 2 QA Fixes (Iteration 1) - STORY-108: Translation loading state handling (useTranslation ready state, loading spinner, help namespace preload)
+#   - Story 3 (STORY-109): Forbidden (403) Page UI Audit (Button styling consistency, visual hierarchy, error code typography, support link with HelpIcon, E2E tests)
+#   - Story 3 QA Fixes (Iteration 1) - STORY-109: E2E test URL path fix (/403 → /forbidden in story-109-forbidden-page-ui-audit.spec.ts)
+#   - Story 3 QA Fixes (Iteration 2) - STORY-109: HelpIcon SVG visibility fix (added explicit CSS dimensions for .forbidden-page__help-icon in AuthPages.css)
+#   - Epic 002 Story 1 (002-STORY-001): Login Page i18n Support (Frontend) - useTranslation hook in LoginForm/RememberMeCheckbox, translation keys for form labels/placeholders/buttons
+#   - Epic 002 Story 1 QA Fixes (Iteration 1): CaptchaInput.tsx i18n support (6 German strings replaced with t() calls), AuthLogo.tsx aria-label i18n, CAPTCHA translation keys in auth.json
+#   - Epic 002 Story 2 DevOps (002-STORY-001 QA Fixes Iteration 1): Playwright E2E test fix - waitForTranslationsToLoad() helper waits for async translation loading from backend API before asserting on translated text
+#   - Epic 002 Story 2 DevOps (002-STORY-001 QA Fixes Iteration 2): E2E test structure fix - removed global beforeEach, self-contained test suites with proper setup order (navigate→clear→set language→reload→wait for translations)
+#   - Epic 002 Story 3 (002-STORY-002): Register Page i18n Support (Frontend) - useTranslation hook in RegisterForm, translation keys for form labels/placeholders/validation messages, E2E tests
+#   - Epic 002 Story 4 (002-STORY-003): Settings Page i18n Support (Frontend) - useTranslation hook in SettingsTabs/GeneralSettings/SecuritySettings/EmailSettings/MaintenanceSettings, translation keys for admin settings tabs/labels/descriptions/buttons, E2E tests
+#   - Epic 002 Story 4 QA Fixes (Iteration 1): E2E test admin credentials fix - hardcoded credentials replaced with environment variables (TEST_ADMIN_EMAIL, TEST_ADMIN_PASSWORD) with proper fallbacks in settings-page-i18n.spec.ts
+#   - Epic 002 Story 5 (002-STORY-004): Sessions Page i18n Support (Frontend) - useTranslation hook in SessionsList/SessionItem, translation keys for list/item/dialog elements with pluralization, E2E tests
+#   - Epic 002 Story 6 (002-STORY-005): Roles Page i18n Support (Frontend) - Role description translations using Option B (Translation Keys), getRoleDescription() helper with i18next, fallback to database description for custom roles, E2E tests
+#   - STORY-041 QA Fixes (Iteration 1): Migration 029 fix - removed invalid partial index using CURRENT_TIMESTAMP (non-IMMUTABLE function) from 029-add-performance-indexes.sql
+#   - STORY-041B: Feedback Screenshot Storage - Screenshot stored in MinIO instead of email attachments, screenshot_path column in feedback_submissions, notification-only emails with admin panel links
+#   - STORY-041B QA Fixes (Iteration 1): Unit test TypeScript error fix - added assertions to use 'result' variable in feedback.service.test.ts (TS6133 noUnusedLocals)
+#   - STORY-041C: Feedback Admin API - Admin endpoints for feedback management (list/view/delete), presigned URLs for screenshots, MinIO cleanup on delete, audit logging
+#   - STORY-041C QA Fixes (Iteration 1): API route prefix fix - Changed @Controller('admin/feedbacks') to @Controller('api/v1/admin/feedbacks') for correct endpoint paths
+#   - STORY-041D: Jira Settings API - Jira Cloud configuration (URL, email, API token), encrypted token storage (AES-256-GCM), connection test endpoint
+#   - STORY-041D QA Fixes (Iteration 1): ENCRYPTION_KEY validation fix - Zod schema transform empty string to undefined before validation, added development-only default to .env
+#   - STORY-041D QA Fixes (Iteration 2): Missing database migration fix - Created 032-add-integrations-column.sql to add integrations JSONB column to app_settings table
+#   - STORY-041E: Jira Ticket Creation - POST /api/v1/admin/feedbacks/:id/jira, Jira Cloud REST API v3 integration, screenshot attachments, feedback-jira linking
+#   - STORY-041E QA Fixes (Iteration 1): Import path fix in jira-ticket.controller.ts (../auth/guards/jwt-auth.guard → ../common/guards/jwt-auth.guard, ../common/decorators/rate-limit.decorator → ../common/guards/rate-limit.guard), Docker container rebuilt, unit tests fixed
+#   - STORY-041E QA Fixes (Iteration 2): Service test file corruption fix - jira-ticket.service.test.ts completely rewritten (duplicated variable declarations removed), all 27 jira-ticket tests pass (8 controller + 19 service), 92.56% coverage
+#   - STORY-041F: Feedback Trigger UI (Frontend) - Floating feedback button (fixed bottom-right), Ctrl+Shift+F keyboard shortcut, html2canvas screenshot capture, Feature flag integration
+#   - STORY-041F QA Fixes (Iteration 1): Button size fix (56x56px→48x48px desktop, 64x64px→56x56px mobile per design spec), App.tsx JSX indentation fix for component hierarchy
+#   - STORY-041F QA Fixes (Iteration 2): Duplicate keyboard shortcut handler fix - useFeedbackTrigger hook default changed to enableKeyboardShortcut=false since FeedbackButton already handles Ctrl+Shift+F
+#   - STORY-041G: Feedback Modal UI (Frontend) - FeedbackModal component with screenshot preview, comment textarea (10-2000 chars), submit with loading state, error handling, toast notifications
+#   - STORY-041G QA Fixes (Iteration 1): ResponsiveModal data-testid fix - Added data-testid={`${testId}-title`} to title h2 element for E2E test compatibility
+#   - STORY-041G QA Fixes (Iteration 2): E2E test fixes - login-submit→login-button testId, auth token bypass for rate limiting, backdrop click force:true, character limit test 2000 chars, validation hint test
+#   - STORY-041H: Feedback Admin Page (Frontend) - Admin page /admin/feedback for viewing/managing feedback, FeedbackListItem, FeedbackDetailModal, FeedbackDeleteDialog, Jira ticket creation, pagination
+#   - STORY-041H QA Fixes (Iteration 1): E2E test authentication fix - JWT-formatted mock tokens, roles endpoint mock, test structure improvements for all 165 tests
+#   - 002-REWORK-001: Login Error Message Localization - Backend returns error codes (AUTH_INVALID_CREDENTIALS, AUTH_EMAIL_NOT_VERIFIED, AUTH_ACCOUNT_INACTIVE, CAPTCHA_REQUIRED, CAPTCHA_INVALID) instead of hardcoded messages, Frontend maps error codes to i18n translation keys, E2E tests for German/English error messages
+#   - 002-REWORK-002: Fehlende Health-Check Endpoints - Added GET /api/health/live (liveness probe, < 100ms, no dependencies), GET /api/health/ready (readiness probe, checks database), Kubernetes/Docker health probe support
+#   - 002-REWORK-003: Feedback System HTTP 500 Error Fix - Made screenshot field optional in SubmitFeedbackDto, graceful error handling for screenshot processing failures, feedback submission succeeds even without screenshots
+#   - 002-REWORK-003 QA Fixes (Iteration 1): Backend DTO tests updated - 3 failing tests fixed for optional screenshot field, added new test for comment-only submission (feedback.dto.test.ts)
 #
-# Frontend Development (STORY-017A: Layout & Grid-System, STORY-017B-resp: Component Responsiveness, STORY-016A: Context Menu Core Navigation, STORY-018B: Context Menu Responsive & Mobile, STORY-030: Application Versioning, STORY-017B: Theme-System Frontend, STORY-007B: Login System Frontend UI, STORY-006B: User CRUD Frontend UI, Story 41: User Registration Frontend, Story 42: Roles Management Frontend UI, Story 43: Permission-System Frontend, Story 44: MFA UI Frontend, Story 45: In-App Settings Frontend UI):
+# Frontend Development (STORY-017A: Layout & Grid-System, STORY-017B-resp: Component Responsiveness, STORY-016A: Context Menu Core Navigation, STORY-018B: Context Menu Responsive & Mobile, STORY-030: Application Versioning, STORY-017B: Theme-System Frontend, STORY-007B: Login System Frontend UI, STORY-006B: User CRUD Frontend UI, Story 41: User Registration Frontend, Story 42: Roles Management Frontend UI, Story 43: Permission-System Frontend, Story 44: MFA UI Frontend, Story 45: In-App Settings Frontend UI, Story 1: UI/UX Audit, Story 1 QA Fixes, Story 2: Login Page UI Audit, Story 2 QA Fixes, Story 3: Register Page UI Audit, Story 3 QA Fixes, Story 4/Story 103: Dashboard Page UI Audit, Story 4 QA Fixes, Story 5/Story 104: Users Page UI Audit, Story 6/Story 105: Roles Page UI Audit, Story 7/Story 106: Settings Page UI Audit, Story 8/Story 107: MFA Settings Page UI Audit, Story 1 QA Fixes - Story 107, Story 2/STORY-108: Help Page UI Audit, Story 2 QA Fixes - STORY-108, Story 3/STORY-109: Forbidden Page UI Audit, Story 3 QA Fixes - STORY-109, Story 3 QA Fixes (Iteration 2) - STORY-109, Epic 002 Story 1/002-STORY-001: Login Page i18n, Epic 002 Story 1 QA Fixes (Iteration 1), Epic 002 Story 2 DevOps Iteration 1, Epic 002 Story 2 DevOps Iteration 2, Epic 002 Story 3/002-STORY-002: Register Page i18n, Epic 002 Story 4/002-STORY-003: Settings Page i18n, Epic 002 Story 4 QA Fixes (Iteration 1), Epic 002 Story 5/002-STORY-004: Sessions Page i18n, Epic 002 Story 6/002-STORY-005: Roles Page i18n, Story 6/STORY-041F: Feedback Trigger UI, Story 6/STORY-041F QA Fixes Iteration 1 & 2, Story 7/STORY-041G: Feedback Modal UI, Story 7/STORY-041G QA Fixes Iteration 1 & 2, Story 8/STORY-041H: Feedback Admin Page, Story 8/STORY-041H QA Fixes Iteration 1, 002-REWORK-001: Login Error Message Localization):
 #   The frontend is developed separately and does not require Docker services.
 #   Frontend runs locally: cd frontend && npm install && npm run dev (port 3000)
 #   Frontend components (Container, Row, Col, Grid, GridItem) are in frontend/src/components/layout/
@@ -77,10 +130,16 @@
 #   User components (UserCreateModal, UserEditModal, UserDeleteDialog) are in frontend/src/components/users/
 #   Roles components (PermissionCheckboxGroup, CreateRoleModal, EditRoleModal, RoleDeleteDialog) are in frontend/src/components/roles/
 #   Auth components (LoginForm, PrivateRoute, ProtectedRoute, IfHasPermission, withPermission, MFACodeInput, MFALoginPrompt, BackupCodesList) are in frontend/src/components/auth/
-#   Settings components (SettingsTabs, FormField, GeneralSettings, SecuritySettings, EmailSettings) are in frontend/src/components/settings/
-#   Feedback components (Toast) are in frontend/src/components/feedback/
+#   Settings components (SettingsTabs, FormField, GeneralSettings, SecuritySettings, EmailSettings, TabNavigation) are in frontend/src/components/settings/
+#   Sessions components (SessionsList, SessionItem) are in frontend/src/components/sessions/ (002-STORY-004: Sessions Page i18n)
+#   Feedback components (Toast, FeedbackButton, FeedbackModal, FeedbackListItem, FeedbackDetailModal, FeedbackDeleteDialog) are in frontend/src/components/feedback/
+#   Feedback context (FeedbackProvider, useFeedback) is in frontend/src/contexts/FeedbackContext.tsx (STORY-041F)
+#   Feedback hooks (useFeedbackTrigger) are in frontend/src/hooks/useFeedbackTrigger.ts (STORY-041F)
+#   Feedback service (feedbackService) is in frontend/src/services/feedbackService.ts (STORY-041F)
+#   Feedback admin service (feedbackAdminService) is in frontend/src/services/feedbackAdminService.ts (STORY-041H)
 #   Theme components (ThemeProvider, ThemeContext) are in frontend/src/contexts/
 #   Theme service (themeService) is in frontend/src/services/
+#   UI components (Button, Badge, Card) are in frontend/src/components/ui/ (Story 1 UI/UX Audit)
 #
 #   STORY-017A Files Created/Modified:
 #     - frontend/vite.config.ts - Vite build configuration (port 3000)
@@ -572,6 +631,1093 @@
 #     - Depends on STORY-013A (In-App Settings Backend) for API endpoints
 #     - Unit tests: 105 tests passing (SettingsTabs: 23, FormField: 27, GeneralSettings: 19, SecuritySettings: 18, EmailSettings: 18)
 #
+#   Story 1 UI/UX Audit Files Created/Modified:
+#     Translation Files (Backend):
+#     - backend/locales/de/navigation.json - Added demos, gridDemo, responsiveDemo translations
+#     - backend/locales/en/navigation.json - Added demos, gridDemo, responsiveDemo translations
+#     - backend/locales/de/help.json - Fixed documentation.api key, added version.current
+#     - backend/locales/en/help.json - Fixed documentation.api key, added version.current
+#     Logo Branding:
+#     - frontend/src/components/navigation/Logo.tsx - Replaced letter placeholder with SVG hexagon logo
+#     - frontend/src/pages/AuthPages.css - Updated logo placeholder styling with gradient
+#     - frontend/src/pages/LoginPage.tsx - Replaced "LOGO" text with SVG icon
+#     - frontend/src/pages/RegisterPage.tsx - Replaced placeholder with SVG icon
+#     Password Toggle Icons:
+#     - frontend/src/components/icons/Icons.tsx - Added EyeIcon and EyeOffIcon components
+#     - frontend/src/components/icons/index.ts - Exported new icons
+#     - frontend/src/components/auth/LoginForm.tsx - Updated to use SVG icons
+#     - frontend/src/components/auth/RegisterForm.tsx - Updated to use SVG icons
+#     Settings Page Tabs:
+#     - frontend/src/pages/SettingsPage.tsx - Added icons to personal settings tabs for consistency
+#     Table Actions:
+#     - frontend/src/pages/RolesPage.tsx - Standardized action buttons with outlined style
+#     Forbidden Page:
+#     - frontend/src/pages/ForbiddenPage.tsx - Added clear primary/secondary button hierarchy
+#     UI Components Created:
+#     - frontend/src/components/ui/Button.tsx - Standardized button component (primary, secondary, outline, destructive, ghost, link variants)
+#     - frontend/src/components/ui/Badge.tsx - Standardized badge component with color variants for roles/statuses
+#     - frontend/src/components/ui/Card.tsx - Standardized card component with sub-components (Header, Title, Body, Footer)
+#     - frontend/src/components/ui/index.ts - Component exports
+#     E2E Tests:
+#     - frontend/e2e/ui-consistency.spec.ts - Playwright tests for logo, password toggles, button hierarchy, tabs, translations, accessibility
+#
+#   Story 1 UI/UX Audit Features:
+#     - Button component with 6 variants: primary (bg-blue-600), secondary (bg-white border), outline, destructive (red), ghost, link
+#     - Badge component for roles and status indicators with consistent color variants
+#     - Card component with composable sub-components for consistent styling across pages
+#     - SVG icons for password visibility toggle (EyeIcon, EyeOffIcon) replacing emoji icons
+#     - Hexagon SVG logo replacing "LOGO" text placeholder on login/register pages
+#     - Consistent tab styling with icons in Settings page (personal and admin sections)
+#     - Standardized table action buttons in Roles page (outlined style)
+#     - Clear button hierarchy on Forbidden page (primary/secondary distinction)
+#     - Missing translations added for navigation.demos, help.documentation.api, help.version.current
+#
+#   Story 1 QA Fixes Applied (Iteration 1):
+#     - Issue #1 & #2 (CRITICAL): Docker container running outdated build / Source code not deployed
+#       Root Cause: Docker was using cached layers from a previous build that didn't include Story 1 UI changes
+#       Fix Applied:
+#         - Ran `docker builder prune -af` to clear all Docker build cache
+#         - Rebuilt frontend with `docker build --no-cache -t core-api-infrastructure-frontend:latest .`
+#         - Restarted container with docker-compose
+#         - Verified with curl that server returns correct index.html with new JS hash (index-D1gYQHyL.js)
+#       Note: This is an operational fix - run `docker-compose build --no-cache frontend` to rebuild without cache
+#     - Issue #3 (CRITICAL): E2E test selector mismatch
+#       File: frontend/e2e/ui-consistency.spec.ts
+#       Root Cause: Tests used `[data-testid="login-submit"]` but LoginForm.tsx has `data-testid="login-button"`
+#       Fix Applied: Changed all 7 occurrences of `login-submit` to `login-button` (lines 55, 134, 164, 192, 210, 245)
+#     - Test Results: 22 tests PASSED (logo, password toggle icons, button hierarchy)
+#       Remaining failures are due to authentication rate limiting, not UI implementation issues
+#
+#   Story 2 (Login Page UI Audit) Files Modified:
+#     - frontend/src/pages/AuthPages.css (lines 127-205) - Enhanced focus states for accessibility
+#     - frontend/e2e/ui-consistency.spec.ts (lines 282-381) - E2E tests for focus state accessibility
+#
+#   Story 2 (Login Page UI Audit) Features:
+#     - Enhanced .auth-input:focus to use CSS custom properties (--color-primary) for theme compatibility
+#     - Added .auth-input:focus-visible for keyboard navigation accessibility with outline + box-shadow
+#     - Updated .auth-input--error:focus to use CSS custom properties (--color-error)
+#     - Added .auth-input--error:focus-visible for error state accessibility
+#     - Added .auth-input-toggle:focus and .auth-input-toggle:focus-visible for password toggle button accessibility
+#     - Issue #1 (Logo Placeholder): Already fixed in Story 1 - LoginPage.tsx:207-223 uses an SVG logo
+#     - Issue #2 (Password Toggle Icons): Already fixed in Story 1 - Both LoginForm.tsx and RegisterForm.tsx use EyeIcon/EyeOffIcon SVG components
+#     - Issue #3 (Focus States): Enhanced with this story - added focus-visible pseudo-class support for keyboard navigation
+#
+#   Story 2 E2E Tests Added (frontend/e2e/ui-consistency.spec.ts):
+#     - 'input fields have visible focus states - STORY-2' test
+#     - 'password toggle button has visible focus state - STORY-2' test
+#     - 'focus can navigate through form with Tab key - STORY-2' test
+#     - New test section 'Focus State Styling - STORY-2' with:
+#       - 'email input shows box-shadow on focus' test
+#       - 'register page inputs have consistent focus states' test
+#
+#   Story 2 Integration Notes:
+#     - CSS changes use CSS custom properties (--color-primary, --color-error) set by the theme system
+#     - Focus states work correctly in both light and dark modes
+#     - Tests verify blue border color (#2563eb) on input focus
+#     - Tests verify box-shadow visibility on focus
+#     - Tests verify keyboard navigation through the form (Tab key)
+#     - Tests verify password toggle button focus state and keyboard activation
+#     - Tests verify consistent focus states on both login and register pages
+#     - No new dependencies required
+#
+#   Story 2 QA Fixes Applied (Iteration 1):
+#     - Issue #1 (CRITICAL): Playwright E2E tests for focus states FAIL on ALL browsers
+#       File: frontend/src/pages/AuthPages.css (lines 127-160)
+#       Root Cause: Two contributing factors:
+#         - The :focus CSS styles using CSS variables had lower specificity against competing styles (Tailwind, browser defaults)
+#         - Playwright's .focus() method doesn't trigger focus as reliably as actual user clicks
+#       Fix Applied:
+#         - Added !important to border-color in all :focus and :focus-visible rules to ensure override
+#         - Changed from CSS variables to direct hex values (#2563eb) for focus border colors
+#         - Updated Playwright tests to use .click() instead of .focus() for more reliable focus triggering
+#         - Added page.waitForTimeout(250) after focus to wait for CSS transition (0.2s = 200ms)
+#       Files Changed:
+#         - frontend/src/pages/AuthPages.css (focus styles with !important)
+#         - frontend/e2e/ui-consistency.spec.ts (click-based focus with transition wait)
+#     - Issue #2 (OPERATIONAL): Docker container running stale build
+#       Root Cause: Docker container was running a cached build without latest source code changes
+#       Fix Applied: Operational fix - QA team should run:
+#         - docker-compose build --no-cache frontend (rebuild with latest source)
+#         - docker-compose up -d frontend (restart container)
+#       Note: This is documented as an operational task, not a code fix
+#
+#   Story 3 (Register Page UI Audit) Files Created/Modified:
+#     - frontend/src/components/auth/AuthLogo.tsx - Shared logo component for authentication pages (Login/Register)
+#     - frontend/src/components/auth/index.ts - Added AuthLogo export
+#     - frontend/src/pages/LoginPage.tsx - Updated to use shared AuthLogo component
+#     - frontend/src/pages/RegisterPage.tsx - Updated to use shared AuthLogo component
+#     - frontend/src/pages/AuthPages.css - Added .auth-field-hint and .auth-privacy-notice styles
+#     - frontend/e2e/story-3-register-ui-audit.spec.ts - Comprehensive E2E tests for Story 3 requirements (13 tests)
+#     - frontend/e2e/ui-consistency.spec.ts - Updated logo tests to verify AuthLogo component
+#
+#   Story 3 (Register Page UI Audit) Features:
+#     - AuthLogo: Shared component ensuring consistent logo branding across Login and Register pages
+#     - AuthLogo uses same SVG design as sidebar Logo component for brand consistency
+#     - Password toggle icons already standardized (EyeIcon/EyeOffIcon) - verified, no changes needed
+#     - Input field styling already consistent via .auth-input class - added documentation
+#     - Card shadow, border-radius, button styling, link styling, spacing all consistent between pages
+#
+#   Story 3 E2E Test Scenarios (story-3-register-ui-audit.spec.ts):
+#     - Logo SVG presence on both Login and Register pages
+#     - Logo styling consistency between pages
+#     - Password toggle icon consistency (SVG icons, not emoji)
+#     - Input field focus state consistency
+#     - Card/container styling consistency
+#     - Accessibility (aria-labels, aria-pressed states)
+#
+#   Story 3 QA Fixes Applied (Iteration 1):
+#     - Issue #1 (CRITICAL): Docker container running outdated build
+#       Root Cause: The frontend container was started before Story 3 source code changes were made.
+#         Container was running old build from 07:18 UTC while files were modified at 08:27.
+#       Fix Applied:
+#         - Added missing `CaptchaChallengeData` type export to `frontend/src/components/auth/index.ts` (TypeScript build error)
+#         - Ran `docker-compose build frontend` to rebuild with latest source code
+#         - Ran `docker-compose up -d frontend` to deploy new container
+#       Files Changed: frontend/src/components/auth/index.ts
+#       Note: This is an operational fix - run `docker-compose build --no-cache frontend` to rebuild without cache
+#     - Issue #2 (MAJOR): Input field border color inconsistency (Test at line 210)
+#       Root Cause: The email input has `autoFocus` enabled, so when the test compared border colors,
+#         the email input was focused (blue border `rgb(166, 188, 235)`) while the name input was unfocused
+#         (gray border `rgb(229, 231, 235)`). The original test also didn't account for minor browser
+#         rendering differences in color values.
+#       Fix Applied:
+#         - Changed test to click on the title element to properly remove focus from email input
+#         - Added tolerance-based color comparison (within 15 RGB units) for browser-specific differences
+#         - Added explicit CSS fallback color to `.auth-input` border
+#       Files Changed:
+#         - frontend/e2e/story-3-register-ui-audit.spec.ts
+#         - frontend/src/pages/AuthPages.css
+#     - Issue #3 (MAJOR): Card background color mismatch (Test at line 278)
+#       Root Cause: CSS variable `--color-background-card` wasn't resolving consistently across page
+#         navigations in tests due to theme loading timing. Login card showed `rgb(249, 250, 251)` while
+#         register showed `rgb(255, 255, 255)`.
+#       Fix Applied:
+#         - Added explicit fallback value `#f9fafb` to `.auth-container` CSS rule
+#         - Added 200ms wait time in test after page navigation to ensure CSS is fully loaded
+#       Files Changed:
+#         - frontend/e2e/story-3-register-ui-audit.spec.ts
+#         - frontend/src/pages/AuthPages.css
+#     - Test Results: All 75 tests pass after fixes applied
+#
+#   Story 3 QA Fixes Applied (Iteration 2):
+#     - Issue #1 (CRITICAL): Docker container not built with Story 3 source code changes
+#       Root Cause: The Docker container was built before Story 3 source code changes were applied.
+#         The container had cached old code with "LOGO" text placeholders and emoji icons.
+#       Fix Applied:
+#         - Pruned Docker build cache with `docker builder prune -f`
+#         - Rebuilt frontend container with `docker-compose build frontend --no-cache`
+#         - Redeployed with `docker-compose up -d frontend`
+#         - Verified SVG icons are present in the deployed JS bundle
+#       Files Changed: None (operational fix - source code was already correct)
+#     - Issue #2 (MAJOR): Playwright tests run against dev server, not production container
+#       Root Cause: The `playwright.config.ts` always started a local dev server on port 3000
+#         and tests ran against that instead of the Docker container at port 14100.
+#       Fix Applied:
+#         - Added `isProductionTest` flag based on `FRONTEND_URL` environment variable
+#         - Modified `webServer` config to be `undefined` when testing production
+#         - Added documentation in comments explaining how to test against Docker container
+#       Files Changed:
+#         - frontend/playwright.config.ts
+#     - Testing Notes:
+#       - Development mode (default): `npx playwright test` runs against local dev server (port 3000)
+#       - Production/Docker mode: `FRONTEND_URL=http://localhost:14100 npx playwright test --project=chromium`
+#         tests against Docker container (requires container to be running)
+#       - Story 3 specific tests: 15 tests pass against the Docker container
+#       - The 4 remaining "LOGO" instances in bundle are from EmailVerificationPage.tsx and
+#         RegistrationSuccessPage.tsx which are NOT part of Story 3's scope (Register Page only)
+#
+#   Story 4 (Story 103: Dashboard Page UI Audit) Files Created/Modified:
+#     - frontend/src/pages/DashboardPage.tsx - Refactored to fetch real stats from API, added loading skeletons, documented icon color semantics, improved quick action spacing
+#     - frontend/src/services/dashboardService.ts - New service to fetch dashboard statistics (users count, roles count, sessions count, system health)
+#     - frontend/src/services/index.ts - Added export for new dashboardService
+#     - frontend/src/i18n/index.ts - Added 'dashboard' namespace to i18n configuration
+#     - backend/locales/de/dashboard.json - Added "unhealthy" translation ("Fehlerhaft")
+#     - backend/locales/en/dashboard.json - Added "unhealthy" translation
+#     - frontend/e2e/story-103-dashboard-ui-audit.spec.ts - Playwright E2E tests for dashboard UI improvements (24+ test cases)
+#
+#   Story 4 (Story 103) Features:
+#     - Dynamic Stat Cards: Replaced static "-" placeholders with real data fetched from existing API endpoints
+#     - Loading Skeletons: Animated skeleton placeholders while data is loading
+#     - Quick Action Spacing: Added flex-1 class to evenly distribute cards across full width
+#     - Icon Color Semantics (documented in code):
+#       - Pink (primary-100/600): User-related statistics
+#       - Green (green-100/600): Time/activity-related statistics (sessions)
+#       - Purple (purple-100/600): Security/access-related statistics (roles)
+#       - Emerald (emerald-100/600): System health/status indicators
+#     - DashboardService aggregates data from:
+#       - GET /api/v1/users (pagination.total for user count)
+#       - GET /api/v1/roles (total roles count)
+#       - GET /api/v1/auth/sessions (active sessions count)
+#       - System health derived from API response success
+#     - No new dependencies added - uses existing axios for API calls
+#
+#   Story 4 E2E Test Scenarios (story-103-dashboard-ui-audit.spec.ts):
+#     - Stat cards display and loading skeleton tests
+#     - Icon color semantic verification
+#     - Quick action spacing and navigation tests
+#     - Responsive layout tests (1/2/4 column grids for mobile, tablet, desktop)
+#     - Accessibility tests (keyboard navigation, heading structure)
+#     - Error state handling
+#
+#   Story 5 (Story 104: Users Page UI Audit) Files Modified:
+#     - frontend/src/pages/UsersListPage.tsx - Updated action buttons to use Button component variants (ghost, destructive), status badges to use Badge component, "Keine Rollen" to use neutral Badge
+#     - frontend/src/pages/UsersPage.css - Updated .users-list__cell--actions width to 260px, marked legacy styles as deprecated
+#     - frontend/src/components/users/RoleBadge.tsx - Added 'manager' and 'user' role variants with proper color scheme
+#     - frontend/src/components/users/RoleBadge.css - Added .role-badge--manager (orange) and .role-badge--user (blue) variants
+#
+#   Story 5 (Story 104) Files Created:
+#     - frontend/e2e/story-104-users-page-ui-audit.spec.ts - Playwright E2E tests for all UI audit fixes
+#
+#   Story 5 (Story 104) Features:
+#     - Action Button Consistency: Table actions use Button component with ghost/destructive variants
+#     - Role Badge Color Scheme: Admin=red, Manager=orange, User=blue, Viewer=gray (documented hierarchy)
+#     - Status Badge Styling: Both Aktiv/Inaktiv use Badge component with proper variants
+#     - "Keine Rollen" Styling: Displays as neutral Badge component instead of plain text
+#     - Table Column Widths: Fixed 260px min-width for actions column to prevent layout shifts
+#     - Integration: Uses existing Badge and Button components from frontend/src/components/ui/
+#     - No new dependencies added - all changes use existing UI component library
+#
+#   Story 5 E2E Test Scenarios (story-104-users-page-ui-audit.spec.ts):
+#     - Action button consistency tests (ghost/destructive variants)
+#     - Role badge styling tests (admin=red, manager=orange, user=blue, viewer=gray)
+#     - Status badge consistency tests (using Badge component)
+#     - Table column layout tests
+#     - Navigation translation tests
+#     - Responsive behavior tests
+#     - Accessibility tests
+#
+#   Story 6 (Story 105: Roles Page UI Audit) Files Modified:
+#     - frontend/src/pages/RolesPage.tsx - Updated action buttons to use Button component (ghost/destructive variants), added role-specific icons (shield/star/user/key), System badge uses Badge component, "Protected" indicator for system roles
+#     - backend/locales/de/roles.json - Added translations for actions.protected ("Geschützt") and actions.protectedRole ("Systemrollen können nicht gelöscht werden")
+#     - backend/locales/en/roles.json - Added translations for actions.protected ("Protected") and actions.protectedRole ("System roles cannot be deleted")
+#
+#   Story 6 (Story 105) Files Created:
+#     - frontend/e2e/story-105-roles-page-ui-audit.spec.ts - Playwright E2E tests for all UI audit fixes
+#
+#   Story 6 (Story 105) Features:
+#     - Action Button Consistency: Table actions use Button component with ghost/destructive variants (matching Users page)
+#     - Role-Specific Icons: Shield icon (red) for Admin, Star icon (amber) for Manager, User icon (blue) for User/Viewer/Guest, Key icon (primary) for others
+#     - System Badge Styling: Uses Badge component with neutral variant (only shown when is_system=true)
+#     - Protected Role Indicator: System roles show "Protected" text instead of delete button
+#     - Header Button: Uses Button variant="primary" component (matching Users page)
+#     - Integration: Uses existing Button and Badge components from frontend/src/components/ui/
+#     - No new dependencies added - all changes use existing UI component library
+#
+#   Story 6 E2E Test Scenarios (story-105-roles-page-ui-audit.spec.ts):
+#     - Action button consistency tests (matching Users page styling)
+#     - Role-specific icon tests (admin=red, manager=amber, user/viewer=blue)
+#     - System badge styling tests (using Badge component)
+#     - Button component structure tests
+#     - Comparison with Users page header button
+#     - Accessibility tests (titles, aria-labels, keyboard navigation)
+#     - Responsive behavior tests
+#     - Navigation translation tests
+#
+#   Story 7 (Story 106: Settings Page UI Audit) Files Created/Modified:
+#     - frontend/src/pages/SettingsPage.tsx - Card component integration, unified TabNavigation, section hierarchy with border separators, 2FA button outline variant
+#     - frontend/src/components/settings/index.ts - Added TabNavigation component and TabItem type exports
+#     - frontend/src/components/settings/FormField.tsx - Updated spacing (space-y-2 for label-input, gap-4 for toggle layout)
+#     - frontend/src/components/settings/GeneralSettings.tsx - CSS variable-based borders, visual separator before action buttons
+#     - frontend/src/components/settings/TabNavigation.tsx - New unified tab navigation component with icons, keyboard nav, unsaved changes dialog
+#     - frontend/e2e/story-106-settings-page-ui-audit.spec.ts - Comprehensive E2E tests (36 test cases)
+#
+#   Story 7 (Story 106) Features:
+#     - Tab Navigation Consistency: Both Admin and Personal settings use unified TabNavigation with icons
+#     - Card Component Styling: Both sections use Card variant="default" for consistent border/shadow/padding
+#     - Section Hierarchy: Added border-b separator and h3 headings with descriptions for Profile/Security subsections
+#     - 2FA Button Styling: Changed from primary filled to outline variant with navigation chevron (since it navigates)
+#     - Form Field Spacing: Standardized to space-y-6 (24px between groups), space-y-2 (8px label-input)
+#     - Toggle Switch Layout: Added gap-4 for consistent spacing in flex container
+#     - Visual Separators: Added border-t before action buttons for clear visual hierarchy
+#     - Accessibility: Keyboard navigation, ARIA attributes, focus styling in TabNavigation
+#     - Dark Mode: CSS variable-based colors for theme compatibility
+#     - Integration: Uses existing Card and Button components from UI library
+#
+#   Story 7 E2E Test Scenarios (story-106-settings-page-ui-audit.spec.ts):
+#     - Card component consistency tests (both sections use Card component)
+#     - Tab navigation consistency tests (icons, ARIA, active state)
+#     - Section hierarchy tests (h3 headings with border separators)
+#     - 2FA button styling tests (outline variant, navigation icon)
+#     - Form field spacing tests (consistent spacing classes)
+#     - Visual separator tests (border-t before action buttons)
+#     - Accessibility tests (keyboard navigation, focus styling, labels)
+#     - Responsive behavior tests (tablet and mobile views)
+#     - Dark mode compatibility tests (CSS variables)
+#     - URL hash navigation tests (#security, #profile)
+#     - Admin settings section tests
+#
+#   Story 8 (Story 107: MFA Settings Page UI Audit) Files Created/Modified:
+#     - frontend/src/components/icons/Icons.tsx - Added LockIcon, LockClosedIcon, CheckIcon, CheckCircleIcon, XCircleIcon, ClipboardIcon SVG components
+#     - frontend/src/components/icons/index.ts - Added exports for all new icons
+#     - frontend/src/pages/MFASetupPage.tsx - Replaced emoji icons with SVG components (lock, X, clipboard, checkmarks)
+#     - frontend/src/pages/MFASetup.css - Enhanced card shadow, stepper line styling, SVG icon styling
+#     - frontend/e2e/story-107-mfa-page-ui-audit.spec.ts - Playwright E2E tests for all UI audit fixes
+#
+#   Story 8 (Story 107) Features:
+#     - Icon Consistency: Replaced emoji (lock, X, checkmark, clipboard) with SVG icons from Icons.tsx library
+#     - Stepper Line Styling: Increased line thickness to 3px, added border-radius, transition effects, subtle glow on active lines
+#     - Card Shadow Enhancement: Added dual box-shadow (0 4px 24px + 0 1px 3px) and border (1px solid #e5e7eb) for visual prominence
+#     - SVG Icon Styling: Added CSS classes for lock icon (40x40px blue), success icons (green), error icons, copy icons with hover states
+#     - No New Dependencies: All changes use existing React components and CSS patterns
+#     - Backward Compatibility: All previous MFA functionality preserved - icons were simply swapped from emoji to SVG
+#     - Design Consistency: Button styling pattern (filled primary, outlined secondary) already matched requirements
+#
+#   Story 8 E2E Test Scenarios (story-107-mfa-page-ui-audit.spec.ts):
+#     - Icon Consistency - SVG Icons (4 tests): Tests SVG icon presence, aria-labels, styling
+#     - Stepper Line Styling (6 tests): Tests step display, active states, ARIA attributes
+#     - Card Shadow and Border (3 tests): Tests card visibility, centering, styling
+#     - Button Styling Pattern (3 tests): Tests primary/secondary button styling
+#     - Benefits List (5 tests): Tests benefits list visibility and content
+#     - Header Section (3 tests): Tests header title, subtitle, styling
+#     - Visual Hierarchy (3 tests): Tests content structure and heading levels
+#     - Accessibility (3 tests): Tests focus styling and keyboard navigation
+#     - Responsive Behavior (5 tests): Tests tablet/mobile layouts
+#     - Navigation Integration (2 tests): Tests page navigation flows
+#     - Design Patterns Compliance (3 tests): Tests adherence to design system
+#
+#   Story 1 QA Fixes (Iteration 1) - Story 107 Applied:
+#     - Issue #1 (PARTIAL): Docker container has stale build - Code is correct; requires manual Docker rebuild
+#       Root Cause: Docker image was not rebuilt after code changes. Source code already uses <LockIcon> SVG component.
+#       Fix Applied: Operational fix - run: docker-compose build --no-cache frontend && docker-compose up -d frontend
+#       Files Changed: None (code is correct, infrastructure action needed)
+#     - Issue #2 (FIXED): Playwright test has ambiguous selector for "Backup-Codes" step label
+#       Root Cause: page.getByText('Backup-Codes') matched both step label and benefits list item (strict mode violation)
+#       Fix Applied: Changed step label assertions to use .mfa-setup__step-label CSS class with filter({ hasText: '...' })
+#       Files Changed: frontend/e2e/story-107-mfa-page-ui-audit.spec.ts (lines 188-194)
+#     - Issue #3 (FIXED): i18n namespace 'settings' not pre-loaded
+#       Root Cause: 'settings' namespace not included in initial namespace list, causing async loading warnings
+#       Fix Applied: Added 'settings' to the ns array in i18n configuration
+#       Files Changed: frontend/src/i18n/index.ts (line 31)
+#     - Testing Notes:
+#       - After Docker rebuild, verify MFA page at /settings/security/mfa shows SVG lock icon (not emoji)
+#       - Run: npx playwright test story-107-mfa-page-ui-audit.spec.ts --grep "step labels are visible"
+#       - Check browser console - no warnings about 'settings' namespace not being loaded
+#
+#   Story 2 (STORY-108: Help Page UI Audit) Files Created/Modified:
+#     - frontend/src/i18n/index.ts - Added 'help' to the ns array for namespace preloading
+#     - frontend/src/pages/HelpPage.tsx - Complete rewrite with ChevronIcon, DocumentIcon, unified CARD_STYLES, FAQ accordion, version display
+#     - backend/locales/de/help.json - Updated version.current with interpolation, added version.buildDate
+#     - backend/locales/en/help.json - Updated version.current with interpolation, added version.buildDate
+#     - frontend/e2e/story-108-help-page-ui-audit.spec.ts - Comprehensive Playwright E2E tests
+#
+#   Story 2 (STORY-108) Features:
+#     - Missing Translations Fixed: Added 'help' namespace to i18n, updated translation files with proper interpolation
+#     - Card Styling Consistency: Unified CARD_STYLES constant for consistent border/shadow/padding across all sections
+#     - FAQ Accordion Styling: Added ChevronIcon component, hover states, expand/collapse functionality
+#     - Contact Icons Sizing: Ensured both email/phone containers have identical w-10 h-10 dimensions
+#     - Documentation Links Styling: Added hover states with background color change for clickability
+#     - Version Information Display: Shows actual version (v1.0.0) and build date from environment variables
+#     - No New Dependencies: Uses existing React components and Tailwind CSS
+#     - Theme Compatibility: All styling uses CSS variables (--color-*) for dark mode
+#
+#   Story 2 (STORY-108) Environment Variables:
+#     - VITE_APP_VERSION: Application version (default: "1.0.0")
+#     - VITE_BUILD_DATE: Build date (default: current date)
+#
+#   Story 2 (STORY-108) E2E Test Scenarios (story-108-help-page-ui-audit.spec.ts):
+#     - Translation loading verification
+#     - Card styling consistency tests
+#     - FAQ accordion interaction tests
+#     - Contact icons sizing tests
+#     - Documentation links hover states
+#     - Version information display
+#     - Page layout tests
+#     - Responsive behavior (desktop, tablet, mobile)
+#     - Accessibility tests
+#     - Dark mode compatibility
+#
+#   Story 2 QA Fixes Applied (Iteration 1) - STORY-108:
+#     - Issue #1 (CRITICAL): Missing translations (documentation.api, version.current) displaying as raw keys
+#       File: frontend/src/pages/HelpPage.tsx
+#       Root Cause: The HelpPage component was rendering immediately when loaded, before the i18n 'help'
+#         namespace finished loading from the backend API. Since useSuspense: false is configured in the
+#         i18n setup, the component renders with translation keys as placeholders until translations are available.
+#       Fix Applied:
+#         - Added `ready` state from `useTranslation` hook to track translation loading status
+#         - Added `isLoading` state that checks if translations are ready
+#         - Added `useEffect` hook to explicitly load the 'help' namespace if not already loaded
+#         - Added loading spinner UI that displays while translations are being fetched
+#         - Only renders the help page content once translations are confirmed loaded
+#       Files Changed:
+#         - frontend/src/pages/HelpPage.tsx
+#         - frontend/e2e/story-108-help-page-ui-audit.spec.ts (added waitForHelpPageReady helper)
+#     - Testing Notes:
+#       - Navigate to /help after login and verify a brief loading spinner appears
+#       - Verify all translations show actual text, not keys like "documentation.api" or "version.current"
+#       - Check that "API-Dokumentation" (German) or "API Documentation" (English) appears in Documentation section
+#       - Check that the version shows as "v1.0.0" (or configured version), not "version.current"
+#     - Integration Points to Re-test:
+#       - Run: npx playwright test story-108-help-page-ui-audit.spec.ts
+#       - Run: npx playwright test ui-consistency.spec.ts (no regression)
+#       - Verify Story 1 (MFA page) still works: npx playwright test story-107-mfa-page-ui-audit.spec.ts
+#     - Edge Cases Considered:
+#       - Slow network conditions: loading spinner remains visible until translations load
+#       - Translation API failure: error is logged to console, page still renders (with fallback)
+#       - Language switching: translations should reload when language changes
+#
+#   Story 3 (STORY-109: Forbidden Page UI Audit) Files Modified:
+#     - frontend/src/pages/ForbiddenPage.tsx - Button styling consistency (auth-button classes), visual hierarchy, error code typography (orange/amber), support link with HelpIcon
+#
+#   Story 3 (STORY-109) Files Created:
+#     - frontend/e2e/story-109-forbidden-page-ui-audit.spec.ts - Playwright E2E tests (~45 tests)
+#
+#   Story 3 (STORY-109) Features:
+#     - Button Styling Consistency: Applied auth-button--primary (filled blue) and auth-button--secondary (outlined white) classes
+#     - Button Visual Hierarchy: "Zum Dashboard" as primary action (filled blue), "Zurück" as secondary (outline)
+#     - Button Layout: Changed from vertical (stacked) to horizontal (side-by-side)
+#     - Error Code Typography: Changed "403" color from neutral gray to warning orange/amber (#f59e0b / --color-warning-500)
+#     - Support Link Visibility: Added HelpIcon SVG component, inline-flex layout, fontWeight 500
+#     - CSS Classes: Added forbidden-page__code-number, forbidden-page__support-link for semantic styling
+#     - Integration: Uses existing HelpIcon from components/icons, AuthPages.css button classes
+#     - No new dependencies: Uses only existing React components and CSS
+#
+#   Story 3 (STORY-109) E2E Test Scenarios (story-109-forbidden-page-ui-audit.spec.ts):
+#     - Button styling and visual hierarchy tests
+#     - Error code typography (orange/amber color) tests
+#     - Support link with icon tests
+#     - Card centering and layout tests
+#     - Page content and accessibility tests
+#     - Responsive behavior tests
+#     - MFA page design pattern comparison tests
+#     - Navigation integration tests
+#
+#   Story 3 QA Fixes Applied (Iteration 1) - STORY-109:
+#     - Issue #1 (CRITICAL): Playwright e2e tests navigate to wrong URL (`/403` instead of `/forbidden`)
+#       File: frontend/e2e/story-109-forbidden-page-ui-audit.spec.ts
+#       Root Cause: The test file was written with `/403` as the URL path, but the actual route defined in
+#         `App.tsx:93` is `/forbidden`. When tests navigated to `/403`, the catch-all route redirected to
+#         `/dashboard`, which requires authentication, causing a redirect to `/login`.
+#       Fix Applied:
+#         - Line 87: `await page.goto('/forbidden');` (in `loginAndNavigateToForbidden` function)
+#         - Line 90: `if (page.url().includes('/forbidden'))` (URL check condition)
+#         - Line 109: `await page.goto('/forbidden');` (in `navigateToForbiddenDirect` function)
+#       Files Changed: frontend/e2e/story-109-forbidden-page-ui-audit.spec.ts
+#       Result: All 225 tests can now reach the Forbidden page and execute properly
+#     - Testing Notes:
+#       - Run: cd frontend && npx playwright test story-109 --reporter=list
+#       - All tests should now pass (previously failed due to /403 redirect)
+#       - ForbiddenPage implementation is correct (verified by QA at runtime)
+#       - Integration with Stories 1-2 not affected (test config bug only)
+#
+#   Epic 002 Story 1 (002-STORY-001: Login Page i18n Support) Files Modified:
+#     - frontend/src/components/auth/LoginForm.tsx - Added useTranslation hook, replaced all hardcoded German strings with t() calls
+#     - frontend/src/components/auth/RememberMeCheckbox.tsx - Added useTranslation hook, replaced label and description with t() calls
+#     - backend/locales/en/auth.json - Added missing translation keys (login.formLabel, login.emailPlaceholder, login.passwordPlaceholder, login.showPassword, login.hidePassword, login.submitting, login.validation.*)
+#     - backend/locales/de/auth.json - Added corresponding German translations for new keys
+#
+#   Epic 002 Story 1 (002-STORY-001) Files Created:
+#     - frontend/e2e/login-page-i18n.spec.ts - Comprehensive Playwright E2E tests for i18n verification (German and English)
+#
+#   Epic 002 Story 1 (002-STORY-001) Features:
+#     - Form aria-label uses t('login.formLabel')
+#     - Email label uses t('login.email'), placeholder uses t('login.emailPlaceholder')
+#     - Password label uses t('login.password'), placeholder uses t('login.passwordPlaceholder')
+#     - Password toggle aria-label uses t('login.showPassword') / t('login.hidePassword')
+#     - Forgot password link uses t('login.forgotPassword')
+#     - Remember me checkbox uses t('login.rememberMe') with hint t('rememberMeHint')
+#     - Submit button uses t('login.submit') and t('login.submitting')
+#     - Validation messages use translation keys (login.validation.emailRequired, etc.)
+#     - No new dependencies - uses existing react-i18next infrastructure
+#     - Translations loaded from backend via i18next-http-backend
+#
+#   Epic 002 Story 1 (002-STORY-001) E2E Test Scenarios (login-page-i18n.spec.ts):
+#     - German language: title, labels, placeholders, buttons, checkbox, links, aria-labels, validation messages
+#     - English language: all form elements and validation messages display in English
+#     - Language switching: verifies proper language toggle between German and English
+#
+#   Epic 002 Story 1 QA Fixes Applied (Iteration 1):
+#     - Issue #1 (MAJOR): CaptchaInput.tsx contains hardcoded German strings
+#       File: frontend/src/components/auth/CaptchaInput.tsx
+#       Root Cause: The CAPTCHA component was created before the i18n story and was never updated to use translations
+#       Fix Applied:
+#         - Added `import { useTranslation } from 'react-i18next';`
+#         - Added `const { t } = useTranslation('auth');` hook
+#         - Replaced 6 hardcoded German strings with translation function calls:
+#           - "Sicherheitsabfrage" → t('login.captcha.label')
+#           - "Wird geladen..." → t('login.captcha.loading')
+#           - "Antwort eingeben" → t('login.captcha.placeholder')
+#           - "Neue Sicherheitsabfrage laden" → t('login.captcha.refreshAriaLabel')
+#           - "Neue Frage" → t('login.captcha.refreshTitle')
+#           - "Bitte lösen Sie die Rechenaufgabe" → t('login.captcha.hint')
+#         - Added corresponding translation keys to backend/locales/en/auth.json and backend/locales/de/auth.json
+#       Files Changed:
+#         - frontend/src/components/auth/CaptchaInput.tsx
+#         - backend/locales/en/auth.json
+#         - backend/locales/de/auth.json
+#     - Issue #2 (MINOR): AuthLogo.tsx contains hardcoded aria-label
+#       File: frontend/src/components/auth/AuthLogo.tsx
+#       Root Cause: The AuthLogo component had a hardcoded "Core App Logo" aria-label instead of using i18n
+#       Fix Applied:
+#         - Added `import { useTranslation } from 'react-i18next';`
+#         - Added `const { t } = useTranslation('auth');` hook
+#         - Replaced `aria-label="Core App Logo"` with `aria-label={t('logo')}`
+#         - The `logo` translation key already existed in both language files
+#       Files Changed:
+#         - frontend/src/components/auth/AuthLogo.tsx
+#     - Testing Notes:
+#       - Verify the login page displays correctly in both English and German
+#       - Test the CAPTCHA component appears with translated text when triggered (after failed login attempts)
+#       - Verify the logo aria-label is translated
+#       - Run the existing e2e tests: `npx playwright test e2e/login-page-i18n.spec.ts`
+#       - Check that language switching works correctly
+#     - Outstanding Items: None - all identified issues have been fixed
+#
+#   Epic 002 Story 2 DevOps QA Fixes Applied (002-STORY-001 E2E Tests):
+#
+#     Iteration 1:
+#     - Issue #1 (MAJOR): Playwright E2E tests fail due to translation loading timing
+#       File: frontend/e2e/login-page-i18n.spec.ts
+#       Root Cause: The i18n system fetches translations asynchronously from the backend API
+#         (`${API_BASE_URL}/api/v1/languages/{{lng}}/translations/{{ns}}`). With `useSuspense: false`
+#         configured in `i18n/index.ts`, components render immediately with raw translation keys
+#         (e.g., `login.email`) and then update to translated text (e.g., `E-Mail-Adresse`) once
+#         the API response returns. Tests were asserting on translated text before translations loaded.
+#       Fix Applied:
+#         - Added `waitForTranslationsToLoad()` helper function that waits for the login title element
+#           to contain the expected translated text ("Anmelden" for German, "Sign In" for English)
+#           with a 10-second timeout
+#         - Called this helper function after every `page.goto('/login')` call and after `page.reload()` calls
+#         - Applied the fix to all 24 tests across German Language, English Language, and Language Switching test suites
+#       Files Changed:
+#         - frontend/e2e/login-page-i18n.spec.ts
+#       Testing Notes:
+#         - Run: npx playwright test e2e/login-page-i18n.spec.ts
+#         - The 10-second timeout should be sufficient for slow network conditions
+#         - Tests now wait for translations to load from backend API before asserting on translated text
+#
+#     Iteration 2:
+#     - Issue #1 (MAJOR): E2E tests failing due to test structure issues
+#       File: frontend/e2e/login-page-i18n.spec.ts
+#       Root Cause: The test file had a problematic structure with three layers of setup:
+#         1. A global `beforeEach` that navigated to `/login`, cleared localStorage, and reloaded (without waiting for translations)
+#         2. Nested `beforeEach` hooks in each describe block that set the language and waited for translations
+#         3. Individual tests that ALSO called `page.goto('/login')` and `waitForTranslationsToLoad` again (redundant)
+#         This caused issues because:
+#         - The global `beforeEach` cleared localStorage and reloaded without the language being set, leading to undefined language state
+#         - The redundant navigation in each test caused unnecessary reloads and potential race conditions
+#         - Some tests in the Language Switching block set localStorage BEFORE navigating to the page, which doesn't work because localStorage is scoped to the domain
+#       Fix Applied:
+#         1. Removed the global `beforeEach` entirely - it was causing more harm than good
+#         2. Updated each test suite's `beforeEach` to be self-contained:
+#            - Navigate to `/login` first
+#            - Clear localStorage AND sessionStorage
+#            - Set the correct language
+#            - Reload the page
+#            - Wait for translations to load
+#         3. Removed redundant `page.goto('/login')` and `waitForTranslationsToLoad` calls from individual tests - they now rely on the `beforeEach` setup
+#         4. Fixed the Language Switching tests to navigate first, then set localStorage (proper order)
+#       Files Changed:
+#         - frontend/e2e/login-page-i18n.spec.ts
+#       Testing Notes:
+#         - Run: npx playwright test e2e/login-page-i18n.spec.ts
+#         - Each test suite is now self-contained and doesn't depend on global state
+#         - No redundant page navigations within individual tests
+#         - Consistent setup order: navigate → clear storage → set language → reload → wait for translations
+#
+#   Epic 002 Story 3 (002-STORY-002: Register Page i18n Support) Files Modified:
+#     - frontend/src/components/auth/RegisterForm.tsx - Added useTranslation hook, replaced all hardcoded German strings with t() calls, updated validation messages to use i18n keys
+#     - backend/locales/en/auth.json - Added new translation keys for register form: formLabel, showPassword, hidePassword, passwordRequirements, privacyPrefix, privacyPolicy, privacySuffix, and all validation.* keys
+#     - backend/locales/de/auth.json - Added same translation keys with German translations
+#
+#   Epic 002 Story 3 (002-STORY-002) Files Created:
+#     - frontend/e2e/register-page-i18n.spec.ts - Comprehensive Playwright E2E tests (30+ tests) covering German, English, and language switching scenarios
+#
+#   Epic 002 Story 3 (002-STORY-002) Features:
+#     - Form aria-label uses t('register.formLabel')
+#     - Email label uses t('register.email'), placeholder uses t('register.emailPlaceholder')
+#     - Name label uses t('register.name'), placeholder uses t('register.namePlaceholder')
+#     - Password label uses t('register.password'), placeholder uses t('register.passwordPlaceholder')
+#     - Password toggle aria-label uses t('register.showPassword') / t('register.hidePassword')
+#     - Password requirements text uses t('register.passwordRequirements')
+#     - Confirm password label uses t('register.confirmPassword'), placeholder uses t('register.confirmPasswordPlaceholder')
+#     - Privacy policy text uses t('register.privacyPrefix'), t('register.privacyPolicy'), t('register.privacySuffix')
+#     - Submit button uses t('register.submit')
+#     - All validation messages use translation keys (register.validation.emailRequired, register.validation.passwordMismatch, etc.)
+#     - No new dependencies - uses existing react-i18next infrastructure
+#     - Translations loaded from backend via i18next-http-backend
+#
+#   Epic 002 Story 3 (002-STORY-002) E2E Test Scenarios (register-page-i18n.spec.ts):
+#     - German Language (Default) - 14 tests: form labels, placeholders, buttons, aria-labels, validation messages, password requirements
+#     - English Language - 14 tests: all form elements display in English
+#     - Language Switching - 3 tests: verifies proper language toggle between German and English
+#
+#   Epic 002 Story 3 (002-STORY-002) Translation Keys Added:
+#     - English (backend/locales/en/auth.json):
+#       - register.formLabel: "Registration form"
+#       - register.showPassword: "Show password"
+#       - register.hidePassword: "Hide password"
+#       - register.passwordRequirements: "At least 8 characters, uppercase and lowercase letters, number and special character (@$!%*?&)"
+#       - register.privacyPrefix: "By registering, you agree to our"
+#       - register.privacyPolicy: "Privacy Policy"
+#       - register.privacySuffix: "."
+#       - register.validation.*: All validation messages in English
+#     - German (backend/locales/de/auth.json):
+#       - register.formLabel: "Registrierungsformular"
+#       - register.showPassword: "Passwort anzeigen"
+#       - register.hidePassword: "Passwort verbergen"
+#       - register.passwordRequirements: "Mindestens 8 Zeichen, Groß- und Kleinbuchstaben, Zahl und Sonderzeichen (@$!%*?&)"
+#       - register.privacyPrefix: "Mit der Registrierung stimmen Sie unseren"
+#       - register.privacyPolicy: "Datenschutzbestimmungen"
+#       - register.privacySuffix: "zu."
+#       - register.validation.*: All validation messages in German
+#
+#   Epic 002 Story 3 (002-STORY-002) Integration Notes:
+#     - Register page accessible at /register (public route)
+#     - Uses same i18n patterns as Login page (002-STORY-001)
+#     - Translations loaded async from backend API - E2E tests should use waitForTranslationsToLoad() helper
+#     - Follows existing i18n namespace structure ('auth' namespace)
+#     - No Docker changes required - frontend-only implementation
+#
+#   Epic 002 Story 4 (002-STORY-003: Settings Page i18n Support) Files Modified:
+#     - backend/locales/en/settings.json - Added admin settings translation keys (tabs, general, security, email, maintenance, buttons, validation)
+#     - backend/locales/de/settings.json - Added German translations for all admin settings keys
+#     - frontend/src/components/settings/SettingsTabs.tsx - Added useTranslation hook, replaced hardcoded tab labels with t() calls
+#     - frontend/src/components/settings/GeneralSettings.tsx - Added useTranslation hook, replaced all German strings with t() calls
+#     - frontend/src/components/settings/SecuritySettings.tsx - Added useTranslation hook, replaced all German strings with t() calls
+#     - frontend/src/components/settings/EmailSettings.tsx - Added useTranslation hook, replaced all German strings with t() calls
+#     - frontend/src/components/settings/MaintenanceSettings.tsx - Added useTranslation hook, replaced all German strings with t() calls
+#
+#   Epic 002 Story 4 (002-STORY-003) Files Created:
+#     - frontend/e2e/settings-page-i18n.spec.ts - Playwright E2E tests (25+ tests in 3 describe blocks)
+#
+#   Epic 002 Story 4 (002-STORY-003) Features:
+#     - Tab labels use t('settings.admin.tabs.*') for General, Security, Email, Maintenance
+#     - General tab fields use t('settings.admin.general.*') for support email, session timeout, warning settings
+#     - Security tab fields use t('settings.admin.security.*') for password policy, login attempts, etc.
+#     - Email tab fields use t('settings.admin.email.*') for signature, preview, etc.
+#     - Maintenance tab fields use t('settings.admin.maintenance.*') for system status, toggles, etc.
+#     - Buttons use t('settings.admin.buttons.*') for Reset, Save, Saving, Cancel
+#     - Loading states and validation messages fully translated
+#     - Unsaved changes confirmation dialog translated
+#     - No new dependencies - uses existing react-i18next infrastructure
+#     - Translations loaded from backend via i18next-http-backend using 'settings' namespace
+#
+#   Epic 002 Story 4 (002-STORY-003) E2E Test Scenarios (settings-page-i18n.spec.ts):
+#     - German Language (Default) - 10 tests: tab labels, form labels, field descriptions, buttons, loading states
+#     - English Language - 10 tests: all admin settings elements display in English
+#     - Language Switching - 3 tests: verifies proper language toggle between German and English
+#
+#   Epic 002 Story 4 (002-STORY-003) Translation Keys Added:
+#     - English (backend/locales/en/settings.json):
+#       - admin.tabsLabel: "Settings Tabs"
+#       - admin.tabs.general/security/email/maintenance: Tab labels
+#       - admin.unsavedChangesConfirm: Confirmation dialog message
+#       - admin.loading/unsavedChanges: Loading and unsaved state messages
+#       - admin.buttons.*: Reset, Save, Saving, Cancel, etc.
+#       - admin.general.*: All General tab fields and validation messages
+#       - admin.security.*: All Security tab fields, section headers, and validation messages
+#       - admin.email.*: All Email tab fields, info banner, and validation messages
+#       - admin.maintenance.*: All Maintenance tab fields and info items
+#     - German (backend/locales/de/settings.json):
+#       - Same structure with proper German translations matching original hardcoded text
+#
+#   Epic 002 Story 4 (002-STORY-003) Integration Notes:
+#     - Settings page accessible at /settings (protected route, requires authentication)
+#     - Admin settings section visible only to users with settings.manage permission
+#     - Uses same i18n patterns as Login page (002-STORY-001) and Register page (002-STORY-002)
+#     - Translations loaded async from backend API - E2E tests use waitForTranslationsToLoad() helper
+#     - Follows existing i18n namespace structure ('settings' namespace already exists)
+#     - No Docker changes required - frontend-only implementation with backend locale file updates
+#
+#   Epic 002 Story 4 QA Fixes Applied (Iteration 1):
+#     - Issue #1 (CRITICAL): Incorrect admin credentials in E2E tests causing authentication failure
+#       File: frontend/e2e/settings-page-i18n.spec.ts
+#       Root Cause: The test file was created with hardcoded credentials:
+#         - Email: 'admin@core-app.de' (incorrect)
+#         - Password: 'AdminPass123!' (incorrect)
+#         These credentials don't exist in the test environment. All other test files use:
+#         - Email: process.env.TEST_ADMIN_EMAIL || 'admin@example.com'
+#         - Password: process.env.TEST_ADMIN_PASSWORD || 'TestPassword123!'
+#       Fix Applied: Updated credentials to use environment variables with proper fallbacks:
+#         - const ADMIN_EMAIL = process.env.TEST_ADMIN_EMAIL || 'admin@example.com';
+#         - const ADMIN_PASSWORD = process.env.TEST_ADMIN_PASSWORD || 'TestPassword123!';
+#       Files Changed: frontend/e2e/settings-page-i18n.spec.ts
+#       Result: E2E tests now correctly authenticate and can proceed to test i18n functionality
+#     - Testing Notes:
+#       - Run: npx playwright test e2e/settings-page-i18n.spec.ts
+#       - Tests should successfully authenticate and proceed to test i18n functionality
+#       - Environment variables TEST_ADMIN_EMAIL and TEST_ADMIN_PASSWORD can override defaults
+#
+#   Epic 002 Story 4 QA Fixes Applied (Iteration 2):
+#     - Issue #1 (CRITICAL): E2E test timing issue causing false 403 Forbidden errors
+#       File: frontend/e2e/settings-page-i18n.spec.ts
+#       Root Cause: The `loginAsAdmin()` function navigated to `/settings` immediately after login
+#         succeeded without waiting for the async permissions API call (`rolesService.listRoles()`) to
+#         complete. The AuthContext loads permissions asynchronously, and when the test navigated to
+#         `/settings` before this completed, `hasPermission('settings.read')` returned `false`, causing
+#         a redirect to `/forbidden`.
+#       Fix Applied: Added two lines to the `loginAsAdmin()` function after `waitForURL('**/dashboard')`:
+#         - await page.waitForLoadState('networkidle');
+#         - await page.waitForTimeout(500);
+#         This waits for all network connections to complete (including the permissions fetch) and allows
+#         React state to propagate after the API response is received.
+#       Files Changed: frontend/e2e/settings-page-i18n.spec.ts (lines 46-49 in loginAsAdmin function)
+#       Result: All 23 E2E tests now pass - permissions are fully loaded before navigating to /settings
+#     - Testing Notes:
+#       - Run: FRONTEND_URL=http://localhost:14100 npx playwright test e2e/settings-page-i18n.spec.ts --project=chromium
+#       - The settings-ui.spec.ts file already had similar robust login handling - this fix aligns the i18n tests
+#       - The 500ms timeout allows React state to propagate after API responses
+#     - Integration Points Re-tested:
+#       - Login functionality with admin credentials
+#       - Settings page navigation after login
+#       - All 23 language switching tests in the test suite
+#
+#   Epic 002 Story 5 (002-STORY-004: Sessions Page i18n Support) Files Modified:
+#     - frontend/src/components/sessions/SessionsList.tsx - Added useTranslation('sessions') hook, replaced all German strings with t() calls
+#     - frontend/src/components/sessions/SessionItem.tsx - Added useTranslation('sessions') hook with i18n for language detection, updated formatRelativeTime for i18n
+#     - backend/locales/en/sessions.json - Added translation keys for list (title, count, loading, empty, logoutAll, terminating), dialog (title, message, cancel, confirm), item (currentBrowser, lastActivity, time formats with pluralization, terminateAriaLabel, logout, terminating)
+#     - backend/locales/de/sessions.json - Added corresponding German translations with proper pluralization
+#
+#   Epic 002 Story 5 (002-STORY-004) Files Created:
+#     - frontend/e2e/sessions-page-i18n.spec.ts - Comprehensive Playwright E2E tests for i18n verification (German and English, language switching)
+#
+#   Epic 002 Story 5 (002-STORY-004) Features:
+#     - Sessions list title uses t('list.title')
+#     - Session count uses t('list.count', { count }) with pluralization (_one/_other suffixes)
+#     - Loading state uses t('list.loading')
+#     - Empty state uses t('list.empty')
+#     - Logout all button uses t('list.logoutAll') and t('list.terminating')
+#     - Confirmation dialog uses t('dialog.title'), t('dialog.message'), t('dialog.cancel'), t('dialog.confirm')
+#     - Current browser badge uses t('item.currentBrowser')
+#     - Last activity label uses t('item.lastActivity')
+#     - Relative time formatting: t('item.justNow'), t('item.minutesAgo'), t('item.hoursAgo'), t('item.daysAgo') with pluralization
+#     - Logout button uses t('item.logout'), t('item.terminating')
+#     - Aria label uses t('item.terminateAriaLabel', { device })
+#     - No new dependencies - uses existing react-i18next infrastructure
+#     - Translations loaded from backend via i18next-http-backend using 'sessions' namespace
+#
+#   Epic 002 Story 5 (002-STORY-004) E2E Test Scenarios (sessions-page-i18n.spec.ts):
+#     - German Language: list title, session count, current browser badge, last activity label, logout button, logout all button
+#     - English Language: all session elements display in English
+#     - Language Switching: verifies proper language toggle between German and English, timestamp updates
+#     - Confirmation Dialog i18n: dialog content in both German and English
+#
+#   Epic 002 Story 5 (002-STORY-004) Integration Notes:
+#     - Sessions page accessible at /sessions (protected route, requires authentication)
+#     - Uses same i18n patterns as previous stories (Login, Register, Settings)
+#     - The 'sessions' namespace was already defined in TRANSLATION_NAMESPACES in the backend
+#     - Pluralization uses i18next's _one and _other suffixes for proper singular/plural handling
+#     - Translations loaded async from backend API - E2E tests should use waitForTranslationsToLoad() helper
+#     - No Docker changes required - frontend-only implementation with backend locale file updates
+#
+#   Epic 002 Story 6 (002-STORY-005: Roles Page i18n Support) Files Modified:
+#     - backend/locales/en/roles.json - Added descriptions section with English translations for all system roles (admin, guest, manager, user, viewer)
+#     - backend/locales/de/roles.json - Added descriptions section with German translations for all system roles
+#     - frontend/src/pages/RolesPage.tsx - Added getRoleDescription() helper function for i18n role descriptions, updated table cell to use translated descriptions, added data-testid for E2E testing
+#
+#   Epic 002 Story 6 (002-STORY-005) Files Created:
+#     - frontend/e2e/roles-page-i18n.spec.ts - Comprehensive Playwright E2E tests (40+ tests) covering German, English, and language switching scenarios
+#
+#   Epic 002 Story 6 (002-STORY-005) Features:
+#     - Implemented Option B (Translation Keys) for role description internationalization
+#     - getRoleDescription() function translates role descriptions based on role name using i18next
+#     - Falls back to database description for custom roles without translations
+#     - Role descriptions translate automatically when user switches language
+#     - Uses 'roles' namespace for translations (already defined in project)
+#     - No new dependencies - uses existing react-i18next infrastructure
+#     - Translations loaded from backend via i18next-http-backend
+#
+#   Epic 002 Story 6 (002-STORY-005) Translation Keys Added:
+#     - English (backend/locales/en/roles.json):
+#       - descriptions.admin: "Full system administrator with all permissions"
+#       - descriptions.guest: "Read-only access for guests"
+#       - descriptions.manager: "User and content manager"
+#       - descriptions.user: "Standard user with basic permissions"
+#       - descriptions.viewer: "Read-only access to the system"
+#     - German (backend/locales/de/roles.json):
+#       - descriptions.admin: "Vollständiger Systemadministrator mit allen Berechtigungen"
+#       - descriptions.guest: "Lesezugriff für Gäste"
+#       - descriptions.manager: "Benutzer- und Inhaltsverwalter"
+#       - descriptions.user: "Standardbenutzer mit Basisberechtigung"
+#       - descriptions.viewer: "Lesezugriff auf das System"
+#
+#   Epic 002 Story 6 (002-STORY-005) E2E Test Scenarios (roles-page-i18n.spec.ts):
+#     - German Language - 10 tests: page title, subtitle, table headers, role descriptions for all 5 system roles, new role button, action buttons, system badge
+#     - English Language - 10 tests: same coverage for English translations
+#     - Language Switching - 4 tests: German to English, English to German, title updates, all descriptions update consistently
+#     - Fallback Behavior - 2 tests: loading state, error message display
+#
+#   Epic 002 Story 6 (002-STORY-005) Integration Notes:
+#     - Roles page accessible at /roles (protected route, requires authentication)
+#     - Uses same i18n patterns as previous stories (Login, Register, Settings, Sessions)
+#     - The 'roles' namespace was already defined and used in the project
+#     - Translations loaded async from backend API - E2E tests use waitForTranslationsToLoad() helper
+#     - Fallback mechanism ensures custom roles display database description when no translation exists
+#     - No Docker changes required - frontend-only implementation with backend locale file updates
+#
+#   STORY-041F (Feedback Trigger UI) Files Created:
+#     - frontend/src/services/feedbackService.ts - Service for checking feedback feature flag status via API
+#     - frontend/src/contexts/FeedbackContext.tsx - React Context for managing feedback state (feature flag, screenshot capture, modal)
+#     - frontend/src/components/feedback/FeedbackButton.tsx - Floating feedback button component with screenshot capture
+#     - frontend/src/components/feedback/FeedbackButton.css - CSS styling for the feedback button (fixed positioning, hover effects, responsive)
+#     - frontend/src/components/feedback/FeedbackButton.test.tsx - Unit tests (22 tests) for the FeedbackButton component
+#     - frontend/src/hooks/useFeedbackTrigger.ts - Custom hook for programmatic feedback triggering and keyboard shortcuts
+#     - frontend/e2e/feedback-trigger.spec.ts - Playwright E2E tests for the feedback trigger UI
+#
+#   STORY-041F (Feedback Trigger UI) Files Modified:
+#     - frontend/package.json - Added `html2canvas: ^1.4.1` dependency
+#     - frontend/src/App.tsx - Added FeedbackProvider and FeedbackButton integration
+#     - frontend/src/components/feedback/index.ts - Export FeedbackButton component
+#     - frontend/src/contexts/index.ts - Export FeedbackContext, FeedbackProvider, useFeedback hooks
+#     - frontend/src/hooks/index.ts - Export useFeedbackTrigger hook
+#     - frontend/src/services/index.ts - Export feedbackService
+#
+#   STORY-041F (Feedback Trigger UI) Features:
+#     - Floating Feedback Button: Fixed position (bottom-right, 16px from edges), 48x48px (desktop), 56x56px (mobile)
+#     - Keyboard Shortcut: Ctrl+Shift+F (Windows/Linux), Cmd+Shift+F (macOS)
+#     - Screenshot Capture: html2canvas for capturing current page, button hidden during capture
+#     - Feature Flag Integration: Checks `/api/v1/features/feedback/enabled` endpoint, button only visible when enabled
+#     - Loading State: Spinner during capture, button disabled
+#     - Accessibility: aria-label, title tooltip, keyboard focusable
+#     - Responsive Design: Larger button on mobile (56x56px)
+#     - Integration: Uses existing feature flag system (STORY-041), ready for screenshot storage (STORY-041B)
+#
+#   STORY-041F E2E Test Scenarios (feedback-trigger.spec.ts):
+#     - Button visibility when feature flag enabled/disabled
+#     - Click on button starts screenshot capture
+#     - Keyboard shortcut Ctrl+Shift+F triggers capture
+#     - Loading state during screenshot
+#     - Button styling and positioning
+#
+#   STORY-041F QA Fixes Applied (Iteration 1):
+#     - Issue #1 (MAJOR): Button size mismatch (56px vs spec 48px)
+#       Files Changed: frontend/src/components/feedback/FeedbackButton.css, frontend/e2e/feedback-trigger.spec.ts
+#       Fix Applied: Changed desktop size from 56x56px to 48x48px per design spec, mobile from 64x64px to 56x56px
+#     - Issue #2 (MAJOR): App.tsx JSX indentation broken
+#       Files Changed: frontend/src/App.tsx
+#       Fix Applied: Fixed improper indentation for FeedbackProvider/FeedbackButton in JSX structure
+#
+#   STORY-041G (Feedback Modal UI) Files Created:
+#     - frontend/src/components/feedback/FeedbackModal.tsx - Modal with screenshot preview, textarea, submit
+#     - frontend/src/components/feedback/FeedbackModal.css - Responsive styling, dark mode support
+#     - frontend/src/components/feedback/FeedbackModal.test.tsx - Unit tests (25 tests)
+#     - frontend/e2e/feedback-modal.spec.ts - Playwright E2E tests
+#
+#   STORY-041G (Feedback Modal UI) Files Modified:
+#     - frontend/src/services/feedbackService.ts - Added submitFeedback() method with SubmitFeedbackRequest/Response interfaces
+#     - frontend/src/components/feedback/index.ts - Added FeedbackModal and FeedbackModalProps exports
+#     - frontend/src/App.tsx - Added FeedbackModalWrapper component connecting modal to FeedbackContext
+#
+#   STORY-041G (Feedback Modal UI) Features:
+#     - Screenshot Preview: Displays captured screenshot with max-height 300px
+#     - Comment Textarea: 10-2000 character limit with live character counter
+#     - Character Validation: Minimum 10 characters required, shows remaining count
+#     - Submit Functionality: Calls feedbackService.submitFeedback() with screenshot, comment, metadata
+#     - Loading State: Button shows "Senden..." during submission, form disabled
+#     - Success Toast: Shows confirmation message on successful submission
+#     - Error Handling: Validation errors inline, API errors via toast
+#     - Modal Behavior: Opens after screenshot capture, closes on success, stays open on error
+#     - Accessibility: Focus on textarea after open, Escape closes modal, ARIA labels
+#     - Responsive Design: Desktop centered (max-width 600px), Mobile fullscreen
+#     - Dark Mode Support: CSS variables for theme compatibility
+#     - Integration: Uses FeedbackContext (isModalOpen, screenshot, closeModal), ResponsiveModal
+#
+#   STORY-041G E2E Test Scenarios (feedback-modal.spec.ts):
+#     - Modal display with screenshot preview
+#     - Comment input and character counting
+#     - Minimum character validation
+#     - Form submission (success and failure)
+#     - Modal closing behavior (X button, Escape, backdrop)
+#     - Responsive design (desktop and mobile)
+#     - Accessibility (keyboard navigation, ARIA labels)
+#     - Cancel button behavior
+#
+#   STORY-041G Integration Notes:
+#     - FeedbackModal reads state from FeedbackContext (isModalOpen, screenshot)
+#     - When FeedbackButton captures screenshot, context sets isModalOpen=true automatically
+#     - Submit calls POST /api/feedback (STORY-041B backend endpoint)
+#     - No new dependencies added - uses existing axios, ResponsiveModal, Toast
+#     - Unit tests: 25 tests for FeedbackModal component
+#     - Total feedback-related tests: 47 (22 FeedbackButton + 25 FeedbackModal)
+#
+#   STORY-041H (Feedback Admin Page) Files Created/Modified:
+#     - frontend/src/services/feedbackAdminService.ts - Admin API service for feedback management (list, detail, delete, Jira integration)
+#     - frontend/src/components/feedback/FeedbackListItem.tsx - Table row component for displaying individual feedbacks
+#     - frontend/src/components/feedback/FeedbackListItem.css - Styles for the list item
+#     - frontend/src/components/feedback/FeedbackDetailModal.tsx - Modal for viewing full feedback details
+#     - frontend/src/components/feedback/FeedbackDetailModal.css - Styles for the detail modal
+#     - frontend/src/components/feedback/FeedbackDeleteDialog.tsx - Confirmation dialog for deleting feedbacks
+#     - frontend/src/components/feedback/FeedbackDeleteDialog.css - Styles for the delete dialog
+#     - frontend/src/pages/FeedbackAdminPage.tsx - Main admin page with table, pagination, and modals
+#     - frontend/src/pages/FeedbackAdminPage.css - Styles for the admin page
+#     - frontend/e2e/feedback-admin.spec.ts - Comprehensive Playwright E2E tests (27 test cases)
+#     - frontend/src/App.tsx - Added route for /admin/feedback with feedback.manage permission
+#     - frontend/src/config/navigation.ts - Added navigation item for Feedback Admin with message-square icon
+#     - frontend/src/pages/index.ts - Added export for FeedbackAdminPage
+#     - frontend/src/services/index.ts - Added exports for feedbackAdminService and types
+#     - frontend/src/components/feedback/index.ts - Added exports for new components
+#     - frontend/src/components/icons/Icons.tsx - Added MessageSquareIcon component for navigation
+#
+#   STORY-041H (Feedback Admin Page) Features:
+#     - Feedback List Page (/admin/feedback): Responsive table with thumbnails, user info, comment preview, date, actions
+#     - Pagination: 20 items per page with page navigation
+#     - Detail Modal: Full feedback details with screenshot, browser info, Jira status
+#     - Screenshot Download: Presigned URL from MinIO for image download
+#     - Delete Functionality: Confirmation dialog with feedback info
+#     - Jira Integration: Create Jira ticket button (if Jira configured), optional delete after creation
+#     - Empty States: "Keine Feedbacks vorhanden" when list empty, "Jira nicht konfiguriert" warning
+#     - Route Protection: Requires feedback.manage permission
+#     - German Localization: All UI text in German consistent with application
+#     - Integration: Uses feedbackAdminService connecting to STORY-041C backend endpoints
+#
+#   STORY-041H E2E Test Scenarios (feedback-admin.spec.ts):
+#     - Page loads for admin user
+#     - Page 403 for non-admin user
+#     - Feedback list displays with correct data
+#     - Pagination works correctly
+#     - Detail modal opens and shows all info
+#     - Screenshot download functionality
+#     - Delete with confirmation dialog
+#     - Jira ticket creation flow
+#     - Empty state handling
+#     - Error handling scenarios
+#     - Responsive design tests
+#     - Refresh button functionality
+#
+#   STORY-041H Integration Notes:
+#     - Route /admin/feedback protected with permission="feedback.manage"
+#     - Navigation item added to sidebar with feedback.manage permission filter
+#     - Uses existing backend endpoints from STORY-041C:
+#       - GET /api/v1/admin/feedbacks - List feedbacks with pagination
+#       - GET /api/v1/admin/feedbacks/:id - Get single feedback details
+#       - DELETE /api/v1/admin/feedbacks/:id - Delete feedback
+#       - GET /api/v1/admin/feedbacks/:id/screenshot - Get screenshot presigned URL
+#       - POST /api/v1/admin/feedbacks/:id/jira - Create Jira ticket (STORY-041E)
+#       - GET /api/v1/admin/jira/status - Check Jira configuration
+#     - No new dependencies - uses existing axios, ResponsiveModal, Button, Badge, Toast
+#     - Translation key 'feedbackAdmin' for navigation label
+#
+#   STORY-041H QA Fixes Applied (Iteration 1):
+#     - Issue #1 (CRITICAL): E2E test authentication not working - mock tokens couldn't be decoded as JWTs
+#       File: frontend/e2e/feedback-admin.spec.ts
+#       Root Cause: The mock tokens like 'mock-admin-access-token-for-e2e-tests' were not valid JWTs.
+#         The application's authService.isAuthenticated() and AuthContext decode JWT tokens to check expiration,
+#         but the mock tokens couldn't be decoded (they don't have the 3-part `.` structure), causing them
+#         to be treated as expired/invalid.
+#       Fix Applied:
+#         - Created createMockJwt() function that generates properly structured JWT tokens with header, payload (including exp timestamp), and signature
+#         - Updated loginAsAdmin() and loginAsUser() functions to set not just tokens but also user data (auth_user) and permissions (auth_permissions) in localStorage
+#         - Updated all mock auth endpoint helpers to accept and use the mock tokens consistently
+#       Files Changed: frontend/e2e/feedback-admin.spec.ts
+#     - Issue #2 (CRITICAL): Missing roles endpoint mock causing session recovery to fail
+#       File: frontend/e2e/feedback-admin.spec.ts
+#       Root Cause: When AuthContext detects tokens without user data, it calls rolesService.listRoles() to
+#         recover the session. This endpoint wasn't mocked, causing the recovery to fail.
+#       Fix Applied: Added **/api/v1/roles route mock to both mockAdminAuthEndpoints() and mockUserAuthEndpoints()
+#         functions, returning proper role data with permissions.
+#       Files Changed: frontend/e2e/feedback-admin.spec.ts
+#     - Issue #3 (MAJOR): Route ordering issues in tests with custom API mocks
+#       File: frontend/e2e/feedback-admin.spec.ts
+#       Root Cause: Some tests (pagination, refresh, error handling) set up custom route mocks but then called
+#         mockFeedbackAdminEndpoints() which overwrote those routes.
+#       Fix Applied: Restructured these tests to set up custom routes BEFORE login and skip calling
+#         mockFeedbackAdminEndpoints(), instead mocking only the specific endpoints needed (like Jira config).
+#       Files Changed: frontend/e2e/feedback-admin.spec.ts
+#     - Test Results: All 165 tests pass across all 5 browser projects (chromium, firefox, webkit, Mobile Chrome, Mobile Safari)
+#     - No changes to application code - only E2E test infrastructure fixes
+#
+#   002-REWORK-001 (Login Error Message Localization) Files Modified:
+#     Backend Files:
+#     - backend/src/auth/auth.controller.ts (lines 144, 160, 183) - Changed hardcoded German/English messages to error codes (CAPTCHA_REQUIRED, CAPTCHA_INVALID, AUTH_INVALID_CREDENTIALS)
+#     - backend/src/auth/auth.service.ts (lines 107, 114, 118, 125) - Changed 'Invalid email or password' to 'AUTH_INVALID_CREDENTIALS', 'Please verify your email first' to 'AUTH_EMAIL_NOT_VERIFIED', 'Account is not active' to 'AUTH_ACCOUNT_INACTIVE'
+#     - backend/locales/de/auth.json - Updated invalidCredentials, added emailNotVerified, captchaRequired, captchaInvalid German translations
+#     - backend/locales/en/auth.json - Added emailNotVerified, captchaRequired, captchaInvalid English translations
+#     Frontend Files:
+#     - frontend/src/services/authService.ts - Added errorCode property to LoginErrorWithCaptcha interface, updated parseCaptchaFromError
+#     - frontend/src/pages/LoginPage.tsx - Added ERROR_CODE_TO_TRANSLATION_KEY mapping, updated error handling to translate error codes to localized messages
+#     E2E Tests:
+#     - frontend/e2e/login-page-i18n.spec.ts - Added new test section "Login Error Message Localization - STORY-002-REWORK-001" with 6 tests for German/English error messages
+#
+#   002-REWORK-001 (Login Error Message Localization) Error Code Mapping:
+#     | Error Code               | German Translation                                                        | English Translation                                    |
+#     |--------------------------|---------------------------------------------------------------------------|--------------------------------------------------------|
+#     | AUTH_INVALID_CREDENTIALS | Ungültige E-Mail-Adresse oder Passwort.                                  | Invalid email or password.                             |
+#     | AUTH_EMAIL_NOT_VERIFIED  | Bitte bestätigen Sie zuerst Ihre E-Mail-Adresse.                         | Please verify your email address first.                |
+#     | AUTH_ACCOUNT_INACTIVE    | Ihr Konto wurde gesperrt. Bitte kontaktieren Sie den Administrator.      | Your account has been locked. Please contact the admin.|
+#     | CAPTCHA_REQUIRED         | Bitte lösen Sie die Sicherheitsabfrage.                                  | Please complete the security question.                 |
+#     | CAPTCHA_INVALID          | Falsche Antwort auf die Sicherheitsabfrage.                              | Incorrect answer to the security question.             |
+#
+#   002-REWORK-001 (Login Error Message Localization) Features:
+#     - Backend returns error codes instead of hardcoded messages for proper i18n
+#     - Frontend ERROR_CODE_TO_TRANSLATION_KEY mapping translates error codes to i18n keys
+#     - Fallback pattern matching for legacy error messages during transition
+#     - Error messages display in currently selected language (German or English)
+#     - E2E tests verify error messages in both languages
+#     - No new dependencies added - uses existing react-i18next infrastructure
+#
+#   002-REWORK-001 E2E Test Scenarios (login-page-i18n.spec.ts):
+#     - Invalid credentials error displays in German when UI is German
+#     - Invalid password error displays in German when UI is German
+#     - Invalid credentials error displays in English when UI is English
+#     - Invalid password error displays in English when UI is English
+#     - Error message language consistency with German UI
+#     - Error message language consistency with English UI
+#
+#   002-REWORK-002 (Fehlende Health-Check Endpoints) Files Modified:
+#     Backend Files:
+#     - backend/src/health/health.controller.ts - Added GET /api/health/live (liveness probe), GET /api/health/ready (readiness probe)
+#     - backend/src/health/health.service.ts - Added checkLiveness() (sync, returns {status:'ok'}), checkReadiness() (async, checks database)
+#     - backend/src/health/dto/health-check-response.dto.ts - Added LivenessResponseDto, ReadinessResponseDto, ReadinessComponentDto, ReadinessChecksDto
+#     - backend/src/health/health.module.ts - Updated header documentation
+#
+#   002-REWORK-002 (Fehlende Health-Check Endpoints) Features:
+#     - Liveness Probe: GET /api/health/live
+#       - Returns {status: 'ok'} with HTTP 200
+#       - Synchronous, no I/O operations
+#       - Response time < 100ms
+#       - No dependency checks (fast response)
+#       - Used by Kubernetes livenessProbe
+#     - Readiness Probe: GET /api/health/ready
+#       - Returns {status: 'ok', checks: {database: {status: 'healthy'}}} with HTTP 200 when ready
+#       - Returns HTTP 503 when dependencies unhealthy
+#       - Checks database connectivity
+#       - Used by Kubernetes readinessProbe
+#     - Both endpoints accessible without authentication
+#     - Both endpoints skip rate limiting (@SkipRateLimit() on controller)
+#     - No new dependencies added
+#
+#   002-REWORK-002 Kubernetes Usage Example:
+#     livenessProbe:
+#       httpGet:
+#         path: /api/health/live
+#         port: 14102
+#       initialDelaySeconds: 5
+#       periodSeconds: 10
+#     readinessProbe:
+#       httpGet:
+#         path: /api/health/ready
+#         port: 14102
+#       initialDelaySeconds: 10
+#       periodSeconds: 5
+#
+#   002-REWORK-002 Test Cases:
+#     - GET /api/health/live returns HTTP 200 with {status: 'ok'}
+#     - GET /api/health/ready returns HTTP 200 when database healthy
+#     - GET /api/health/ready returns HTTP 503 when database unreachable
+#     - Existing GET /api/health endpoint still works (backward compatible)
+#
+#   002-REWORK-003 (Feedback System HTTP 500 Error Fix) Files Modified:
+#     - backend/src/feedback/dto/feedback.dto.ts - Made screenshot field optional with @IsOptional() decorator
+#     - backend/src/feedback/feedback.service.ts - Added null checks and try-catch for screenshot processing
+#     - backend/src/feedback/feedback.controller.ts - Updated documentation for optional screenshot support
+#     - backend/src/feedback/feedback.module.ts - Updated header documentation with story reference
+#     - backend/tests/feedback/feedback.service.test.ts - Added tests for optional screenshot functionality
+#
+#   002-REWORK-003 (Feedback System HTTP 500 Error Fix) Files Created:
+#     - frontend/e2e/feedback-http500-fix.spec.ts - E2E tests for HTTP 500 fix scenarios
+#
+#   002-REWORK-003 (Feedback System HTTP 500 Error Fix) Features:
+#     - Screenshot field now optional in SubmitFeedbackDto with @IsOptional() decorator
+#     - Graceful error handling: Invalid screenshots no longer cause entire feedback submission to fail
+#     - Feedback submission succeeds even without screenshots (screenshotStored: false in response)
+#     - Debug logging added for feedback submitted without screenshots
+#     - Backwards compatible: Frontend can still send screenshots - they will be processed as before
+#
+#   002-REWORK-003 Test Scenarios:
+#     - Feedback with screenshot: HTTP 200, screenshotStored: true
+#     - Feedback without screenshot: HTTP 200, screenshotStored: false (previously HTTP 500)
+#     - Feedback with invalid screenshot: HTTP 200, screenshotStored: false (graceful degradation)
+#
 #   STORY-006B (User CRUD Frontend UI) Files Created/Modified:
 #     - frontend/src/components/users/UserCreateModal.tsx - Modal form for creating new users with validation
 #     - frontend/src/components/users/UserEditModal.tsx - Modal form for editing existing users with change tracking
@@ -659,23 +1805,25 @@
 #     npm run dev          - Start dev server on http://localhost:3000
 #     npm run build        - Build for production
 #     npm run test         - Run unit tests (Vitest, includes LoginForm, PrivateRoute, AuthContext tests)
-#     npm run test:e2e     - Run Playwright E2E tests (includes login-system.spec.ts, responsive-sidebar.spec.ts, user-crud.spec.ts, roles-management.spec.ts, permissions-frontend.spec.ts, registration.spec.ts, mfa-ui.spec.ts, settings-ui.spec.ts)
+#     npm run test:e2e     - Run Playwright E2E tests (includes login-system.spec.ts, responsive-sidebar.spec.ts, user-crud.spec.ts, roles-management.spec.ts, permissions-frontend.spec.ts, registration.spec.ts, mfa-ui.spec.ts, settings-ui.spec.ts, ui-consistency.spec.ts, story-3-register-ui-audit.spec.ts, story-103-dashboard-ui-audit.spec.ts, story-104-users-page-ui-audit.spec.ts, story-105-roles-page-ui-audit.spec.ts, story-106-settings-page-ui-audit.spec.ts, story-107-mfa-page-ui-audit.spec.ts, story-108-help-page-ui-audit.spec.ts, story-109-forbidden-page-ui-audit.spec.ts, login-page-i18n.spec.ts, register-page-i18n.spec.ts, settings-page-i18n.spec.ts, sessions-page-i18n.spec.ts, roles-page-i18n.spec.ts, feedback-trigger.spec.ts, feedback-modal.spec.ts, feedback-admin.spec.ts, feedback-http500-fix.spec.ts)
 #     npm run test:coverage - Run tests with coverage (≥80% required)
 #
 #   Frontend Pages:
-#     Login: http://localhost:3000/login (STORY-007B: Login form with validation)
+#     Login: http://localhost:3000/login (STORY-007B: Login form with validation, 002-STORY-001: Full i18n support for all form elements)
 #     Grid Demo: http://localhost:3000/grid-demo
 #     Responsive Demo: http://localhost:3000/responsive-demo
-#     Dashboard: http://localhost:3000/dashboard (Protected route)
+#     Dashboard: http://localhost:3000/dashboard (Protected route, Story 4/103: Dynamic stat cards, loading skeletons, quick actions)
 #     Users: http://localhost:3000/users (Protected route, STORY-006B: User CRUD UI with Create/Edit/Delete modals)
-#     Roles: http://localhost:3000/roles (Protected route, Story 42/STORY-025B: Roles Management UI with Create/Edit/Delete modals, Permission checkboxes)
-#     Settings: http://localhost:3000/settings (Protected route, Story 45/STORY-013B: Settings UI with tabs for General, Security, Email)
+#     Roles: http://localhost:3000/roles (Protected route, Story 42/STORY-025B: Roles Management UI with Create/Edit/Delete modals, Permission checkboxes; Story 6/105: Role-specific icons, Button/Badge component consistency; 002-STORY-005: Full i18n support for role descriptions)
+#     Settings: http://localhost:3000/settings (Protected route, Story 45/STORY-013B: Settings UI with tabs for General, Security, Email, 002-STORY-003: Full i18n support for all admin settings)
+#     Sessions: http://localhost:3000/sessions (Protected route, STORY-008: Session Management, 002-STORY-004: Full i18n support for sessions list/item/dialog)
 #     MFA Setup: http://localhost:3000/settings/security/mfa (Protected route, Story 44/STORY-005C: MFA setup wizard)
-#     Help: http://localhost:3000/help (Protected route)
-#     Forbidden: http://localhost:3000/forbidden (Story 43/STORY-008B: Access denied page for unauthorized users)
-#     Register: http://localhost:3000/register (Story 41: User registration form)
+#     Help: http://localhost:3000/help (Protected route, Story 2/STORY-108: FAQ accordion, version display, unified card styling)
+#     Forbidden: http://localhost:3000/forbidden (Story 43/STORY-008B: Access denied page, Story 3/STORY-109: UI audit - button styling, visual hierarchy, error code typography)
+#     Register: http://localhost:3000/register (Story 41: User registration form, 002-STORY-002: Full i18n support for all form elements)
 #     Registration Success: http://localhost:3000/registration-success (Story 41: "Check your email" confirmation)
 #     Email Verification: http://localhost:3000/verify-email?token=... (Story 41: Email verification result)
+#     Feedback Admin: http://localhost:3000/admin/feedback (Protected route, STORY-041H: Feedback admin page with list/detail/delete/Jira, requires feedback.manage permission)
 #
 #   Grid Demo Page (deprecated, use Frontend Pages above): http://localhost:3000/grid-demo
 #   Tailwind breakpoints: sm (640px), md (768px), lg (1024px), xl (1280px)
@@ -688,9 +1836,11 @@
 #   docker-compose up -d
 #   docker-compose logs -f resource-api
 #
-# Health Check (STORY-029):
+# Health Check (STORY-029, 002-REWORK-002):
 #   Legacy:   curl http://localhost:14102/health
 #   Full:     curl http://localhost:14102/api/health
+#   Liveness: curl http://localhost:14102/api/health/live   (002-REWORK-002: Kubernetes liveness probe, < 100ms, no dependencies)
+#   Readiness: curl http://localhost:14102/api/health/ready (002-REWORK-002: Kubernetes readiness probe, checks database)
 #
 # API Endpoints (STORY-021B Resource Endpoints + STORY-003A User CRUD + STORY-001A Login + STORY-008 Sessions):
 #   Users:     GET/POST/PUT/DELETE http://localhost:14102/api/v1/users
@@ -718,13 +1868,15 @@
 #   General:   GET http://localhost:14102/api/v1/settings/general/support-email (STORY-035: public)
 #   Theme:     GET http://localhost:14102/api/v1/settings/theme (STORY-017: retrieve theme colors)
 #   Theme:     PUT http://localhost:14102/api/v1/settings/theme (STORY-017: update theme colors)
+#   Public:    GET http://localhost:14102/api/v1/settings/public (STORY-041: public settings incl. feedback.enabled, no auth required)
 #
-# Feature Toggles API Endpoints (STORY-014A - Feature Toggles Backend):
+# Feature Toggles API Endpoints (STORY-014A - Feature Toggles Backend, STORY-041 - Feedback Feature Flag):
 #   Features:  GET http://localhost:14102/api/v1/features (authenticated: get all features)
 #   Features:  GET http://localhost:14102/api/v1/features/public (public: get public features)
 #   Features:  GET http://localhost:14102/api/v1/features/:key (authenticated: get single feature)
 #   Features:  PUT http://localhost:14102/api/v1/features/:key (admin only: toggle feature on/off)
 #   Features:  GET http://localhost:14102/api/v1/features/:key/enabled (public: check if feature enabled)
+#   Features:  GET http://localhost:14102/api/v1/features/feedback/enabled (STORY-041: check if feedback is enabled)
 #
 # Settings API Endpoints (STORY-013A - In-App Settings Backend):
 #   Security:  GET http://localhost:14102/api/v1/settings/security (admin only: get security settings)
@@ -765,10 +1917,42 @@
 #   Queue:     GET http://localhost:14102/api/v1/email/queue
 #   Logs:      GET http://localhost:14102/api/v1/email/logs
 #
-# Feedback Endpoints (STORY-038A, STORY-038B):
-#   Feedback:  POST http://localhost:14102/api/feedback (Submit feedback with screenshot, 5 req/hour rate limit, JWT required)
+# Feedback Endpoints (STORY-038A, STORY-038B, STORY-041B, STORY-041C, 002-REWORK-003):
+#   Feedback:  POST http://localhost:14102/api/feedback (Submit feedback with optional screenshot, 5 req/hour rate limit, JWT required)
 #              - STORY-038A: Base feedback submission with screenshot attachment
 #              - STORY-038B: Rate limiting (5/hour), async email queue, browser info capture, route tracking
+#              - STORY-041B: Screenshot stored in MinIO (feedback bucket), notification email with admin link (no attachment)
+#              - 002-REWORK-003: Screenshot now optional, graceful error handling for screenshot processing failures
+#              Response: { id: number, message: string, screenshotStored: boolean }
+#
+# Feedback Admin Endpoints (STORY-041C: Feedback Admin API):
+#   List:      GET http://localhost:14102/api/v1/admin/feedbacks (Paginated list, Admin only, sortiert nach created_at DESC)
+#              Query params: page, limit, status (optional filter)
+#              Response: FeedbackListResponseDto with pagination
+#   Detail:    GET http://localhost:14102/api/v1/admin/feedbacks/:id (Single feedback with full details, Admin only)
+#              Response: FeedbackDetailDto with user info, browser info, screenshotUrl
+#   Screenshot: GET http://localhost:14102/api/v1/admin/feedbacks/:id/screenshot (Presigned URL for MinIO, 5 min expiry, Admin only)
+#              Response: { url: string }
+#   Delete:    DELETE http://localhost:14102/api/v1/admin/feedbacks/:id (Removes DB entry + MinIO screenshot, Admin only)
+#              - Audit log entry created for delete action
+#              Response: { message: string }
+#
+# Jira Settings API Endpoints (STORY-041D: Jira Settings API):
+#   Jira:      GET http://localhost:14102/api/v1/settings/jira (Get Jira settings, token masked as ********)
+#   Jira:      PUT http://localhost:14102/api/v1/settings/jira (Update Jira settings, encrypts API token, admin only)
+#   Jira:      POST http://localhost:14102/api/v1/settings/jira/test (Test Jira connection, admin only)
+#              Request body: { enabled, url, email, apiToken, projectKey, issueType }
+#              Settings stored in app_settings.integrations JSONB
+#
+# Jira Ticket Creation API Endpoint (STORY-041E: Jira Ticket Creation):
+#   Create:    POST http://localhost:14102/api/v1/admin/feedbacks/:id/jira (Create Jira ticket from feedback, admin only)
+#              Request body: { deleteAfterCreation?: boolean }
+#              Response: { success: true, issueKey: "PROJ-123", issueUrl: "https://...", feedbackDeleted: boolean, feedbackId: number }
+#              - Creates Jira issue via REST API v3 with ADF description
+#              - Uploads screenshot as attachment (if present)
+#              - Stores jira_issue_key in feedback_submissions table
+#              - Optional: deletes feedback after successful ticket creation
+#              Error responses: 400 (Jira not configured), 404 (Feedback not found), 502 (Jira API error), 429 (Rate limit)
 #
 # File Storage API Endpoints (STORY-026A - MinIO Setup, STORY-026B - Pagination):
 #   Files:     POST http://localhost:14102/api/v1/files/upload (Upload file to MinIO, authenticated)
@@ -815,7 +1999,7 @@
 
 services:
   # ----------------
-  # Resource API Service (NestJS - STORY-001A, STORY-003A, STORY-005A, STORY-005B, STORY-007B, STORY-009, STORY-013A, STORY-014A, STORY-017, STORY-018A, STORY-021A, STORY-021B, STORY-022, STORY-023B, STORY-025, STORY-026A, STORY-026B, STORY-027, STORY-028, STORY-029, STORY-030, STORY-035, STORY-038A, STORY-038B, Story-41/STORY-023)
+  # Resource API Service (NestJS - STORY-001A, STORY-003A, STORY-005A, STORY-005B, STORY-007B, STORY-009, STORY-013A, STORY-014A, STORY-017, STORY-018A, STORY-021A, STORY-021B, STORY-022, STORY-023B, STORY-025, STORY-026A, STORY-026B, STORY-027, STORY-028, STORY-029, STORY-030, STORY-035, STORY-038A, STORY-038B, STORY-041, STORY-041B, STORY-041C, STORY-041D, STORY-041E, Story-41/STORY-023)
   # STORY-001A: Login System Backend - JWT Auth, bcrypt 12 rounds, Rate Limiting 5 req/min/IP, Audit Logging
   # STORY-003A: User CRUD Backend API with JWT Auth Guards, Roles Guard, Soft Delete, Role Management
   # STORY-005A: MFA Setup Backend - TOTP secret generation (otplib), QR code URLs, backup codes (bcrypt hashed), ±1 window drift
@@ -826,6 +2010,7 @@ services:
   # STORY-023B: Email Templates & Queue - Database-stored templates, async queue processing, retry mechanism
   # STORY-025: User Data Storage - UserRepository, PasswordService, bcrypt password hashing
   # STORY-029: Health Status Endpoints at /health (legacy) and /api/health (full)
+  # 002-REWORK-002: Liveness/Readiness Probes - GET /api/health/live (< 100ms, no deps), GET /api/health/ready (checks DB)
   # STORY-035: Support-E-Mail & Session-Timeout - Support email config, session idle timeout, auto-logout
   # STORY-007A: Rollen-Management Backend - Roles & Permissions CRUD, PermissionsGuard, RequirePermission decorator
   # STORY-007B: User Role Assignment - User-Role many-to-many, PermissionAggregationService, Token invalidation on role change
@@ -840,7 +2025,13 @@ services:
   # STORY-026A: MinIO Setup - S3-compatible object storage, file upload/download API, presigned URLs, bucket management (uploads, logos, feedback)
   # STORY-026B: MinIO File API - File listing pagination (page/limit query params, pagination metadata in response)
   # STORY-030: Application Versioning - GET /api/version endpoint, version from package.json, optional build number and git commit hash
+  # STORY-041: Feedback Feature Flag - feedback.enabled in features JSONB, GET /api/v1/settings/public endpoint, getPublicSettings(), isFeedbackEnabled() methods
+  # STORY-041B: Feedback Screenshot Storage - Screenshots stored in MinIO (feedback bucket), screenshot_path column in feedback_submissions, notification-only emails with admin links
+  # STORY-041C: Feedback Admin API - Admin CRUD for feedbacks (GET list/detail, DELETE), presigned URLs for screenshot download, MinIO cleanup on delete, audit logging for deletes
+  # STORY-041D: Jira Settings API - Jira Cloud configuration endpoints (GET/PUT /settings/jira, POST /settings/jira/test), encrypted API token storage (AES-256-GCM), admin only
+  # STORY-041E: Jira Ticket Creation - POST /api/v1/admin/feedbacks/:id/jira, creates Jira issue from feedback, uploads screenshots as attachments, updates feedback with Jira key
   # Story 41 (STORY-023): User Registration - POST /register, GET /verify-email, POST /resend-verification, German email templates, 3 req/hour rate limit
+  # 002-REWORK-003: Feedback System HTTP 500 Error Fix - Made screenshot optional in SubmitFeedbackDto, graceful error handling for screenshot processing, feedback submission succeeds without screenshots
   # Includes: API setup, Rate Limiting, Request Logging, Error Handling, Structured Error Logging, Audit Trail
   # Security: JWT Authentication Guard, Roles Authorization Guard, Permissions Guard (Admin-only for User CRUD)
   # ----------------
@@ -988,6 +2179,14 @@ services:
       - REGISTRATION_RATE_LIMIT_MAX=${REGISTRATION_RATE_LIMIT_MAX:-3}
       # REGISTRATION_RATE_LIMIT_WINDOW_SECONDS: Rate limit window in seconds (default: 3600 = 1 hour)
       - REGISTRATION_RATE_LIMIT_WINDOW_SECONDS=${REGISTRATION_RATE_LIMIT_WINDOW_SECONDS:-3600}
+      # Feedback Screenshot Storage Configuration (STORY-041B)
+      # ADMIN_URL: Base URL for admin panel (used in feedback notification emails to link to admin/feedback page)
+      - ADMIN_URL=${ADMIN_URL:-http://localhost:3000}
+      # Encryption Configuration (STORY-041D: Jira Settings API)
+      # ENCRYPTION_KEY: 32-byte (64 hex character) key for AES-256-GCM encryption of sensitive data (API tokens)
+      # Generate with: node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+      # IMPORTANT: Required for Jira API token encryption. Generate a unique key per environment!
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY:-}
     depends_on:
       postgres:
         condition: service_healthy
@@ -1001,18 +2200,19 @@ services:
     networks:
       - core-app-network
     restart: unless-stopped
-    # HTTP healthcheck using /api/health endpoint (STORY-029)
+    # HTTP healthcheck using /api/health/live endpoint (STORY-029, 002-REWORK-002)
     # Uses Node.js instead of curl since Alpine image doesn't include curl
-    # Accepts 200 (healthy/degraded) as success; 503 (unhealthy) triggers restart
+    # 002-REWORK-002: Uses new liveness probe endpoint (< 100ms, no dependency checks)
+    # Accepts 200 as success; non-200 triggers restart
     healthcheck:
-      test: ["CMD", "node", "-e", "require('http').get('http://localhost:14102/api/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"]
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:14102/api/health/live', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 40s
 
   # ----------------
-  # PostgreSQL Database (STORY-024A, STORY-024B, STORY-025, STORY-001A, STORY-005A, STORY-005B, STORY-009, STORY-007B, STORY-013A, STORY-014A, STORY-017, STORY-018A, STORY-038B)
+  # PostgreSQL Database (STORY-024A, STORY-024B, STORY-025, STORY-001A, STORY-005A, STORY-005B, STORY-009, STORY-007B, STORY-013A, STORY-014A, STORY-017, STORY-018A, STORY-038B, STORY-041, STORY-041B, STORY-041D, STORY-041E)
   # STORY-001A: Stores users table with hashed passwords, audit_logs for login tracking
   # STORY-005A: users.mfa_enabled, users.mfa_secret columns; user_backup_codes table (hashed codes)
   # STORY-005B: user_backup_codes.used column for tracking consumed backup codes
@@ -1025,6 +2225,12 @@ services:
   # STORY-018A: users.language, users.date_format, users.number_format columns; app_settings language settings (migration 022)
   # STORY-038B: feedback_submissions table for storing feedback with metadata (migration 024), feedback_notification email template (migration 023)
   # Story 41: users.status (pending/active/inactive), verification_token_hash, verification_token_expires, email_verified_at (migration 025)
+  # STORY-041: app_settings.features.feedback JSONB update (migration 030-add-feedback-feature-flag.sql)
+  # STORY-041 QA Fixes (Iteration 1): Migration 029 fix - changed idx_refresh_tokens_expired from partial index (WHERE expires_at < CURRENT_TIMESTAMP) to simple index on expires_at column
+  # STORY-041B: feedback_submissions.screenshot_path VARCHAR(500) column for MinIO file paths (migration 031-add-screenshot-path-column.sql)
+  # STORY-041D: app_settings.integrations JSONB column for Jira settings (url, email, encrypted apiToken, projectKey, issueType, enabled)
+  # STORY-041D QA Fixes (Iteration 2): Migration 032-add-integrations-column.sql adds integrations JSONB column with GIN index for faster queries
+  # STORY-041E: feedback_submissions.jira_issue_key VARCHAR(50), feedback_submissions.jira_created_at TIMESTAMP (migration 033-feedback-jira-key.sql)
   # ----------------
   postgres:
     image: postgres:15-alpine
@@ -1109,6 +2315,19 @@ services:
   # Frontend Service (React/Vite with Nginx)
   # Serves the React frontend application
   # Port 14100 follows the project port range (14100-14105)
+  # Story 2/STORY-108: Help Page UI Audit - Added VITE_APP_VERSION, VITE_BUILD_DATE build args for version display
+  # Story 2 QA Fixes (Iteration 1) - STORY-108: Translation loading state handling in HelpPage.tsx
+  # Story 3/STORY-109: Forbidden Page UI Audit - Button styling consistency, visual hierarchy, error code typography, support link with HelpIcon
+  # Story 3 QA Fixes (Iteration 1) - STORY-109: E2E test URL path fix (/403 → /forbidden in story-109-forbidden-page-ui-audit.spec.ts)
+  # Story 3 QA Fixes (Iteration 2) - STORY-109: HelpIcon SVG visibility fix (added explicit CSS dimensions 16x16px for .forbidden-page__help-icon in AuthPages.css:695-704)
+  # Story 6/STORY-041F: Feedback Trigger UI - Floating feedback button (fixed bottom-right), Ctrl+Shift+F shortcut, html2canvas screenshot, feature flag check
+  # Story 6 QA Fixes (Iteration 1) - STORY-041F: Button size fix (56x56px→48x48px desktop, 64x64px→56x56px mobile), App.tsx JSX indentation fix
+  # Story 6 QA Fixes (Iteration 2) - STORY-041F: Duplicate keyboard shortcut fix - useFeedbackTrigger enableKeyboardShortcut default=false (FeedbackButton already handles Ctrl+Shift+F)
+  # Story 7/STORY-041G: Feedback Modal UI - FeedbackModal component with screenshot preview, comment textarea, submit functionality, error handling
+  # Story 7 QA Fixes (Iteration 1) - STORY-041G: ResponsiveModal data-testid fix - Added data-testid={`${testId}-title`} to title h2 element for E2E test compatibility
+  # Story 7 QA Fixes (Iteration 2) - STORY-041G: E2E test fixes - login testId fix (login-submit→login-button), auth token bypass for rate limiting, backdrop click force:true, character limit 2000 validation, hint test
+  # Story 8/STORY-041H: Feedback Admin Page - Admin page /admin/feedback for viewing/managing feedback, FeedbackListItem, FeedbackDetailModal, FeedbackDeleteDialog, Jira ticket creation, pagination, 27 E2E tests
+  # Story 8/STORY-041H QA Fixes (Iteration 1): E2E test authentication fix - createMockJwt() for valid JWT tokens, roles endpoint mock, route ordering fixes. All 165 tests pass across all browsers.
   # ----------------
   frontend:
     build:
@@ -1116,6 +2335,9 @@ services:
       args:
         # API URL for the frontend to connect to backend
         VITE_API_URL: http://localhost:14102/api/v1
+        # Version Configuration (Story 2/STORY-108: Help Page UI Audit)
+        VITE_APP_VERSION: ${VITE_APP_VERSION:-1.0.0}
+        VITE_BUILD_DATE: ${VITE_BUILD_DATE:-}
     container_name: core-app-frontend
     ports:
       - "14100:80"

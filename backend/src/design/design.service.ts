@@ -9,6 +9,36 @@ import { Injectable, Inject, forwardRef, NotFoundException, BadRequestException 
 import { DatabaseService } from '../database/database.service';
 import { WinstonLoggerService } from '../common/services/logger.service';
 import { AuditService } from '../common/services/audit.service';
+
+/**
+ * Deep merge helper for nested objects
+ * Recursively merges source into target
+ */
+function deepMerge<T extends Record<string, unknown>>(target: T, source: Partial<T>): T {
+  const result = { ...target } as T;
+  for (const key in source) {
+    if (Object.prototype.hasOwnProperty.call(source, key) && source[key] !== undefined) {
+      const sourceValue = source[key];
+      const targetValue = result[key];
+      if (
+        typeof sourceValue === 'object' &&
+        sourceValue !== null &&
+        !Array.isArray(sourceValue) &&
+        typeof targetValue === 'object' &&
+        targetValue !== null &&
+        !Array.isArray(targetValue)
+      ) {
+        (result as Record<string, unknown>)[key] = deepMerge(
+          targetValue as Record<string, unknown>,
+          sourceValue as Partial<Record<string, unknown>>,
+        );
+      } else {
+        (result as Record<string, unknown>)[key] = sourceValue;
+      }
+    }
+  }
+  return result;
+}
 import {
   CreateColorSchemeDto,
   UpdateColorSchemeDto,
@@ -44,10 +74,7 @@ export class DesignService {
    * Get all color schemes
    */
   async findAll(): Promise<ColorSchemeResponseDto[]> {
-    const pool = this.databaseService.getPool();
-    if (!pool) {
-      throw new Error('Database pool not available');
-    }
+    const pool = this.databaseService.ensurePool();
 
     const result = await pool.query(
       'SELECT * FROM color_schemes ORDER BY is_default DESC, name ASC',
@@ -60,10 +87,7 @@ export class DesignService {
    * Get a single color scheme by ID
    */
   async findOne(id: number): Promise<ColorSchemeResponseDto> {
-    const pool = this.databaseService.getPool();
-    if (!pool) {
-      throw new Error('Database pool not available');
-    }
+    const pool = this.databaseService.ensurePool();
 
     const result = await pool.query(
       'SELECT * FROM color_schemes WHERE id = $1',
@@ -81,10 +105,7 @@ export class DesignService {
    * Get the active color scheme
    */
   async getActiveScheme(): Promise<ActiveColorSchemeResponseDto> {
-    const pool = this.databaseService.getPool();
-    if (!pool) {
-      throw new Error('Database pool not available');
-    }
+    const pool = this.databaseService.ensurePool();
 
     // First try to get the active scheme
     let result = await pool.query(
@@ -134,10 +155,7 @@ export class DesignService {
     userId: number | undefined,
     request: AuthRequest,
   ): Promise<ColorSchemeResponseDto> {
-    const pool = this.databaseService.getPool();
-    if (!pool) {
-      throw new Error('Database pool not available');
-    }
+    const pool = this.databaseService.ensurePool();
 
     // Get default scheme to use as base for missing tokens
     const defaultScheme = await pool.query(
@@ -190,10 +208,7 @@ export class DesignService {
     userId: number | undefined,
     request: AuthRequest,
   ): Promise<ColorSchemeResponseDto> {
-    const pool = this.databaseService.getPool();
-    if (!pool) {
-      throw new Error('Database pool not available');
-    }
+    const pool = this.databaseService.ensurePool();
 
     // Check if scheme exists
     const existing = await pool.query(
@@ -206,8 +221,10 @@ export class DesignService {
     }
 
     // Build update query dynamically
+    // Values can be strings, booleans, numbers, or JSON strings
+    type QueryValue = string | boolean | number | null;
     const updates: string[] = [];
-    const values: any[] = [];
+    const values: QueryValue[] = [];
     let paramIndex = 1;
 
     if (updateDto.name !== undefined) {
@@ -223,38 +240,38 @@ export class DesignService {
       values.push(updateDto.is_active);
     }
     if (updateDto.colors !== undefined) {
-      // Merge with existing colors
-      const mergedColors = { ...existing.rows[0].colors, ...updateDto.colors };
+      // Deep merge with existing colors to preserve nested properties
+      const mergedColors = deepMerge(existing.rows[0].colors || {}, updateDto.colors);
       updates.push(`colors = $${paramIndex++}`);
       values.push(JSON.stringify(mergedColors));
     }
     if (updateDto.buttons !== undefined) {
-      const mergedButtons = { ...existing.rows[0].buttons, ...updateDto.buttons };
+      const mergedButtons = deepMerge(existing.rows[0].buttons || {}, updateDto.buttons);
       updates.push(`buttons = $${paramIndex++}`);
       values.push(JSON.stringify(mergedButtons));
     }
     if (updateDto.typography !== undefined) {
-      const mergedTypography = { ...existing.rows[0].typography, ...updateDto.typography };
+      const mergedTypography = deepMerge(existing.rows[0].typography || {}, updateDto.typography);
       updates.push(`typography = $${paramIndex++}`);
       values.push(JSON.stringify(mergedTypography));
     }
     if (updateDto.inputs !== undefined) {
-      const mergedInputs = { ...existing.rows[0].inputs, ...updateDto.inputs };
+      const mergedInputs = deepMerge(existing.rows[0].inputs || {}, updateDto.inputs);
       updates.push(`inputs = $${paramIndex++}`);
       values.push(JSON.stringify(mergedInputs));
     }
     if (updateDto.cards !== undefined) {
-      const mergedCards = { ...existing.rows[0].cards, ...updateDto.cards };
+      const mergedCards = deepMerge(existing.rows[0].cards || {}, updateDto.cards);
       updates.push(`cards = $${paramIndex++}`);
       values.push(JSON.stringify(mergedCards));
     }
     if (updateDto.badges !== undefined) {
-      const mergedBadges = { ...existing.rows[0].badges, ...updateDto.badges };
+      const mergedBadges = deepMerge(existing.rows[0].badges || {}, updateDto.badges);
       updates.push(`badges = $${paramIndex++}`);
       values.push(JSON.stringify(mergedBadges));
     }
     if (updateDto.alerts !== undefined) {
-      const mergedAlerts = { ...existing.rows[0].alerts, ...updateDto.alerts };
+      const mergedAlerts = deepMerge(existing.rows[0].alerts || {}, updateDto.alerts);
       updates.push(`alerts = $${paramIndex++}`);
       values.push(JSON.stringify(mergedAlerts));
     }
@@ -297,10 +314,7 @@ export class DesignService {
     userId: number | undefined,
     request: AuthRequest,
   ): Promise<void> {
-    const pool = this.databaseService.getPool();
-    if (!pool) {
-      throw new Error('Database pool not available');
-    }
+    const pool = this.databaseService.ensurePool();
 
     // Check if scheme exists and is not default
     const existing = await pool.query(
@@ -342,10 +356,7 @@ export class DesignService {
     userId: number | undefined,
     request: AuthRequest,
   ): Promise<ColorSchemeResponseDto> {
-    const pool = this.databaseService.getPool();
-    if (!pool) {
-      throw new Error('Database pool not available');
-    }
+    const pool = this.databaseService.ensurePool();
 
     // Check if scheme exists
     const existing = await pool.query(
@@ -391,10 +402,7 @@ export class DesignService {
     userId: number | undefined,
     request: AuthRequest,
   ): Promise<ColorSchemeResponseDto> {
-    const pool = this.databaseService.getPool();
-    if (!pool) {
-      throw new Error('Database pool not available');
-    }
+    const pool = this.databaseService.ensurePool();
 
     // Get the original scheme
     const original = await pool.query(
@@ -450,10 +458,7 @@ export class DesignService {
    * Public endpoint for dark mode toggle functionality
    */
   async getSchemeModes(): Promise<{ lightSchemeId: number | null; darkSchemeId: number | null }> {
-    const pool = this.databaseService.getPool();
-    if (!pool) {
-      throw new Error('Database pool not available');
-    }
+    const pool = this.databaseService.ensurePool();
 
     const lightResult = await pool.query(
       'SELECT id FROM color_schemes WHERE is_light_scheme = true LIMIT 1',
@@ -478,10 +483,7 @@ export class DesignService {
     userId: number | undefined,
     request: AuthRequest,
   ): Promise<ColorSchemeResponseDto> {
-    const pool = this.databaseService.getPool();
-    if (!pool) {
-      throw new Error('Database pool not available');
-    }
+    const pool = this.databaseService.ensurePool();
 
     // Check if scheme exists
     const existing = await pool.query(
@@ -529,10 +531,7 @@ export class DesignService {
     userId: number | undefined,
     request: AuthRequest,
   ): Promise<ColorSchemeResponseDto> {
-    const pool = this.databaseService.getPool();
-    if (!pool) {
-      throw new Error('Database pool not available');
-    }
+    const pool = this.databaseService.ensurePool();
 
     // Check if scheme exists
     const existing = await pool.query(
@@ -579,10 +578,7 @@ export class DesignService {
     _userId: number | undefined,
     _request: AuthRequest,
   ): Promise<ColorSchemeResponseDto> {
-    const pool = this.databaseService.getPool();
-    if (!pool) {
-      throw new Error('Database pool not available');
-    }
+    const pool = this.databaseService.ensurePool();
 
     const result = await pool.query(
       'UPDATE color_schemes SET is_light_scheme = false, updated_at = CURRENT_TIMESTAMP WHERE id = $1 RETURNING *',
@@ -604,10 +600,7 @@ export class DesignService {
     _userId: number | undefined,
     _request: AuthRequest,
   ): Promise<ColorSchemeResponseDto> {
-    const pool = this.databaseService.getPool();
-    if (!pool) {
-      throw new Error('Database pool not available');
-    }
+    const pool = this.databaseService.ensurePool();
 
     const result = await pool.query(
       'UPDATE color_schemes SET is_dark_scheme = false, updated_at = CURRENT_TIMESTAMP WHERE id = $1 RETURNING *',

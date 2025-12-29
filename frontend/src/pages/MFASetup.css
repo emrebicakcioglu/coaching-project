@@ -1,9 +1,15 @@
 /**
  * MFA Setup Page Styles
  * STORY-005C: MFA UI (Frontend)
+ * STORY-107: MFA Settings Page UI Audit - Improved styling
  *
  * Styles for the multi-step MFA setup wizard.
  * Features progress indicator, QR code display, and responsive design.
+ *
+ * STORY-107 Changes:
+ * - Enhanced card shadow for better visual prominence
+ * - Improved stepper line styling (thicker, colored)
+ * - SVG icon styling for consistent iconography
  */
 
 /* ========================================
@@ -15,7 +21,9 @@
   margin: 0 auto;
   background-color: #ffffff;
   border-radius: 16px;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+  /* STORY-107: Enhanced card shadow for better visual prominence */
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e7eb;
   overflow: hidden;
 }
 
@@ -63,23 +71,28 @@
   position: relative;
 }
 
+/* STORY-107: Improved stepper line styling - thicker and more prominent */
 .mfa-setup__step::after {
   content: '';
   position: absolute;
-  top: 12px;
+  top: 13px;
   left: 50%;
   width: 100%;
-  height: 2px;
-  background-color: #e5e7eb;
+  height: 3px;
+  background-color: #d1d5db;
   z-index: 0;
+  border-radius: 2px;
+  transition: background-color 0.3s ease;
 }
 
 .mfa-setup__step:last-child::after {
   display: none;
 }
 
+/* STORY-107: Active step line is colored and thicker */
 .mfa-setup__step--active::after {
   background-color: #2563eb;
+  box-shadow: 0 0 4px rgba(37, 99, 235, 0.3);
 }
 
 .mfa-setup__step-number {
@@ -157,7 +170,14 @@
   background-color: #eff6ff;
   border: 3px solid #2563eb;
   border-radius: 50%;
-  font-size: 2.5rem;
+}
+
+/* STORY-107: SVG icon styling for consistent iconography */
+.mfa-setup__icon-svg {
+  width: 40px;
+  height: 40px;
+  color: #2563eb;
+  stroke-width: 2;
 }
 
 .mfa-setup__benefits {
@@ -264,7 +284,9 @@
 
 .mfa-setup__copy-button {
   padding: 10px;
-  font-size: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: none;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
@@ -275,6 +297,22 @@
 .mfa-setup__copy-button:hover {
   background-color: #f3f4f6;
   border-color: #d1d5db;
+}
+
+/* STORY-107: Copy icon SVG styling */
+.mfa-setup__copy-icon {
+  width: 20px;
+  height: 20px;
+  color: #6b7280;
+  transition: color 0.2s ease;
+}
+
+.mfa-setup__copy-button:hover .mfa-setup__copy-icon {
+  color: #374151;
+}
+
+.mfa-setup__copy-icon--success {
+  color: #10b981;
 }
 
 .mfa-setup__code-input {
@@ -314,7 +352,14 @@
   background-color: #ecfdf5;
   border: 3px solid #10b981;
   border-radius: 50%;
-  font-size: 2.5rem;
+}
+
+/* STORY-107: Success icon SVG variant styling */
+.mfa-setup__icon-svg--success {
+  width: 40px;
+  height: 40px;
+  color: #10b981;
+  stroke-width: 2;
 }
 
 .mfa-setup__success-info {
@@ -398,6 +443,14 @@
   background-color: #fef2f2;
   border: 1px solid #fecaca;
   border-radius: 10px;
+}
+
+/* STORY-107: Error icon SVG styling */
+.mfa-setup__error-icon {
+  width: 20px;
+  height: 20px;
+  color: #dc2626;
+  flex-shrink: 0;
 }
 
 /* ========================================

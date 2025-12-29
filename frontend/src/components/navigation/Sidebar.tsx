@@ -44,6 +44,7 @@ import { SubNavigation } from './SubNavigation';
 import { UserProfile } from './UserProfile';
 import { Logo } from './Logo';
 import { DarkModeToggle } from './DarkModeToggle';
+import { LanguageSelector } from './LanguageSelector';
 import { VersionFooter } from '../about';
 
 /**
@@ -275,8 +276,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
             />
           </div>
 
-          {/* Dark Mode Toggle */}
-          <DarkModeToggle variant="icon" data-testid="dark-mode-toggle-mobile" />
+          {/* Dark Mode Toggle & Language Selector */}
+          <div className="flex items-center">
+            <DarkModeToggle variant="icon" data-testid="dark-mode-toggle-mobile" />
+            <LanguageSelector variant="icon" data-testid="language-selector-mobile" />
+          </div>
         </header>
 
         {/* Backdrop */}
@@ -326,7 +330,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               className="
                 min-w-[44px] min-h-[44px]
                 flex items-center justify-center
-                text-neutral-500 hover:text-neutral-700
+                text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]
                 focus:outline-none focus:ring-2 focus:ring-primary-500
                 rounded-md
                 -mr-2
@@ -422,15 +426,23 @@ export const Sidebar: React.FC<SidebarProps> = ({
           />
         </div>
 
+        {/* Language Selector */}
+        <div className="px-2 py-1">
+          <LanguageSelector
+            variant={isCollapsed ? 'icon' : 'full'}
+            data-testid="language-selector-desktop"
+          />
+        </div>
+
         {/* Collapse Toggle */}
-        <div className="p-2 border-t border-neutral-100">
+        <div className="p-2 border-t border-[var(--color-border-default)]">
           <button
             type="button"
             className="
               w-full
               min-h-[44px]
               flex items-center justify-center
-              text-neutral-500 hover:text-neutral-700
+              text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]
               hover:bg-[var(--color-background-surface)]
               focus:outline-none focus:ring-2 focus:ring-primary-500
               rounded-md

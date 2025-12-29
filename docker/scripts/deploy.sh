@@ -388,7 +388,17 @@ check_health() {
 }
 
 check_api_health() {
-    local response=$(curl -sf http://localhost:14102/api/health 2>/dev/null)
+    # Use readiness endpoint for comprehensive health check (002-REWORK-002)
+    local response=$(curl -sf http://localhost:14102/api/health/ready 2>/dev/null)
+    if [ $? -eq 0 ]; then
+        return 0
+    fi
+    return 1
+}
+
+check_api_liveness() {
+    # Use liveness endpoint for fast health check (002-REWORK-002)
+    local response=$(curl -sf http://localhost:14102/api/health/live 2>/dev/null)
     if [ $? -eq 0 ]; then
         return 0
     fi
@@ -399,10 +409,12 @@ check_api_health() {
 print_service_urls() {
     echo ""
     print_info "Service URLs:"
-    echo "  - Frontend:     http://localhost (or configured domain)"
-    echo "  - API:          http://localhost:14102/api/v1"
-    echo "  - API Health:   http://localhost:14102/api/health"
-    echo "  - MinIO Console: http://localhost:14105"
+    echo "  - Frontend:        http://localhost (or configured domain)"
+    echo "  - API:             http://localhost:14102/api/v1"
+    echo "  - API Health:      http://localhost:14102/api/health"
+    echo "  - API Liveness:    http://localhost:14102/api/health/live"
+    echo "  - API Readiness:   http://localhost:14102/api/health/ready"
+    echo "  - MinIO Console:   http://localhost:14105"
     echo ""
 }
 

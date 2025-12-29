@@ -158,7 +158,8 @@ export const ResponsiveModal: React.FC<ResponsiveModalProps> = ({
   if (isMobile) {
     return (
       <div
-        className="fixed inset-0 z-[var(--z-modal)] flex flex-col bg-white"
+        className="fixed inset-0 z-[var(--z-modal)] flex flex-col"
+        style={{ backgroundColor: 'var(--color-background-modal, #ffffff)' }}
         role="dialog"
         aria-modal="true"
         aria-labelledby={title ? titleId : undefined}
@@ -169,11 +170,13 @@ export const ResponsiveModal: React.FC<ResponsiveModalProps> = ({
         tabIndex={-1}
       >
         {/* Header */}
-        <div className="flex-shrink-0 flex items-center justify-between p-4 border-b border-neutral-200">
+        <div className="flex-shrink-0 flex items-center justify-between p-4 border-b" style={{ borderColor: 'var(--color-border-default, #e5e7eb)' }}>
           {title && (
             <h2
               id={titleId}
-              className="text-lg font-semibold text-neutral-900"
+              className="text-lg font-semibold"
+              style={{ color: 'var(--color-text-primary, #111827)' }}
+              data-testid={`${testId}-title`}
             >
               {title}
             </h2>
@@ -184,11 +187,11 @@ export const ResponsiveModal: React.FC<ResponsiveModalProps> = ({
               className="
                 min-w-[44px] min-h-[44px]
                 flex items-center justify-center
-                text-neutral-500 hover:text-neutral-700
                 focus:outline-none focus:ring-2 focus:ring-primary-500
                 rounded-md
                 -mr-2
               "
+              style={{ color: 'var(--color-text-secondary, #6b7280)' }}
               onClick={onClose}
               aria-label="Close modal"
               data-testid={`${testId}-close-button`}
@@ -227,7 +230,11 @@ export const ResponsiveModal: React.FC<ResponsiveModalProps> = ({
         {/* Footer */}
         {footer && (
           <div
-            className="flex-shrink-0 p-4 border-t border-neutral-200 bg-neutral-50"
+            className="flex-shrink-0 p-4 border-t"
+            style={{
+              borderColor: 'var(--color-border-default, #e5e7eb)',
+              backgroundColor: 'var(--color-background-surface, #f9fafb)'
+            }}
             data-testid={`${testId}-footer`}
           >
             {footer}
@@ -270,13 +277,13 @@ export const ResponsiveModal: React.FC<ResponsiveModalProps> = ({
             relative
             w-full
             ${sizeClasses[size]}
-            bg-white
             rounded-lg
             shadow-xl
             transform
             transition-all duration-300
             ${className}
           `}
+          style={{ backgroundColor: 'var(--color-background-modal, #ffffff)' }}
           role="dialog"
           aria-modal="true"
           aria-labelledby={title ? titleId : undefined}
@@ -289,11 +296,13 @@ export const ResponsiveModal: React.FC<ResponsiveModalProps> = ({
         >
           {/* Header */}
           {(title || showCloseButton) && (
-            <div className="flex items-center justify-between p-4 border-b border-neutral-200">
+            <div className="flex items-center justify-between p-4 border-b" style={{ borderColor: 'var(--color-border-default, #e5e7eb)' }}>
               {title && (
                 <h2
                   id={titleId}
-                  className="text-lg font-semibold text-neutral-900"
+                  className="text-lg font-semibold"
+                  style={{ color: 'var(--color-text-primary, #111827)' }}
+                  data-testid={`${testId}-title`}
                 >
                   {title}
                 </h2>
@@ -304,11 +313,11 @@ export const ResponsiveModal: React.FC<ResponsiveModalProps> = ({
                   className="
                     min-w-[44px] min-h-[44px]
                     flex items-center justify-center
-                    text-neutral-500 hover:text-neutral-700
                     focus:outline-none focus:ring-2 focus:ring-primary-500
                     rounded-md
                     -mr-2 ml-auto
                   "
+                  style={{ color: 'var(--color-text-secondary, #6b7280)' }}
                   onClick={onClose}
                   aria-label="Close modal"
                   data-testid={`${testId}-close-button`}
@@ -348,7 +357,11 @@ export const ResponsiveModal: React.FC<ResponsiveModalProps> = ({
           {/* Footer */}
           {footer && (
             <div
-              className="p-4 border-t border-neutral-200 bg-neutral-50 rounded-b-lg"
+              className="p-4 border-t rounded-b-lg"
+              style={{
+                borderColor: 'var(--color-border-default, #e5e7eb)',
+                backgroundColor: 'var(--color-background-surface, #f9fafb)'
+              }}
               data-testid={`${testId}-footer`}
             >
               {footer}

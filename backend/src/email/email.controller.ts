@@ -325,7 +325,7 @@ export class EmailController {
   @ApiResponse({ status: 403, description: 'Forbidden - Admin only' })
   async getQueueItems(@Query() filter: QueueFilterDto): Promise<QueueItemResponseDto[]> {
     return this.queueService.getQueueItems({
-      status: filter.status as any,
+      status: filter.status,
       template_name: filter.template_name,
       recipient: filter.recipient,
       start_date: filter.start_date ? new Date(filter.start_date) : undefined,

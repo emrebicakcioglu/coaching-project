@@ -7,6 +7,7 @@
 
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsString, IsEmail, IsOptional, IsNumber, IsObject, Min, Max, IsDateString, IsIn } from 'class-validator';
+import { EmailQueueStatus } from '../../database/types';
 
 /**
  * DTO for sending an email (queued)
@@ -80,7 +81,7 @@ export class QueueFilterDto {
   @IsOptional()
   @IsString()
   @IsIn(['pending', 'processing', 'sent', 'failed', 'cancelled'])
-  status?: string;
+  status?: EmailQueueStatus;
 
   @ApiPropertyOptional({
     description: 'Filter by template name',

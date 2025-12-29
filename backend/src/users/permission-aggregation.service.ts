@@ -59,10 +59,7 @@ export class PermissionAggregationService {
       }
     }
 
-    const pool = this.databaseService.getPool();
-    if (!pool) {
-      throw new Error('Database pool not available');
-    }
+    const pool = this.databaseService.ensurePool();
 
     // Query to get all distinct permissions from all user roles
     const result = await pool.query<{ name: string }>(
@@ -98,10 +95,7 @@ export class PermissionAggregationService {
    * @returns Array of permission objects with id, name, and category
    */
   async getUserPermissionsDetailed(userId: number): Promise<AggregatedPermission[]> {
-    const pool = this.databaseService.getPool();
-    if (!pool) {
-      throw new Error('Database pool not available');
-    }
+    const pool = this.databaseService.ensurePool();
 
     const result = await pool.query<AggregatedPermission>(
       `SELECT DISTINCT p.id, p.name, p.category
@@ -138,6 +132,35 @@ export class PermissionAggregationService {
   }
 
   /**
+   * Check if a permission matches against the user's permission set
+   * Synchronous helper to avoid async overhead when checking multiple permissions
+   *
+   * @param userPermissions - Array of user's permission names
+   * @param permissionName - Permission name to check
+   * @returns True if user has the permission
+   */
+  private matchesPermission(userPermissions: string[], permissionName: string): boolean {
+    // Check for exact match
+    if (userPermissions.includes(permissionName)) {
+      return true;
+    }
+
+    // Check for wildcard permissions (e.g., users.* matches users.create)
+    const [category] = permissionName.split('.');
+    const wildcardPermission = `${category}.*`;
+    if (userPermissions.includes(wildcardPermission)) {
+      return true;
+    }
+
+    // Check for super admin permission
+    if (userPermissions.includes('system.admin') || userPermissions.includes('*')) {
+      return true;
+    }
+
+    return false;
+  }
+
+  /**
    * Check if a user has a specific permission
    *
    * @param userId - User ID
@@ -146,57 +169,33 @@ export class PermissionAggregationService {
    */
   async hasPermission(userId: number, permissionName: string): Promise<boolean> {
     const permissions = await this.getUserPermissions(userId);
-
-    // Check for exact match
-    if (permissions.includes(permissionName)) {
-      return true;
-    }
-
-    // Check for wildcard permissions (e.g., users.* matches users.create)
-    const [category] = permissionName.split('.');
-    const wildcardPermission = `${category}.*`;
-    if (permissions.includes(wildcardPermission)) {
-      return true;
-    }
-
-    // Check for super admin permission
-    if (permissions.includes('system.admin') || permissions.includes('*')) {
-      return true;
-    }
-
-    return false;
+    return this.matchesPermission(permissions, permissionName);
   }
 
   /**
    * Check if a user has any of the specified permissions
+   * Optimized: Fetches permissions once and checks all synchronously
    *
    * @param userId - User ID
    * @param permissionNames - Array of permission names to check
    * @returns True if user has at least one of the permissions
    */
   async hasAnyPermission(userId: number, permissionNames: string[]): Promise<boolean> {
-    for (const permission of permissionNames) {
-      if (await this.hasPermission(userId, permission)) {
-        return true;
-      }
-    }
-    return false;
+    const permissions = await this.getUserPermissions(userId);
+    return permissionNames.some((perm) => this.matchesPermission(permissions, perm));
   }
 
   /**
    * Check if a user has all of the specified permissions
+   * Optimized: Fetches permissions once and checks all synchronously
    *
    * @param userId - User ID
    * @param permissionNames - Array of permission names to check
    * @returns True if user has all of the permissions
    */
   async hasAllPermissions(userId: number, permissionNames: string[]): Promise<boolean> {
-    for (const permission of permissionNames) {
-      if (!(await this.hasPermission(userId, permission))) {
-        return false;
-      }
-    }
-    return true;
+    const permissions = await this.getUserPermissions(userId);
+    return permissionNames.every((perm) => this.matchesPermission(permissions, perm));
   }
 
   /**

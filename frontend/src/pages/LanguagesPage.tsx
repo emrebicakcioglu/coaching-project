@@ -12,8 +12,11 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Container } from '../components/layout';
+import { Button, Card } from '../components/ui';
 import { useAuth } from '../contexts';
 import { languagesService, Language, CreateLanguageDto, UpdateLanguageDto } from '../services/languagesService';
+import { logger } from '../services/loggerService';
 
 // Styles
 const styles = {
@@ -56,24 +59,25 @@ const styles = {
   secondaryButton: {
     backgroundColor: 'var(--color-background-card)',
     color: 'var(--color-text-primary)',
-    border: '1px solid var(--color-border)',
+    border: '1px solid var(--color-border-default)',
   },
   dangerButton: {
     backgroundColor: '#dc2626',
     color: 'white',
   },
   section: {
-    backgroundColor: 'var(--color-background-card)',
+    backgroundColor: 'var(--color-background-card, #ffffff)',
     borderRadius: '8px',
-    padding: '20px',
+    padding: '24px',
     marginBottom: '24px',
-    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+    border: '1px solid var(--color-border-default, #e5e7eb)',
+    boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)',
   },
   sectionTitle: {
-    fontSize: '16px',
+    fontSize: '1.125rem',
     fontWeight: 600,
     color: 'var(--color-text-primary)',
-    marginBottom: '16px',
+    margin: '0 0 16px 0',
   },
   languageGrid: {
     display: 'flex',
@@ -83,7 +87,7 @@ const styles = {
   languageCard: {
     padding: '16px',
     borderRadius: '8px',
-    border: '2px solid var(--color-border)',
+    border: '2px solid var(--color-border-default)',
     minWidth: '140px',
     textAlign: 'center' as const,
     cursor: 'pointer',
@@ -115,7 +119,7 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'center',
     minHeight: '100px',
-    border: '2px dashed var(--color-border)',
+    border: '2px dashed var(--color-border-default)',
     backgroundColor: 'transparent',
   },
   filterBar: {
@@ -127,7 +131,7 @@ const styles = {
   select: {
     padding: '8px 12px',
     borderRadius: '6px',
-    border: '1px solid var(--color-border)',
+    border: '1px solid var(--color-border-default)',
     backgroundColor: 'var(--color-background-card)',
     color: 'var(--color-text-primary)',
     fontSize: '14px',
@@ -135,7 +139,7 @@ const styles = {
   searchInput: {
     padding: '8px 12px',
     borderRadius: '6px',
-    border: '1px solid var(--color-border)',
+    border: '1px solid var(--color-border-default)',
     backgroundColor: 'var(--color-background-card)',
     color: 'var(--color-text-primary)',
     fontSize: '14px',
@@ -150,13 +154,13 @@ const styles = {
   th: {
     padding: '12px',
     textAlign: 'left' as const,
-    borderBottom: '2px solid var(--color-border)',
+    borderBottom: '2px solid var(--color-border-default)',
     color: 'var(--color-text-secondary)',
     fontWeight: 600,
   },
   td: {
     padding: '12px',
-    borderBottom: '1px solid var(--color-border)',
+    borderBottom: '1px solid var(--color-border-default)',
     color: 'var(--color-text-primary)',
   },
   editableCell: {
@@ -229,7 +233,7 @@ const styles = {
     width: '100%',
     padding: '10px 12px',
     borderRadius: '6px',
-    border: '1px solid var(--color-border)',
+    border: '1px solid var(--color-border-default)',
     backgroundColor: 'var(--color-background-card)',
     color: 'var(--color-text-primary)',
     fontSize: '14px',
@@ -335,7 +339,7 @@ const LanguagesPage: React.FC = () => {
         setSelectedLanguage(data[0].code);
       }
     } catch (error) {
-      console.error('Failed to load languages:', error);
+      logger.error('Failed to load languages', error);
       showToast(t('toast.loadError'), 'error');
     }
   }, [selectedLanguage]);
@@ -348,7 +352,7 @@ const LanguagesPage: React.FC = () => {
       const data = await languagesService.getNamespaces();
       setNamespaces(data);
     } catch (error) {
-      console.error('Failed to load namespaces:', error);
+      logger.error('Failed to load namespaces', error);
     }
   }, []);
 
@@ -372,7 +376,7 @@ const LanguagesPage: React.FC = () => {
 
       setTranslations(translationData);
     } catch (error) {
-      console.error('Failed to load translations:', error);
+      logger.error('Failed to load translations', error);
     }
   }, [languages]);
 
@@ -595,38 +599,40 @@ const LanguagesPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div style={styles.container}>
+      <Container className="py-8">
         <div style={{ textAlign: 'center', padding: '60px 0', color: 'var(--color-text-secondary)' }}>
           {t('loading')}
         </div>
-      </div>
+      </Container>
     );
   }
 
   return (
-    <div style={styles.container}>
+    <Container className="py-8">
       {/* Header */}
-      <div style={styles.header}>
-        <h1 style={styles.title}>{t('title')}</h1>
-        <div style={styles.headerActions}>
-          <button
-            style={{ ...styles.button, ...styles.secondaryButton }}
+      <div className="page-header page-header--with-actions">
+        <div>
+          <h1 className="page-title">{t('title')}</h1>
+        </div>
+        <div className="flex gap-3">
+          <Button
+            variant="outline"
             onClick={() => setShowImportModal(true)}
           >
             {t('importJson')}
-          </button>
-          <button
-            style={{ ...styles.button, ...styles.secondaryButton }}
+          </Button>
+          <Button
+            variant="outline"
             onClick={handleExport}
           >
             {t('exportJson')}
-          </button>
+          </Button>
         </div>
       </div>
 
       {/* Languages Section */}
       <div style={styles.section}>
-        <h2 style={styles.sectionTitle}>{t('availableLanguages')}</h2>
+        <h2 className="card-title mb-4">{t('availableLanguages')}</h2>
         <div style={styles.languageGrid}>
           {languages.map(lang => (
             <div
@@ -647,18 +653,20 @@ const LanguagesPage: React.FC = () => {
               )}
               {!lang.is_default && hasPermission('languages.manage') && (
                 <div style={{ marginTop: '8px', display: 'flex', gap: '8px', justifyContent: 'center' }}>
-                  <button
-                    style={{ ...styles.button, ...styles.secondaryButton, padding: '4px 8px', fontSize: '12px' }}
+                  <Button
+                    variant="outline"
+                    size="sm"
                     onClick={(e) => { e.stopPropagation(); openEditModal(lang); }}
                   >
                     {t('edit')}
-                  </button>
-                  <button
-                    style={{ ...styles.button, ...styles.dangerButton, padding: '4px 8px', fontSize: '12px' }}
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    size="sm"
                     onClick={(e) => { e.stopPropagation(); handleDeleteLanguage(lang.code); }}
                   >
                     {t('delete')}
-                  </button>
+                  </Button>
                 </div>
               )}
             </div>
@@ -679,7 +687,7 @@ const LanguagesPage: React.FC = () => {
 
       {/* Translations Section */}
       <div style={styles.section}>
-        <h2 style={styles.sectionTitle}>{t('translations')}</h2>
+        <h2 className="card-title mb-4">{t('translations')}</h2>
 
         {/* Filter Bar */}
         <div style={styles.filterBar}>
@@ -823,18 +831,18 @@ const LanguagesPage: React.FC = () => {
               />
             </div>
             <div style={styles.modalActions}>
-              <button
-                style={{ ...styles.button, ...styles.secondaryButton }}
+              <Button
+                variant="outline"
                 onClick={() => setShowCreateModal(false)}
               >
                 {t('cancel')}
-              </button>
-              <button
-                style={{ ...styles.button, ...styles.primaryButton }}
+              </Button>
+              <Button
+                variant="primary"
                 onClick={handleCreateLanguage}
               >
                 {t('create')}
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -873,18 +881,18 @@ const LanguagesPage: React.FC = () => {
               />
             </div>
             <div style={styles.modalActions}>
-              <button
-                style={{ ...styles.button, ...styles.secondaryButton }}
+              <Button
+                variant="outline"
                 onClick={() => setShowEditModal(false)}
               >
                 {t('cancel')}
-              </button>
-              <button
-                style={{ ...styles.button, ...styles.primaryButton }}
+              </Button>
+              <Button
+                variant="primary"
                 onClick={handleUpdateLanguage}
               >
                 {t('save')}
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -931,18 +939,18 @@ const LanguagesPage: React.FC = () => {
               </label>
             </div>
             <div style={styles.modalActions}>
-              <button
-                style={{ ...styles.button, ...styles.secondaryButton }}
+              <Button
+                variant="outline"
                 onClick={() => setShowImportModal(false)}
               >
                 {t('cancel')}
-              </button>
-              <button
-                style={{ ...styles.button, ...styles.primaryButton }}
+              </Button>
+              <Button
+                variant="primary"
                 onClick={handleImport}
               >
                 {t('import')}
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -954,7 +962,7 @@ const LanguagesPage: React.FC = () => {
           {toast.message}
         </div>
       )}
-    </div>
+    </Container>
   );
 };
 

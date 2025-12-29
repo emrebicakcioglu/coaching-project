@@ -2,31 +2,26 @@
  * Users Page Styles
  * STORY-007B: User Role Assignment
  * STORY-006B: User CRUD Frontend UI
+ * STORY-104: Users Page UI Audit
  *
  * Styling for UsersListPage and UserDetailsPage
+ *
+ * STORY-104 Changes:
+ * - Removed custom action button styles (now using Button component)
+ * - Removed custom status badge styles (now using Badge component)
+ * - Updated table column widths for better spacing
+ * - Removed "Keine Rollen" styles (now using Badge component)
  */
 
-/* Common page styles */
-.users-page {
-  padding: 24px;
-  max-width: 1200px;
-  margin: 0 auto;
-}
+/**
+ * Users Page Specific Styles
+ *
+ * Note: Page header and title now use global utilities:
+ * - .page-header, .page-title, .page-subtitle (globals.css)
+ * - Container component for layout
+ */
 
-.users-page__header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
-}
-
-.users-page__title {
-  font-size: 24px;
-  font-weight: 600;
-  color: var(--color-text-primary, #1f2937);
-  margin: 0;
-}
-
+/* Back button for details page */
 .users-page__back-btn {
   padding: 8px 16px;
   font-size: 14px;
@@ -41,22 +36,6 @@
 .users-page__back-btn:hover {
   background: var(--color-background-surface, #f9fafb);
   border-color: var(--color-text-tertiary, #9ca3af);
-}
-
-.users-page__create-btn {
-  padding: 10px 20px;
-  font-size: 14px;
-  font-weight: 500;
-  color: white;
-  background: #3b82f6;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-}
-
-.users-page__create-btn:hover {
-  background: #2563eb;
 }
 
 .users-page__loading {
@@ -97,6 +76,12 @@
   border: 1px solid var(--color-border-default, #d1d5db);
   border-radius: 6px;
   transition: border-color 0.2s ease;
+  background: var(--color-background-input, white);
+  color: var(--color-text-primary, #374151);
+}
+
+.users-list__search::placeholder {
+  color: var(--color-text-muted, #9ca3af);
 }
 
 .users-list__search:focus {
@@ -182,57 +167,42 @@
   gap: 4px;
 }
 
+/* STORY-104: "Keine Rollen" now uses Badge component
+   Keeping class for backwards compatibility */
 .users-list__no-roles {
-  color: var(--color-text-tertiary, #9ca3af);
-  font-size: 12px;
-  font-style: italic;
+  /* Styles moved to Badge component */
 }
 
-/* Status badges */
+/* STORY-104: Status badges now use Badge component
+   Keeping classes for backwards compatibility */
 .users-list__status {
-  display: inline-block;
-  padding: 4px 10px;
-  font-size: 12px;
-  font-weight: 500;
-  border-radius: 12px;
-  text-transform: capitalize;
+  /* Styles moved to Badge component */
 }
 
 .users-list__status--active {
-  color: #15803d;
-  background: #dcfce7;
+  /* Styles moved to Badge component */
 }
 
 .users-list__status--inactive {
-  color: var(--color-text-secondary, #6b7280);
-  background: var(--color-background-surface, #f3f4f6);
+  /* Styles moved to Badge component */
 }
 
 .users-list__status--suspended {
-  color: #b45309;
-  background: #fef3c7;
+  /* Styles moved to Badge component */
 }
 
 .users-list__status--deleted {
-  color: #b91c1c;
-  background: #fee2e2;
+  /* Styles moved to Badge component */
 }
 
-/* Action buttons */
+/* STORY-104: Action buttons now use Button component
+   Keeping classes for backwards compatibility */
 .users-list__action-btn {
-  padding: 6px 12px;
-  font-size: 13px;
-  color: #3b82f6;
-  background: transparent;
-  border: 1px solid #3b82f6;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.2s ease;
+  /* Styles moved to Button component */
 }
 
 .users-list__action-btn:hover {
-  color: white;
-  background: #3b82f6;
+  /* Styles moved to Button component */
 }
 
 /* Empty state */
@@ -407,46 +377,44 @@
   z-index: 9999;
 }
 
-/* STORY-006B: Action buttons group */
+/* STORY-006B/STORY-104: Action buttons group */
 .users-list__actions {
   display: flex;
   gap: 8px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  align-items: center;
 }
 
+/* STORY-104: Updated actions column width for consistent spacing */
 .users-list__cell--actions {
-  width: 280px;
+  width: 260px;
+  min-width: 260px;
 }
 
-/* STORY-006B: Action button variants */
+/* STORY-104: Action button variants now use Button component
+   Keeping classes for backwards compatibility */
 .users-list__action-btn--view {
-  color: #3b82f6;
-  border-color: #3b82f6;
+  /* Styles moved to Button component */
 }
 
 .users-list__action-btn--view:hover {
-  color: white;
-  background: #3b82f6;
+  /* Styles moved to Button component */
 }
 
 .users-list__action-btn--edit {
-  color: #059669;
-  border-color: #059669;
+  /* Styles moved to Button component */
 }
 
 .users-list__action-btn--edit:hover {
-  color: white;
-  background: #059669;
+  /* Styles moved to Button component */
 }
 
 .users-list__action-btn--delete {
-  color: #dc2626;
-  border-color: #dc2626;
+  /* Styles moved to Button component */
 }
 
 .users-list__action-btn--delete:hover {
-  color: white;
-  background: #dc2626;
+  /* Styles moved to Button component */
 }
 
 /* Responsive adjustments for STORY-006B */
@@ -461,20 +429,6 @@
 }
 
 @media (max-width: 768px) {
-  .users-page {
-    padding: 16px;
-  }
-
-  .users-page__header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 16px;
-  }
-
-  .users-page__create-btn {
-    width: 100%;
-  }
-
   .users-list__filters {
     flex-direction: column;
   }
@@ -486,11 +440,6 @@
   .users-list__actions {
     flex-direction: column;
     gap: 4px;
-  }
-
-  .users-list__action-btn {
-    width: 100%;
-    text-align: center;
   }
 
   .users-page__toast-container {

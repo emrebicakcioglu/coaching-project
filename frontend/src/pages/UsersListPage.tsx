@@ -2,17 +2,27 @@
  * Users List Page
  * STORY-007B: User Role Assignment
  * STORY-006B: User CRUD Frontend UI
+ * STORY-104: Users Page UI Audit
  *
  * Page for displaying a list of users with their roles.
  * Shows role badges for each user in the list.
  * Includes modals for creating, editing, and deleting users.
+ *
+ * UI Audit Fixes (STORY-104):
+ * - Action buttons use consistent ghost/outline variants
+ * - "Keine Rollen" styled as neutral badge
+ * - Status badges use standardized Badge component
+ * - Role badges use updated color scheme (Manager=orange)
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Container } from '../components/layout';
 import { RoleBadge, UserCreateModal, UserEditModal, UserDeleteDialog } from '../components/users';
 import { Toast } from '../components/feedback';
+import { Badge, Button, getStatusBadgeVariant } from '../components/ui';
 import { usersService } from '../services/usersService';
+import { logger } from '../services/loggerService';
 import { useAuth } from '../contexts/AuthContext';
 import type { User, PaginatedResponse } from '../services/usersService';
 import type { ToastType } from '../components/feedback';
@@ -75,7 +85,7 @@ export const UsersListPage: React.FC = () => {
       setUsers(response.data);
       setPagination(response.pagination);
     } catch (err) {
-      console.error('Failed to load users:', err);
+      logger.error('Failed to load users', err);
       setError(t('error'));
     } finally {
       setIsLoading(false);
@@ -194,24 +204,6 @@ export const UsersListPage: React.FC = () => {
   };
 
   /**
-   * Get status badge class
-   */
-  const getStatusClass = (status: string): string => {
-    switch (status) {
-      case 'active':
-        return 'users-list__status--active';
-      case 'inactive':
-        return 'users-list__status--inactive';
-      case 'suspended':
-        return 'users-list__status--suspended';
-      case 'deleted':
-        return 'users-list__status--deleted';
-      default:
-        return '';
-    }
-  };
-
-  /**
    * Get localized status text
    */
   const getStatusText = (status: string): string => {
@@ -220,7 +212,7 @@ export const UsersListPage: React.FC = () => {
   };
 
   return (
-    <div className="users-page" data-testid="users-list-page">
+    <Container className="py-8" data-testid="users-list-page">
       {/* Toast notifications */}
       {toast && (
         <div className="users-page__toast-container">
@@ -234,17 +226,18 @@ export const UsersListPage: React.FC = () => {
       )}
 
       {/* Page header */}
-      <div className="users-page__header">
-        <h1 className="users-page__title">{t('title')}</h1>
+      <div className="page-header page-header--with-actions">
+        <div>
+          <h1 className="page-title">{t('title')}</h1>
+        </div>
         {hasPermission('users.create') && (
-          <button
-            type="button"
-            className="users-page__create-btn"
+          <Button
+            variant="primary"
             onClick={handleOpenCreateModal}
             data-testid="create-user-button"
           >
             {t('newUser')}
-          </button>
+          </Button>
         )}
       </div>
 
@@ -330,9 +323,13 @@ export const UsersListPage: React.FC = () => {
                         {user.email}
                       </td>
                       <td className="users-list__cell users-list__cell--status">
-                        <span className={`users-list__status ${getStatusClass(user.status)}`}>
+                        <Badge
+                          variant={getStatusBadgeVariant(user.status)}
+                          size="sm"
+                          data-testid={`user-status-${user.id}`}
+                        >
                           {getStatusText(user.status)}
-                        </span>
+                        </Badge>
                       </td>
                       <td className="users-list__cell users-list__cell--roles">
                         <div className="users-list__roles">
@@ -341,7 +338,13 @@ export const UsersListPage: React.FC = () => {
                               <RoleBadge key={role.id} name={role.name} small />
                             ))
                           ) : (
-                            <span className="users-list__no-roles">{t('table.noRoles')}</span>
+                            <Badge
+                              variant="neutral"
+                              size="sm"
+                              data-testid={`user-no-roles-${user.id}`}
+                            >
+                              {t('table.noRoles')}
+                            </Badge>
                           )}
                         </div>
                       </td>
@@ -352,36 +355,36 @@ export const UsersListPage: React.FC = () => {
                       </td>
                       <td className="users-list__cell users-list__cell--actions">
                         <div className="users-list__actions">
-                          <button
-                            type="button"
-                            className="users-list__action-btn users-list__action-btn--view"
+                          <Button
+                            variant="ghost"
+                            size="sm"
                             onClick={() => navigateToUser(user.id)}
                             title={t('actions.detailsTitle')}
                             data-testid={`view-user-${user.id}`}
                           >
                             {t('actions.details')}
-                          </button>
+                          </Button>
                           {hasPermission('users.update') && (
-                            <button
-                              type="button"
-                              className="users-list__action-btn users-list__action-btn--edit"
+                            <Button
+                              variant="ghost"
+                              size="sm"
                               onClick={() => handleOpenEditModal(user)}
                               title={t('actions.editTitle')}
                               data-testid={`edit-user-${user.id}`}
                             >
                               {t('actions.edit')}
-                            </button>
+                            </Button>
                           )}
                           {hasPermission('users.delete') && user.status !== 'deleted' && (
-                            <button
-                              type="button"
-                              className="users-list__action-btn users-list__action-btn--delete"
+                            <Button
+                              variant="destructive"
+                              size="sm"
                               onClick={() => handleOpenDeleteDialog(user)}
                               title={t('actions.deleteTitle')}
                               data-testid={`delete-user-${user.id}`}
                             >
                               {t('actions.delete')}
-                            </button>
+                            </Button>
                           )}
                         </div>
                       </td>
@@ -449,7 +452,7 @@ export const UsersListPage: React.FC = () => {
         user={selectedUser}
         onSuccess={handleUserDeleted}
       />
-    </div>
+    </Container>
   );
 };
 

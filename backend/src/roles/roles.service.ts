@@ -61,10 +61,7 @@ export class RolesService {
    * @returns List of all roles with their details
    */
   async findAll(): Promise<RoleResponseDto[]> {
-    const pool = this.databaseService.getPool();
-    if (!pool) {
-      throw new Error('Database pool not available');
-    }
+    const pool = this.databaseService.ensurePool();
 
     // Get all roles with user counts
     const rolesResult = await pool.query<RoleWithUserCount>(
@@ -103,10 +100,7 @@ export class RolesService {
    * @returns Role or throws NotFoundException
    */
   async findOne(id: number): Promise<RoleResponseDto> {
-    const pool = this.databaseService.getPool();
-    if (!pool) {
-      throw new Error('Database pool not available');
-    }
+    const pool = this.databaseService.ensurePool();
 
     const result = await pool.query<RoleWithUserCount>(
       `SELECT r.*, COALESCE(uc.user_count, 0) as user_count
@@ -144,10 +138,7 @@ export class RolesService {
    * @returns Role or null
    */
   async findByName(name: string): Promise<Role | null> {
-    const pool = this.databaseService.getPool();
-    if (!pool) {
-      throw new Error('Database pool not available');
-    }
+    const pool = this.databaseService.ensurePool();
 
     const result = await pool.query<Role>(
       'SELECT * FROM roles WHERE LOWER(name) = LOWER($1)',
@@ -165,10 +156,7 @@ export class RolesService {
    * @returns Created role
    */
   async create(createRoleDto: CreateRoleDto, request?: AuthRequest): Promise<RoleResponseDto> {
-    const pool = this.databaseService.getPool();
-    if (!pool) {
-      throw new Error('Database pool not available');
-    }
+    const pool = this.databaseService.ensurePool();
 
     const { name, description, permissionIds } = createRoleDto;
 
@@ -248,10 +236,7 @@ export class RolesService {
    * @returns Updated role
    */
   async update(id: number, updateRoleDto: UpdateRoleDto, request?: AuthRequest): Promise<RoleResponseDto> {
-    const pool = this.databaseService.getPool();
-    if (!pool) {
-      throw new Error('Database pool not available');
-    }
+    const pool = this.databaseService.ensurePool();
 
     // Check if role exists
     const existingRole = await this.findOneRaw(id);
@@ -363,10 +348,7 @@ export class RolesService {
    * @returns Deleted role info
    */
   async delete(id: number, request?: AuthRequest): Promise<{ message: string; role: RoleResponseDto }> {
-    const pool = this.databaseService.getPool();
-    if (!pool) {
-      throw new Error('Database pool not available');
-    }
+    const pool = this.databaseService.ensurePool();
 
     // Get the role first (with details for response)
     const role = await this.findOne(id);
@@ -417,10 +399,7 @@ export class RolesService {
    * @returns List of permissions
    */
   async getRolePermissions(roleId: number): Promise<Permission[]> {
-    const pool = this.databaseService.getPool();
-    if (!pool) {
-      return [];
-    }
+    const pool = this.databaseService.ensurePool();
 
     const result = await pool.query<Permission>(
       `SELECT p.*
@@ -441,10 +420,7 @@ export class RolesService {
    * @returns List of permission IDs
    */
   private async getRolePermissionIds(roleId: number): Promise<number[]> {
-    const pool = this.databaseService.getPool();
-    if (!pool) {
-      return [];
-    }
+    const pool = this.databaseService.ensurePool();
 
     const result = await pool.query<{ permission_id: number }>(
       'SELECT permission_id FROM role_permissions WHERE role_id = $1',
@@ -466,10 +442,7 @@ export class RolesService {
     permissionIds: number[],
     request?: AuthRequest,
   ): Promise<RoleResponseDto> {
-    const pool = this.databaseService.getPool();
-    if (!pool) {
-      throw new Error('Database pool not available');
-    }
+    const pool = this.databaseService.ensurePool();
 
     // Check if role exists
     const role = await this.findOneRaw(roleId);
@@ -524,10 +497,7 @@ export class RolesService {
     permissionIds: number[],
     request?: AuthRequest,
   ): Promise<RoleResponseDto> {
-    const pool = this.databaseService.getPool();
-    if (!pool) {
-      throw new Error('Database pool not available');
-    }
+    const pool = this.databaseService.ensurePool();
 
     // Check if role exists
     const role = await this.findOneRaw(roleId);
@@ -569,10 +539,7 @@ export class RolesService {
    * Get raw role data (internal use)
    */
   private async findOneRaw(id: number): Promise<(Role & { is_system?: boolean }) | null> {
-    const pool = this.databaseService.getPool();
-    if (!pool) {
-      return null;
-    }
+    const pool = this.databaseService.ensurePool();
 
     const result = await pool.query<Role & { is_system?: boolean }>(
       'SELECT * FROM roles WHERE id = $1',
@@ -586,10 +553,7 @@ export class RolesService {
    * Validate that all permission IDs exist
    */
   private async validatePermissionIds(permissionIds: number[]): Promise<void> {
-    const pool = this.databaseService.getPool();
-    if (!pool) {
-      throw new Error('Database pool not available');
-    }
+    const pool = this.databaseService.ensurePool();
 
     const result = await pool.query<{ id: number }>(
       'SELECT id FROM permissions WHERE id = ANY($1)',

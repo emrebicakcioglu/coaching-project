@@ -1,0 +1,340 @@
+{
+  "title": "Design System",
+  "subtitle": "Farbschemata und Design-Tokens für die Anwendung verwalten",
+  "loading": "Wird geladen...",
+  "tabs": {
+    "base": "Basis/Theme",
+    "buttons": "Buttons",
+    "typography": "Typografie",
+    "inputs": "Eingabefelder",
+    "cards": "Karten",
+    "badges": "Badges",
+    "alerts": "Meldungen"
+  },
+  "sidebar": {
+    "title": "Farbschemata",
+    "createTooltip": "Neues Schema erstellen",
+    "createNew": "Neues Schema erstellen"
+  },
+  "badges": {
+    "active": "Aktiv",
+    "light": "Hell",
+    "dark": "Dunkel"
+  },
+  "buttons": {
+    "duplicate": "Duplizieren",
+    "applyScheme": "Schema anwenden",
+    "delete": "Löschen",
+    "cancel": "Abbrechen",
+    "create": "Erstellen",
+    "save": "Speichern"
+  },
+  "labels": {
+    "useAsLight": "Als Hellmodus verwenden",
+    "useAsDark": "Als Dunkelmodus verwenden",
+    "useAsLightMode": "Als Hellmodus verwenden",
+    "useAsDarkMode": "Als Dunkelmodus verwenden",
+    "active": "(Aktiv)",
+    "light": "Hell",
+    "dark": "Dunkel",
+    "noDescription": "Keine Beschreibung"
+  },
+  "modal": {
+    "create": {
+      "title": "Farbschema erstellen",
+      "placeholder": "Schema-Name"
+    },
+    "delete": {
+      "title": "Farbschema löschen",
+      "confirm": "Sind Sie sicher, dass Sie \"{{name}}\" löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden."
+    }
+  },
+  "messages": {
+    "schemeCreated": "Farbschema erfolgreich erstellt",
+    "schemeDuplicated": "Farbschema erfolgreich dupliziert",
+    "schemeApplied": "Farbschema erfolgreich angewendet",
+    "schemeDeleted": "Farbschema erfolgreich gelöscht",
+    "lightModeSet": "Schema als Hellmodus festgelegt",
+    "lightModeCleared": "Hellmodus zurückgesetzt",
+    "darkModeSet": "Schema als Dunkelmodus festgelegt",
+    "darkModeCleared": "Dunkelmodus zurückgesetzt"
+  },
+  "errors": {
+    "loadFailed": "Farbschemata konnten nicht geladen werden",
+    "createFailed": "Farbschema konnte nicht erstellt werden",
+    "duplicateFailed": "Farbschema konnte nicht dupliziert werden",
+    "applyFailed": "Farbschema konnte nicht angewendet werden",
+    "deleteFailed": "Farbschema konnte nicht gelöscht werden",
+    "updateColor": "Farbe konnte nicht aktualisiert werden",
+    "updateLightMode": "Hellmodus konnte nicht aktualisiert werden",
+    "updateDarkMode": "Dunkelmodus konnte nicht aktualisiert werden"
+  },
+  "descriptions": {
+    "newScheme": "Neues benutzerdefiniertes Farbschema",
+    "copy": "(Kopie)"
+  },
+  "sections": {
+    "colorPalette": "Farbpalette",
+    "quickPreview": "Schnellvorschau",
+    "primaryColors": "Primärfarben",
+    "backgroundColors": "Hintergrundfarben",
+    "textColors": "Textfarben",
+    "statusColors": "Statusfarben",
+    "borderColors": "Rahmenfarben",
+    "buttonStyles": "Button-Stile",
+    "fontFamilies": "Schriftarten",
+    "headings": "Überschriften",
+    "bodyText": "Fließtext",
+    "labels": "Labels",
+    "code": "Code",
+    "inputStyles": "Eingabefeld-Stile",
+    "cardStyles": "Karten-Stile",
+    "badgeStyles": "Badge-Stile",
+    "badgeSizes": "Badge-Größen",
+    "alertStyles": "Meldungs-Stile",
+    "baseColors": "Globale Theme-Farben"
+  },
+  "colors": {
+    "primary": "Primär",
+    "primaryHover": "Primär Hover",
+    "primaryLight": "Primär Hell",
+    "secondary": "Sekundär",
+    "accent": "Akzent",
+    "success": "Erfolg",
+    "successLight": "Erfolg Hell",
+    "warning": "Warnung",
+    "warningLight": "Warnung Hell",
+    "error": "Fehler",
+    "errorLight": "Fehler Hell",
+    "info": "Info",
+    "infoLight": "Info Hell",
+    "pageBackground": "Seitenhintergrund",
+    "cardBackground": "Kartenhintergrund",
+    "sidebarBackground": "Seitenleistenhintergrund",
+    "modalBackground": "Modal-Hintergrund",
+    "inputBackground": "Eingabefeld-Hintergrund",
+    "primaryText": "Primärtext",
+    "secondaryText": "Sekundärtext",
+    "mutedText": "Gedämpfter Text",
+    "inverseText": "Invertierter Text",
+    "linkText": "Link-Text",
+    "borderLight": "Rahmen Hell",
+    "borderDefault": "Rahmen Standard",
+    "borderDark": "Rahmen Dunkel"
+  },
+  "buttonTypes": {
+    "normal": {
+      "label": "Normal Button",
+      "description": "Primärer Aktions-Button"
+    },
+    "inactive": {
+      "label": "Inaktiver Button",
+      "description": "Deaktivierter Zustand"
+    },
+    "abort": {
+      "label": "Abbrechen Button",
+      "description": "Abbrechen/Sekundäre Aktion"
+    },
+    "special": {
+      "label": "Spezieller Button",
+      "description": "Hervorgehobene Aktion"
+    },
+    "danger": {
+      "label": "Gefahr Button",
+      "description": "Destruktive Aktionen"
+    },
+    "success": {
+      "label": "Erfolg Button",
+      "description": "Positive Aktionen"
+    }
+  },
+  "states": {
+    "hover": "Hover-Zustand",
+    "normal": "Normal-Zustand",
+    "error": "Fehler-Zustand",
+    "disabled": "Deaktiviert-Zustand"
+  },
+  "buttonProperties": {
+    "background": "Hintergrund",
+    "text": "Text",
+    "border": "Rahmen",
+    "hoverBackground": "Hover-Hintergrund",
+    "hoverText": "Hover-Text",
+    "hoverBorder": "Hover-Rahmen"
+  },
+  "hints": {
+    "clickToEdit": "Klicken zum Bearbeiten"
+  },
+  "typography": {
+    "primaryFont": "Primäre Schriftart",
+    "monoFont": "Monospace Schriftart"
+  },
+  "placeholders": {
+    "fontFamily": "Inter, system-ui, sans-serif",
+    "monoFont": "ui-monospace, monospace",
+    "textarea": "Längeren Text eingeben...",
+    "normalInput": "Text eingeben...",
+    "errorInput": "Ungültige Eingabe",
+    "disabledInput": "Deaktiviertes Feld"
+  },
+  "preview": {
+    "cardTitle": "Beispiel-Kartentitel",
+    "cardDescription": "Dies ist eine Vorschau, wie Inhalte mit diesem Farbschema aussehen werden.",
+    "primaryButton": "Primär-Button",
+    "secondaryButton": "Sekundär-Button",
+    "pangram": "Franz jagt im komplett verwahrlosten Taxi quer durch Bayern.",
+    "codeExample": "const code = \"beispiel\";"
+  },
+  "help": {
+    "badgeColors": "Badge-Farben werden aus den Primär-, Sekundär- und Statusfarben im Farben-Tab abgeleitet.",
+    "alertColors": "Meldungsfarben werden aus den Statusfarben im Farben-Tab abgeleitet."
+  },
+  "sizes": {
+    "small": "Klein",
+    "medium": "Mittel",
+    "large": "Groß"
+  },
+  "cards": {
+    "default": "Standard-Karte",
+    "elevated": "Erhöhte Karte",
+    "flat": "Flache Karte",
+    "description": "Dies ist ein Beispiel des {{type}}-Kartenstils mit seinen definierten Eigenschaften."
+  },
+  "alerts": {
+    "success": {
+      "title": "Erfolg-Meldung",
+      "message": "Vorgang erfolgreich abgeschlossen!"
+    },
+    "warning": {
+      "title": "Warnung-Meldung",
+      "message": "Bitte überprüfen Sie Ihre Änderungen, bevor Sie fortfahren."
+    },
+    "error": {
+      "title": "Fehler-Meldung",
+      "message": "Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut."
+    },
+    "info": {
+      "title": "Info-Meldung",
+      "message": "Hier sind einige hilfreiche Informationen für Sie."
+    }
+  },
+  "inputStates": {
+    "normal": "Normal",
+    "error": "Fehler",
+    "disabled": "Deaktiviert"
+  },
+  "options": {
+    "option1": "Option 1",
+    "option2": "Option 2",
+    "option3": "Option 3"
+  },
+  "badgeTypes": {
+    "default": {
+      "label": "Standard",
+      "description": "Neutraler Badge-Stil"
+    },
+    "primary": {
+      "label": "Primär",
+      "description": "Primär hervorgehobenes Badge"
+    },
+    "secondary": {
+      "label": "Sekundär",
+      "description": "Sekundär hervorgehobenes Badge"
+    },
+    "success": {
+      "label": "Erfolg",
+      "description": "Positives Status-Badge"
+    },
+    "warning": {
+      "label": "Warnung",
+      "description": "Warnungs-Status-Badge"
+    },
+    "error": {
+      "label": "Fehler",
+      "description": "Fehler-Status-Badge"
+    },
+    "info": {
+      "label": "Info",
+      "description": "Informations-Badge"
+    }
+  },
+  "badgeProperties": {
+    "background": "Hintergrund",
+    "text": "Text"
+  },
+  "alertTypes": {
+    "success": {
+      "description": "Positive Bestätigungsmeldungen"
+    },
+    "warning": {
+      "description": "Warnungs- und Hinweismeldungen"
+    },
+    "error": {
+      "description": "Fehler- und Fehlschlagmeldungen"
+    },
+    "info": {
+      "description": "Informationsmeldungen"
+    }
+  },
+  "alertProperties": {
+    "background": "Hintergrund",
+    "border": "Rahmen",
+    "text": "Text",
+    "icon": "Symbol"
+  },
+  "inputProperties": {
+    "background": "Hintergrund",
+    "text": "Text",
+    "border": "Rahmen",
+    "placeholder": "Platzhalter",
+    "focusRing": "Fokus-Ring"
+  },
+  "inputs": {
+    "normal": {
+      "description": "Standard-Eingabezustand",
+      "exampleText": "Beispieltext"
+    },
+    "error": {
+      "description": "Ungültiger Eingabezustand",
+      "exampleText": "Fehlertext"
+    },
+    "disabled": {
+      "description": "Nicht-interaktiver Eingabezustand",
+      "exampleText": "Deaktiviert"
+    }
+  },
+  "cardTypes": {
+    "default": {
+      "description": "Standardkarte mit dezenter Umrandung"
+    },
+    "elevated": {
+      "description": "Karte mit Schattenerhöhung"
+    },
+    "flat": {
+      "description": "Minimaler flacher Kartenstil"
+    }
+  },
+  "cardProperties": {
+    "background": "Hintergrund",
+    "border": "Rahmen"
+  },
+  "baseSections": {
+    "primaryColors": "Primärfarben",
+    "backgroundColors": "Hintergrundfarben",
+    "textColors": "Textfarben",
+    "statusColors": "Statusfarben",
+    "borderColors": "Rahmenfarben"
+  },
+  "base": {
+    "primaryColors": "Primärfarben",
+    "primaryColorsDesc": "Haupt-Marken- und Akzentfarben",
+    "backgroundColors": "Hintergrundfarben",
+    "backgroundColorsDesc": "Seiten-, Karten- und Oberflächenhintergründe",
+    "textColors": "Textfarben",
+    "textColorsDesc": "Primärer, sekundärer und gedämpfter Text",
+    "statusColors": "Statusfarben",
+    "statusColorsDesc": "Erfolgs-, Warnungs-, Fehler- und Info-Zustände",
+    "borderColors": "Rahmenfarben",
+    "borderColorsDesc": "Helle, Standard- und dunkle Rahmen"
+  }
+}

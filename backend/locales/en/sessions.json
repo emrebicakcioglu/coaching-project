@@ -6,11 +6,38 @@
     "text": "If you see an unknown device, terminate the session immediately and change your password."
   },
   "list": {
+    "title": "Active Sessions",
+    "count_one": "{{count}} active session",
+    "count_other": "{{count}} active sessions",
+    "loading": "Loading sessions...",
+    "empty": "No active sessions found.",
+    "logoutAll": "Log out all devices",
+    "terminating": "Terminating...",
     "current": "Current",
     "terminate": "Terminate",
     "terminateAll": "Terminate all other sessions",
     "confirmTerminate": "Are you sure you want to terminate this session?",
     "confirmTerminateAll": "Are you sure you want to terminate all other sessions?"
+  },
+  "dialog": {
+    "title": "Log out all devices?",
+    "message": "You will be logged out from all other devices. This action cannot be undone.",
+    "cancel": "Cancel",
+    "confirm": "Yes, log out all"
+  },
+  "item": {
+    "currentBrowser": "This browser",
+    "lastActivity": "Last activity:",
+    "justNow": "Just now",
+    "minutesAgo_one": "{{count}} minute ago",
+    "minutesAgo_other": "{{count}} minutes ago",
+    "hoursAgo_one": "{{count}} hour ago",
+    "hoursAgo_other": "{{count}} hours ago",
+    "daysAgo_one": "{{count}} day ago",
+    "daysAgo_other": "{{count}} days ago",
+    "terminateAriaLabel": "Terminate session on {{device}}",
+    "logout": "Log out",
+    "terminating": "Terminating..."
   },
   "device": {
     "browser": "Browser",

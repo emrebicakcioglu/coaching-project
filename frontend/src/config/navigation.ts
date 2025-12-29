@@ -1,6 +1,7 @@
 /**
  * Navigation Configuration
  * STORY-016A: Context Menu Core Navigation
+ * STORY-041H: Feedback Admin Page
  *
  * Centralized configuration for sidebar navigation items.
  * Items are filtered based on user permissions.
@@ -35,7 +36,8 @@ export type IconName =
   | 'monitor'
   | 'sessions'
   | 'palette'
-  | 'globe';
+  | 'globe'
+  | 'message-square';
 
 /**
  * Navigation item interface
@@ -93,23 +95,8 @@ export const NAVIGATION_ITEMS: NavigationItem[] = [
     id: 'users',
     labelKey: 'users',
     icon: 'users',
+    path: '/users',
     permission: 'users.read',
-    children: [
-      {
-        id: 'users-list',
-        labelKey: 'usersList',
-        icon: 'list',
-        path: '/users',
-        permission: 'users.read',
-      },
-      {
-        id: 'users-create',
-        labelKey: 'usersCreate',
-        icon: 'user-plus',
-        path: '/users',  // User creation is handled via modal in UsersListPage
-        permission: 'users.create',
-      },
-    ],
   },
   {
     id: 'roles',
@@ -138,6 +125,13 @@ export const NAVIGATION_ITEMS: NavigationItem[] = [
     icon: 'globe',
     path: '/languages',
     permission: 'languages.manage',
+  },
+  {
+    id: 'feedback-admin',
+    labelKey: 'feedbackAdmin',
+    icon: 'message-square',
+    path: '/admin/feedback',
+    permission: 'feedback.manage',
   },
   {
     id: 'settings',

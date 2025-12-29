@@ -6,13 +6,14 @@
  * Service for handling roles API calls including CRUD operations.
  */
 
-import axios, { AxiosInstance, InternalAxiosRequestConfig } from 'axios';
+import axios, { AxiosInstance, AxiosError, InternalAxiosRequestConfig } from 'axios';
 
 // API base URL from environment variable
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:14102/api/v1';
 
 // Token storage keys (shared with authService)
 const ACCESS_TOKEN_KEY = 'access_token';
+const REFRESH_TOKEN_KEY = 'refresh_token';
 
 /**
  * Permission interface
@@ -73,8 +74,9 @@ export interface GroupedPermissionsResponse {
 
 /**
  * In-memory token storage
+ * Initialize from localStorage to persist across page refreshes
  */
-let accessToken: string | null = null;
+let accessToken: string | null = localStorage.getItem(ACCESS_TOKEN_KEY);
 
 /**
  * Create Axios instance with auth interceptors
@@ -94,10 +96,56 @@ const createApiClient = (): AxiosInstance => {
       const token = accessToken || localStorage.getItem(ACCESS_TOKEN_KEY);
       if (token && config.headers) {
         config.headers.Authorization = `Bearer ${token}`;
+        // Sync in-memory token if it was retrieved from localStorage
+        if (!accessToken && token) {
+          accessToken = token;
+        }
       }
       return config;
     },
     (error) => Promise.reject(error)
+  );
+
+  // Response interceptor - handle 401 errors with token refresh
+  client.interceptors.response.use(
+    (response) => response,
+    async (error: AxiosError) => {
+      const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
+
+      if (error.response?.status === 401 && !originalRequest._retry) {
+        originalRequest._retry = true;
+
+        try {
+          // Try to refresh the token
+          const refreshToken = localStorage.getItem(REFRESH_TOKEN_KEY);
+          if (!refreshToken) {
+            throw new Error('No refresh token');
+          }
+
+          const response = await axios.post(`${API_BASE_URL}/auth/refresh`, {
+            refresh_token: refreshToken,
+          });
+
+          // Store new tokens
+          accessToken = response.data.access_token;
+          localStorage.setItem(ACCESS_TOKEN_KEY, response.data.access_token);
+          localStorage.setItem(REFRESH_TOKEN_KEY, response.data.refresh_token);
+
+          // Retry the original request with new token
+          if (originalRequest.headers) {
+            originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+          }
+          return client(originalRequest);
+        } catch {
+          // Refresh failed - clear tokens and redirect to login
+          localStorage.removeItem(ACCESS_TOKEN_KEY);
+          localStorage.removeItem(REFRESH_TOKEN_KEY);
+          accessToken = null;
+          window.location.href = '/login';
+        }
+      }
+      return Promise.reject(error);
+    }
   );
 
   return client;

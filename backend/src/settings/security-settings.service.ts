@@ -71,10 +71,7 @@ export class SecuritySettingsService {
       return this.cachedSettings;
     }
 
-    const pool = this.databaseService.getPool();
-    if (!pool) {
-      return DEFAULT_SECURITY_SETTINGS;
-    }
+    const pool = this.databaseService.ensurePool();
 
     try {
       const result = await pool.query<AppSettings>(
@@ -129,10 +126,7 @@ export class SecuritySettingsService {
     userId: number | undefined,
     request: AuthRequest,
   ): Promise<SecuritySettings> {
-    const pool = this.databaseService.getPool();
-    if (!pool) {
-      throw new Error('Database pool not available');
-    }
+    const pool = this.databaseService.ensurePool();
 
     // Get current settings for audit and merge
     const currentSettings = await this.getSecuritySettings();
@@ -226,10 +220,7 @@ export class SecuritySettingsService {
     userId: number | undefined,
     request: AuthRequest,
   ): Promise<SecuritySettings> {
-    const pool = this.databaseService.getPool();
-    if (!pool) {
-      throw new Error('Database pool not available');
-    }
+    const pool = this.databaseService.ensurePool();
 
     // Get current settings for audit
     const currentSettings = await this.getSecuritySettings();
@@ -344,10 +335,7 @@ export class SecuritySettingsService {
     userId: number | undefined,
     request: AuthRequest,
   ): Promise<void> {
-    const pool = this.databaseService.getPool();
-    if (!pool) {
-      return;
-    }
+    const pool = this.databaseService.ensurePool();
 
     try {
       const historyEntry: SettingsHistoryInsert = {

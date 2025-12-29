@@ -62,3 +62,28 @@ export type {
   SettingsCategory,
   ResetResponse,
 } from './settingsService';
+
+// STORY-103: Dashboard Page UI Audit
+export { dashboardService } from './dashboardService';
+export type { DashboardStats } from './dashboardService';
+
+// STORY-041F: Feedback Trigger UI
+export { feedbackService } from './feedbackService';
+export type {
+  FeatureData,
+  FeatureResponse,
+  FeaturesListResponse,
+  FeatureEnabledResponse,
+} from './feedbackService';
+
+// STORY-041H: Feedback Admin Page
+export { feedbackAdminService } from './feedbackAdminService';
+export type {
+  FeedbackListItem,
+  FeedbackDetail,
+  FeedbackPagination,
+  PaginatedFeedbackResponse,
+  ScreenshotUrlResponse,
+  JiraTicketResponse,
+  JiraConfigStatus,
+} from './feedbackAdminService';

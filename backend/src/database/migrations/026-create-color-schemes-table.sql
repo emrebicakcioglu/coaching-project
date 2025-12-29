@@ -175,25 +175,25 @@ CREATE TABLE color_schemes (
     }
   }'::jsonb,
 
-  -- Card/Panel styles
+  -- Card/Panel styles (DESIGN_SYSTEM: border-radius: 8px, shadow-sm, border: #2b2d31)
   cards JSONB NOT NULL DEFAULT '{
     "default": {
       "background": "#ffffff",
-      "border": "#e5e7eb",
-      "shadow": "0 1px 3px 0 rgba(0, 0, 0, 0.1)",
-      "borderRadius": "0.75rem"
+      "border": "#2b2d31",
+      "shadow": "0 1px 2px rgba(0, 0, 0, 0.05)",
+      "borderRadius": "8px"
     },
     "elevated": {
       "background": "#ffffff",
       "border": "transparent",
-      "shadow": "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
-      "borderRadius": "0.75rem"
+      "shadow": "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
+      "borderRadius": "8px"
     },
     "flat": {
       "background": "#f9fafb",
       "border": "transparent",
       "shadow": "none",
-      "borderRadius": "0.5rem"
+      "borderRadius": "8px"
     }
   }'::jsonb,
 

@@ -59,6 +59,15 @@ export const TRANSLATION_NAMESPACES = [
   'validation',
   'emails',
   'errors',
+  'auth',
+  'dashboard',
+  'users',
+  'roles',
+  'sessions',
+  'settings',
+  'help',
+  'languages',
+  'design',
 ] as const;
 
 export type TranslationNamespace = (typeof TRANSLATION_NAMESPACES)[number];

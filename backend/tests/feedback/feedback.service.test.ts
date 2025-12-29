@@ -2,6 +2,8 @@
  * Feedback Service Unit Tests
  * STORY-038A: Feedback-Backend API
  * STORY-038B: Feedback Rate Limiting & Email Queue
+ * STORY-041B: Feedback Screenshot Storage in MinIO
+ * STORY-002-REWORK-003: Fixed HTTP 500 error - optional screenshot support
  *
  * Tests for FeedbackService including:
  * - Base64 to Buffer conversion
@@ -10,6 +12,9 @@
  * - Async email queue processing (STORY-038B)
  * - Browser info and route capture (STORY-038B)
  * - Metadata extraction (STORY-038B)
+ * - Screenshot storage in MinIO (STORY-041B)
+ * - Notification emails without attachment (STORY-041B)
+ * - Optional screenshot support (STORY-002-REWORK-003)
  */
 
 import { Test, TestingModule } from '@nestjs/testing';
@@ -18,6 +23,8 @@ import { FeedbackService } from '../../src/feedback/feedback.service';
 import { WinstonLoggerService } from '../../src/common/services/logger.service';
 import { DatabaseService } from '../../src/database/database.service';
 import { EmailQueueService } from '../../src/email/email-queue.service';
+import { StorageService } from '../../src/storage/storage.service';
+import { BucketName } from '../../src/storage/dto';
 import { Request } from 'express';
 
 // Mock Resend
@@ -40,6 +47,7 @@ describe('FeedbackService', () => {
   let mockLogger: jest.Mocked<WinstonLoggerService>;
   let mockDatabaseService: jest.Mocked<DatabaseService>;
   let mockEmailQueueService: jest.Mocked<EmailQueueService>;
+  let mockStorageService: jest.Mocked<StorageService>;
   let mockPool: { query: jest.Mock };
 
   beforeEach(async () => {
@@ -51,6 +59,8 @@ describe('FeedbackService', () => {
     // STORY-038B: Disable queue by default for backward compatibility in tests
     process.env.FEEDBACK_USE_QUEUE = 'false';
     process.env.FEEDBACK_QUEUE_PRIORITY = '5';
+    // STORY-041B: Admin URL for email links
+    process.env.ADMIN_URL = 'http://localhost:3000';
 
     // Create mocks
     mockLogger = {
@@ -74,6 +84,22 @@ describe('FeedbackService', () => {
       getQueueStats: jest.fn().mockResolvedValue({ pending: 0, sent: 0, failed: 0, total: 0 }),
     } as unknown as jest.Mocked<EmailQueueService>;
 
+    // STORY-041B: Mock StorageService
+    mockStorageService = {
+      isConfigured: jest.fn().mockReturnValue(true),
+      uploadBuffer: jest.fn().mockResolvedValue({
+        success: true,
+        fileName: '1234567890-feedback-1234567890.png',
+        originalName: 'feedback-1234567890.png',
+        bucket: 'feedback',
+        size: 1234,
+        mimeType: 'image/png',
+        url: '/api/v1/files/1234567890-feedback-1234567890.png',
+        etag: 'test-etag',
+      }),
+      getBucketName: jest.fn().mockReturnValue('feedback'),
+    } as unknown as jest.Mocked<StorageService>;
+
     // Reset Resend mock
     mockResendSend.mockReset();
     mockResendSend.mockResolvedValue({
@@ -87,6 +113,7 @@ describe('FeedbackService', () => {
         { provide: WinstonLoggerService, useValue: mockLogger },
         { provide: DatabaseService, useValue: mockDatabaseService },
         { provide: EmailQueueService, useValue: mockEmailQueueService },
+        { provide: StorageService, useValue: mockStorageService },
       ],
     }).compile();
 
@@ -211,6 +238,7 @@ describe('FeedbackService', () => {
     });
   });
 
+  // STORY-041B: Updated tests to reflect new MinIO storage behavior
   describe('submitFeedback', () => {
     const mockFeedbackDto = {
       screenshot: 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
@@ -225,10 +253,38 @@ describe('FeedbackService', () => {
       name: 'Test User',
     };
 
+    beforeEach(() => {
+      // Set up standard mocks for submitFeedback tests (STORY-041B)
+      mockPool.query.mockImplementation((query: string) => {
+        if (query.includes('information_schema.tables')) {
+          return Promise.resolve({ rows: [{ exists: true }] });
+        }
+        if (query.includes('information_schema.columns') && query.includes('screenshot_path')) {
+          return Promise.resolve({ rows: [{ exists: true }] });
+        }
+        if (query.includes('INSERT INTO feedback_submissions')) {
+          return Promise.resolve({ rows: [{ id: 100 }] });
+        }
+        if (query.includes('SELECT name FROM users')) {
+          return Promise.resolve({ rows: [{ name: 'Test User' }] });
+        }
+        if (query.includes('INSERT INTO email_logs')) {
+          return Promise.resolve({ rows: [] });
+        }
+        if (query.includes('UPDATE feedback_submissions')) {
+          return Promise.resolve({ rows: [] });
+        }
+        return Promise.resolve({ rows: [] });
+      });
+    });
+
     it('should submit feedback successfully', async () => {
       const result = await service.submitFeedback(mockFeedbackDto, mockUser);
 
-      expect(result).toEqual({ message: 'Feedback submitted successfully' });
+      // STORY-041B: Now returns id and screenshotStored
+      expect(result.message).toContain('submitted successfully');
+      expect(result.id).toBe(100);
+      expect(result.screenshotStored).toBe(true);
       expect(mockResendSend).toHaveBeenCalledTimes(1);
       expect(mockLogger.log).toHaveBeenCalledWith(
         expect.stringContaining('Processing feedback submission'),
@@ -236,14 +292,12 @@ describe('FeedbackService', () => {
       );
     });
 
-    it('should include screenshot as email attachment', async () => {
+    // STORY-041B: Now we don't include attachments (screenshots are in MinIO)
+    it('should send notification email without attachment', async () => {
       await service.submitFeedback(mockFeedbackDto, mockUser);
 
       const sendCall = mockResendSend.mock.calls[0][0];
-      expect(sendCall.attachments).toBeDefined();
-      expect(sendCall.attachments).toHaveLength(1);
-      expect(sendCall.attachments[0].filename).toMatch(/^screenshot-\d+\.png$/);
-      expect(sendCall.attachments[0].content).toBeInstanceOf(Buffer);
+      expect(sendCall.attachments).toBeUndefined();
     });
 
     it('should send email to configured support address', async () => {
@@ -253,31 +307,52 @@ describe('FeedbackService', () => {
       expect(sendCall.to).toContain('support@test.com');
     });
 
-    it('should include user information in email subject', async () => {
+    // STORY-041B: New subject format "Neues Feedback von [User]"
+    it('should include user name in email subject', async () => {
       await service.submitFeedback(mockFeedbackDto, mockUser);
 
       const sendCall = mockResendSend.mock.calls[0][0];
+      expect(sendCall.subject).toContain('Neues Feedback von');
       expect(sendCall.subject).toContain('Test User');
-      expect(sendCall.subject).toContain('user@test.com');
     });
 
     it('should fetch user name from database if not provided', async () => {
       const userWithoutName = { id: 1, email: 'user@test.com' };
-      mockPool.query.mockResolvedValueOnce({ rows: [{ name: 'DB User' }] });
 
       await service.submitFeedback(mockFeedbackDto, userWithoutName);
 
-      expect(mockPool.query).toHaveBeenCalledWith(
-        'SELECT name FROM users WHERE id = $1',
-        [1],
+      // Database should be queried for user name
+      const userNameCall = mockPool.query.mock.calls.find(
+        (call) => call[0]?.includes?.('SELECT name FROM users'),
       );
+      expect(userNameCall).toBeDefined();
+      expect(userNameCall[1]).toContain(1);
     });
 
     it('should use email as fallback if user name not found in database', async () => {
       const userWithoutName = { id: 1, email: 'user@test.com' };
-      mockPool.query
-        .mockResolvedValueOnce({ rows: [] }) // User name query returns empty
-        .mockResolvedValueOnce({ rows: [] }); // Email log query
+      // Override the mock to return empty for user name query
+      mockPool.query.mockImplementation((query: string) => {
+        if (query.includes('SELECT name FROM users')) {
+          return Promise.resolve({ rows: [] }); // No user found
+        }
+        if (query.includes('information_schema.tables')) {
+          return Promise.resolve({ rows: [{ exists: true }] });
+        }
+        if (query.includes('information_schema.columns')) {
+          return Promise.resolve({ rows: [{ exists: true }] });
+        }
+        if (query.includes('INSERT INTO feedback_submissions')) {
+          return Promise.resolve({ rows: [{ id: 100 }] });
+        }
+        if (query.includes('INSERT INTO email_logs')) {
+          return Promise.resolve({ rows: [] });
+        }
+        if (query.includes('UPDATE feedback_submissions')) {
+          return Promise.resolve({ rows: [] });
+        }
+        return Promise.resolve({ rows: [] });
+      });
 
       await service.submitFeedback(mockFeedbackDto, userWithoutName);
 
@@ -291,29 +366,37 @@ describe('FeedbackService', () => {
         comment: 'Minimal feedback',
       };
 
-      await service.submitFeedback(minimalFeedbackDto, mockUser);
+      const result = await service.submitFeedback(minimalFeedbackDto, mockUser);
 
       expect(mockResendSend).toHaveBeenCalledTimes(1);
+      expect(result.id).toBe(100);
     });
 
     it('should log email to database on success', async () => {
       await service.submitFeedback(mockFeedbackDto, mockUser);
 
-      // Should have called query twice: once for user name, once for email log
-      expect(mockPool.query).toHaveBeenCalled();
-      const lastCall = mockPool.query.mock.calls[mockPool.query.mock.calls.length - 1];
-      expect(lastCall[0]).toContain('INSERT INTO email_logs');
-      expect(lastCall[1]).toContain('sent');
+      // Should have INSERT INTO email_logs call
+      const emailLogCall = mockPool.query.mock.calls.find(
+        (call) => call[0]?.includes?.('INSERT INTO email_logs'),
+      );
+      expect(emailLogCall).toBeDefined();
+      expect(emailLogCall[1]).toContain('sent');
     });
 
-    it('should handle Resend API errors', async () => {
+    // STORY-041B: Email failures no longer throw - feedback is still stored
+    it('should handle Resend API errors gracefully', async () => {
       mockResendSend.mockResolvedValueOnce({
         data: null,
         error: { message: 'API key invalid' },
       });
 
-      await expect(service.submitFeedback(mockFeedbackDto, mockUser)).rejects.toThrow(
-        'Failed to send feedback email: Resend API error: API key invalid',
+      // No longer throws - feedback is stored, email failure is logged
+      const result = await service.submitFeedback(mockFeedbackDto, mockUser);
+
+      expect(result.id).toBe(100);
+      expect(mockLogger.warn).toHaveBeenCalledWith(
+        expect.stringContaining('notification email failed'),
+        'FeedbackService',
       );
     });
 
@@ -323,15 +406,13 @@ describe('FeedbackService', () => {
         error: { message: 'API error' },
       });
 
-      try {
-        await service.submitFeedback(mockFeedbackDto, mockUser);
-      } catch {
-        // Expected to throw
-      }
+      await service.submitFeedback(mockFeedbackDto, mockUser);
 
-      const lastCall = mockPool.query.mock.calls[mockPool.query.mock.calls.length - 1];
-      expect(lastCall[0]).toContain('INSERT INTO email_logs');
-      expect(lastCall[1]).toContain('failed');
+      // Should log failed email
+      const emailLogCall = mockPool.query.mock.calls.find(
+        (call) => call[0]?.includes?.('INSERT INTO email_logs') && call[1]?.includes?.('failed'),
+      );
+      expect(emailLogCall).toBeDefined();
     });
 
     it('should handle data URL format screenshot', async () => {
@@ -340,28 +421,59 @@ describe('FeedbackService', () => {
         screenshot: `data:image/png;base64,${mockFeedbackDto.screenshot}`,
       };
 
-      await service.submitFeedback(feedbackWithDataUrl, mockUser);
+      const result = await service.submitFeedback(feedbackWithDataUrl, mockUser);
 
       expect(mockResendSend).toHaveBeenCalledTimes(1);
+      expect(result.id).toBe(100);
     });
 
-    it('should throw BadRequestException for invalid screenshot', async () => {
+    // STORY-002-REWORK-003: Invalid screenshot no longer throws - feedback continues without screenshot
+    it('should continue without screenshot when invalid screenshot provided', async () => {
       const feedbackWithInvalidScreenshot = {
         ...mockFeedbackDto,
         screenshot: 'not-valid-base64!!!',
       };
 
-      await expect(
-        service.submitFeedback(feedbackWithInvalidScreenshot, mockUser),
-      ).rejects.toThrow(BadRequestException);
+      const result = await service.submitFeedback(feedbackWithInvalidScreenshot, mockUser);
+
+      // Should still succeed - feedback is submitted without screenshot
+      expect(result.id).toBe(100);
+      expect(result.screenshotStored).toBe(false);
+      expect(mockLogger.warn).toHaveBeenCalledWith(
+        expect.stringContaining('Failed to process screenshot'),
+        'FeedbackService',
+      );
+    });
+
+    // STORY-002-REWORK-003: Test for feedback without screenshot
+    it('should submit feedback without screenshot', async () => {
+      const feedbackWithoutScreenshot = {
+        comment: 'Feedback without screenshot',
+        url: 'https://example.com/test',
+      };
+
+      const result = await service.submitFeedback(feedbackWithoutScreenshot, mockUser);
+
+      expect(result.id).toBe(100);
+      expect(result.screenshotStored).toBe(false);
+      expect(mockStorageService.uploadBuffer).not.toHaveBeenCalled();
+      expect(mockLogger.debug).toHaveBeenCalledWith(
+        expect.stringContaining('Feedback submitted without screenshot'),
+        'FeedbackService',
+      );
     });
 
     it('should handle database errors gracefully during logging', async () => {
-      // STORY-038B: Now we first check table existence, then store, then email
-      // Mock sequence: table check, store feedback, get user name, send email, log email
+      // Mock sequence with email log error
       mockPool.query.mockImplementation((query: string) => {
         if (query.includes('information_schema.tables')) {
-          return Promise.resolve({ rows: [{ exists: false }] }); // No feedback_submissions table
+          return Promise.resolve({ rows: [{ exists: true }] });
+        }
+        if (query.includes('information_schema.columns')) {
+          return Promise.resolve({ rows: [{ exists: true }] });
+        }
+        if (query.includes('INSERT INTO feedback_submissions')) {
+          return Promise.resolve({ rows: [{ id: 100 }] });
         }
         if (query.includes('SELECT name FROM users')) {
           return Promise.resolve({ rows: [{ name: 'Test User' }] });
@@ -369,13 +481,16 @@ describe('FeedbackService', () => {
         if (query.includes('INSERT INTO email_logs')) {
           return Promise.reject(new Error('Database error')); // Email log fails
         }
+        if (query.includes('UPDATE feedback_submissions')) {
+          return Promise.resolve({ rows: [] });
+        }
         return Promise.resolve({ rows: [] });
       });
 
       // Should not throw - feedback should still succeed
       const result = await service.submitFeedback(mockFeedbackDto, mockUser);
 
-      expect(result).toEqual({ message: 'Feedback submitted successfully' });
+      expect(result.id).toBe(100);
       expect(mockLogger.error).toHaveBeenCalledWith(
         expect.stringContaining('Failed to log feedback email'),
         expect.any(String),
@@ -383,13 +498,13 @@ describe('FeedbackService', () => {
       );
     });
 
-    it('should handle null database pool', async () => {
+    // STORY-041B: Null database pool now throws (feedback requires database)
+    it('should throw error when database pool is null', async () => {
       mockDatabaseService.getPool.mockReturnValue(null);
 
-      // Should still succeed - just won't log to database
-      const result = await service.submitFeedback(mockFeedbackDto, mockUser);
-
-      expect(result).toEqual({ message: 'Feedback submitted successfully' });
+      await expect(service.submitFeedback(mockFeedbackDto, mockUser)).rejects.toThrow(
+        'Database not available',
+      );
     });
   });
 
@@ -405,6 +520,7 @@ describe('FeedbackService', () => {
   });
 
   // STORY-038B: Tests for browser info and route capture
+  // STORY-041B: Updated to reflect new database-required behavior
   describe('STORY-038B: Metadata extraction', () => {
     const mockFeedbackDto = {
       screenshot: 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
@@ -422,21 +538,36 @@ describe('FeedbackService', () => {
       name: 'Test User',
     };
 
-    it('should accept additional metadata fields in DTO', async () => {
-      // Mock the feedback_submissions table existence check
+    beforeEach(() => {
+      // STORY-041B: Set up standard mocks
       mockPool.query.mockImplementation((query: string) => {
         if (query.includes('information_schema.tables')) {
-          return Promise.resolve({ rows: [{ exists: false }] });
+          return Promise.resolve({ rows: [{ exists: true }] });
+        }
+        if (query.includes('information_schema.columns')) {
+          return Promise.resolve({ rows: [{ exists: true }] });
+        }
+        if (query.includes('INSERT INTO feedback_submissions')) {
+          return Promise.resolve({ rows: [{ id: 200 }] });
         }
         if (query.includes('SELECT name FROM users')) {
           return Promise.resolve({ rows: [{ name: 'Test User' }] });
         }
+        if (query.includes('INSERT INTO email_logs')) {
+          return Promise.resolve({ rows: [] });
+        }
+        if (query.includes('UPDATE feedback_submissions')) {
+          return Promise.resolve({ rows: [] });
+        }
         return Promise.resolve({ rows: [] });
       });
+    });
 
-      await service.submitFeedback(mockFeedbackDto, mockUser);
+    it('should accept additional metadata fields in DTO', async () => {
+      const result = await service.submitFeedback(mockFeedbackDto, mockUser);
 
       expect(mockResendSend).toHaveBeenCalledTimes(1);
+      expect(result.id).toBe(200);
     });
 
     it('should handle request object for metadata extraction', async () => {
@@ -448,40 +579,20 @@ describe('FeedbackService', () => {
         },
       } as unknown as Request;
 
-      // Mock the feedback_submissions table existence check
-      mockPool.query.mockImplementation((query: string) => {
-        if (query.includes('information_schema.tables')) {
-          return Promise.resolve({ rows: [{ exists: false }] });
-        }
-        if (query.includes('SELECT name FROM users')) {
-          return Promise.resolve({ rows: [{ name: 'Test User' }] });
-        }
-        return Promise.resolve({ rows: [] });
-      });
-
-      await service.submitFeedback(mockFeedbackDto, mockUser, mockRequest);
+      const result = await service.submitFeedback(mockFeedbackDto, mockUser, mockRequest);
 
       expect(mockResendSend).toHaveBeenCalledTimes(1);
+      expect(result.id).toBe(200);
     });
 
     it('should extract route from URL', async () => {
-      // Mock the feedback_submissions table existence check
-      mockPool.query.mockImplementation((query: string) => {
-        if (query.includes('information_schema.tables')) {
-          return Promise.resolve({ rows: [{ exists: false }] });
-        }
-        if (query.includes('SELECT name FROM users')) {
-          return Promise.resolve({ rows: [{ name: 'Test User' }] });
-        }
-        return Promise.resolve({ rows: [] });
-      });
-
-      await service.submitFeedback(mockFeedbackDto, mockUser);
+      const result = await service.submitFeedback(mockFeedbackDto, mockUser);
 
       // Verify the feedback was processed
       expect(mockResendSend).toHaveBeenCalled();
+      expect(result.id).toBe(200);
       expect(mockLogger.log).toHaveBeenCalledWith(
-        expect.stringContaining('Feedback submitted successfully'),
+        expect.stringContaining('submitted'),
         'FeedbackService',
       );
     });
@@ -492,24 +603,16 @@ describe('FeedbackService', () => {
         comment: 'Minimal feedback',
       };
 
-      // Mock the feedback_submissions table existence check
-      mockPool.query.mockImplementation((query: string) => {
-        if (query.includes('information_schema.tables')) {
-          return Promise.resolve({ rows: [{ exists: false }] });
-        }
-        if (query.includes('SELECT name FROM users')) {
-          return Promise.resolve({ rows: [{ name: 'Test User' }] });
-        }
-        return Promise.resolve({ rows: [] });
-      });
+      const result = await service.submitFeedback(minimalFeedbackDto, mockUser);
 
-      await service.submitFeedback(minimalFeedbackDto, mockUser);
-
+      expect(result).toBeDefined();
+      expect(result.id).toBeDefined();
       expect(mockResendSend).toHaveBeenCalledTimes(1);
     });
   });
 
   // STORY-038B: Tests for feedback storage
+  // STORY-041B: Updated to reflect new behavior where feedback requires database
   describe('STORY-038B: Feedback storage', () => {
     const mockFeedbackDto = {
       screenshot: 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
@@ -524,13 +627,16 @@ describe('FeedbackService', () => {
     };
 
     it('should store feedback in database when table exists', async () => {
-      // Mock the feedback_submissions table existence check to return true
+      // Mock all necessary queries
       mockPool.query.mockImplementation((query: string) => {
         if (query.includes('information_schema.tables')) {
           return Promise.resolve({ rows: [{ exists: true }] });
         }
+        if (query.includes('information_schema.columns')) {
+          return Promise.resolve({ rows: [{ exists: true }] });
+        }
         if (query.includes('INSERT INTO feedback_submissions')) {
-          return Promise.resolve({ rows: [] });
+          return Promise.resolve({ rows: [{ id: 300 }] });
         }
         if (query.includes('SELECT name FROM users')) {
           return Promise.resolve({ rows: [{ name: 'Test User' }] });
@@ -538,20 +644,24 @@ describe('FeedbackService', () => {
         if (query.includes('INSERT INTO email_logs')) {
           return Promise.resolve({ rows: [] });
         }
+        if (query.includes('UPDATE feedback_submissions')) {
+          return Promise.resolve({ rows: [] });
+        }
         return Promise.resolve({ rows: [] });
       });
 
-      await service.submitFeedback(mockFeedbackDto, mockUser);
+      const result = await service.submitFeedback(mockFeedbackDto, mockUser);
 
       // Verify feedback was stored
       const insertCall = mockPool.query.mock.calls.find(
         (call) => call[0]?.includes?.('INSERT INTO feedback_submissions'),
       );
       expect(insertCall).toBeDefined();
+      expect(result.id).toBe(300);
     });
 
-    it('should skip storage gracefully when table does not exist', async () => {
-      // Mock the feedback_submissions table existence check to return false
+    // STORY-041B: Now throws when table doesn't exist
+    it('should throw error when table does not exist', async () => {
       mockPool.query.mockImplementation((query: string) => {
         if (query.includes('information_schema.tables')) {
           return Promise.resolve({ rows: [{ exists: false }] });
@@ -559,26 +669,21 @@ describe('FeedbackService', () => {
         if (query.includes('SELECT name FROM users')) {
           return Promise.resolve({ rows: [{ name: 'Test User' }] });
         }
-        if (query.includes('INSERT INTO email_logs')) {
-          return Promise.resolve({ rows: [] });
-        }
         return Promise.resolve({ rows: [] });
       });
 
-      await service.submitFeedback(mockFeedbackDto, mockUser);
-
-      // Verify feedback was not stored but email was sent
-      const insertCall = mockPool.query.mock.calls.find(
-        (call) => call[0]?.includes?.('INSERT INTO feedback_submissions'),
+      await expect(service.submitFeedback(mockFeedbackDto, mockUser)).rejects.toThrow(
+        'feedback_submissions table not yet created',
       );
-      expect(insertCall).toBeUndefined();
-      expect(mockResendSend).toHaveBeenCalled();
     });
 
-    it('should continue if storage fails', async () => {
-      // Mock the table check to succeed but insert to fail
+    // STORY-041B: Storage failures now throw errors
+    it('should throw error if storage fails', async () => {
       mockPool.query.mockImplementation((query: string) => {
         if (query.includes('information_schema.tables')) {
+          return Promise.resolve({ rows: [{ exists: true }] });
+        }
+        if (query.includes('information_schema.columns')) {
           return Promise.resolve({ rows: [{ exists: true }] });
         }
         if (query.includes('INSERT INTO feedback_submissions')) {
@@ -587,24 +692,17 @@ describe('FeedbackService', () => {
         if (query.includes('SELECT name FROM users')) {
           return Promise.resolve({ rows: [{ name: 'Test User' }] });
         }
-        if (query.includes('INSERT INTO email_logs')) {
-          return Promise.resolve({ rows: [] });
-        }
         return Promise.resolve({ rows: [] });
       });
 
-      // Should not throw - feedback submission should still succeed
-      const result = await service.submitFeedback(mockFeedbackDto, mockUser);
-
-      expect(result).toEqual({ message: 'Feedback submitted successfully' });
-      expect(mockLogger.warn).toHaveBeenCalledWith(
-        expect.stringContaining('Failed to store feedback record'),
-        'FeedbackService',
+      await expect(service.submitFeedback(mockFeedbackDto, mockUser)).rejects.toThrow(
+        'Storage failed',
       );
     });
   });
 
   // STORY-038B: Tests for async queue processing
+  // STORY-041B: Updated to reflect new database-required behavior
   describe('STORY-038B: Async email queue', () => {
     const mockFeedbackDto = {
       screenshot: 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
@@ -629,6 +727,7 @@ describe('FeedbackService', () => {
           { provide: WinstonLoggerService, useValue: mockLogger },
           { provide: DatabaseService, useValue: mockDatabaseService },
           { provide: EmailQueueService, useValue: mockEmailQueueService },
+          { provide: StorageService, useValue: mockStorageService },
         ],
       }).compile();
 
@@ -636,15 +735,24 @@ describe('FeedbackService', () => {
     });
 
     it('should return queued status when queue is enabled', async () => {
-      // Mock the feedback_submissions table existence check
+      // STORY-041B: Now requires full database mocks
       mockPool.query.mockImplementation((query: string) => {
         if (query.includes('information_schema.tables')) {
-          return Promise.resolve({ rows: [{ exists: false }] });
+          return Promise.resolve({ rows: [{ exists: true }] });
+        }
+        if (query.includes('information_schema.columns')) {
+          return Promise.resolve({ rows: [{ exists: true }] });
+        }
+        if (query.includes('INSERT INTO feedback_submissions')) {
+          return Promise.resolve({ rows: [{ id: 400 }] });
         }
         if (query.includes('SELECT name FROM users')) {
           return Promise.resolve({ rows: [{ name: 'Test User' }] });
         }
         if (query.includes('INSERT INTO email_logs')) {
+          return Promise.resolve({ rows: [] });
+        }
+        if (query.includes('UPDATE feedback_submissions')) {
           return Promise.resolve({ rows: [] });
         }
         return Promise.resolve({ rows: [] });
@@ -654,13 +762,20 @@ describe('FeedbackService', () => {
 
       expect(result.message).toContain('submitted successfully');
       expect(result.queued).toBe(true);
+      expect(result.id).toBe(400);
     });
 
     it('should log queue processing', async () => {
-      // Mock the feedback_submissions table existence check
+      // STORY-041B: Now requires full database mocks
       mockPool.query.mockImplementation((query: string) => {
         if (query.includes('information_schema.tables')) {
-          return Promise.resolve({ rows: [{ exists: false }] });
+          return Promise.resolve({ rows: [{ exists: true }] });
+        }
+        if (query.includes('information_schema.columns')) {
+          return Promise.resolve({ rows: [{ exists: true }] });
+        }
+        if (query.includes('INSERT INTO feedback_submissions')) {
+          return Promise.resolve({ rows: [{ id: 500 }] });
         }
         if (query.includes('SELECT name FROM users')) {
           return Promise.resolve({ rows: [{ name: 'Test User' }] });
@@ -668,15 +783,283 @@ describe('FeedbackService', () => {
         if (query.includes('INSERT INTO email_logs')) {
           return Promise.resolve({ rows: [] });
         }
+        if (query.includes('UPDATE feedback_submissions')) {
+          return Promise.resolve({ rows: [] });
+        }
         return Promise.resolve({ rows: [] });
+      });
+
+      const result = await service.submitFeedback(mockFeedbackDto, mockUser);
+
+      expect(result.id).toBe(500);
+      expect(mockLogger.log).toHaveBeenCalledWith(
+        expect.stringContaining('submitted'),
+        'FeedbackService',
+      );
+    });
+  });
+
+  // STORY-041B: Tests for MinIO screenshot storage
+  describe('STORY-041B: Screenshot storage in MinIO', () => {
+    const mockFeedbackDto = {
+      screenshot: 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
+      comment: 'Test feedback with screenshot',
+      url: 'https://example.com/test',
+    };
+
+    const mockUser = {
+      id: 1,
+      email: 'user@test.com',
+      name: 'Test User',
+    };
+
+    beforeEach(() => {
+      // Set up standard mocks for STORY-041B tests
+      mockPool.query.mockImplementation((query: string) => {
+        if (query.includes('information_schema.tables')) {
+          return Promise.resolve({ rows: [{ exists: true }] });
+        }
+        if (query.includes('information_schema.columns') && query.includes('screenshot_path')) {
+          return Promise.resolve({ rows: [{ exists: true }] });
+        }
+        if (query.includes('INSERT INTO feedback_submissions')) {
+          return Promise.resolve({ rows: [{ id: 123 }] });
+        }
+        if (query.includes('SELECT name FROM users')) {
+          return Promise.resolve({ rows: [{ name: 'Test User' }] });
+        }
+        if (query.includes('INSERT INTO email_logs')) {
+          return Promise.resolve({ rows: [] });
+        }
+        if (query.includes('UPDATE feedback_submissions')) {
+          return Promise.resolve({ rows: [] });
+        }
+        return Promise.resolve({ rows: [] });
+      });
+    });
+
+    it('should upload screenshot to MinIO', async () => {
+      const result = await service.submitFeedback(mockFeedbackDto, mockUser);
+
+      expect(mockStorageService.uploadBuffer).toHaveBeenCalledTimes(1);
+      expect(mockStorageService.uploadBuffer).toHaveBeenCalledWith(
+        expect.any(Buffer),
+        expect.stringMatching(/^feedback-\d+\.png$/),
+        'image/png',
+        BucketName.FEEDBACK,
+      );
+      expect(result.screenshotStored).toBe(true);
+    });
+
+    it('should return feedback ID in response', async () => {
+      const result = await service.submitFeedback(mockFeedbackDto, mockUser);
+
+      expect(result.id).toBe(123);
+      expect(result.message).toContain('submitted successfully');
+    });
+
+    it('should save screenshot_path in database', async () => {
+      await service.submitFeedback(mockFeedbackDto, mockUser);
+
+      // Find the INSERT query for feedback_submissions
+      const insertCall = mockPool.query.mock.calls.find(
+        (call) => call[0]?.includes?.('INSERT INTO feedback_submissions') && call[0]?.includes?.('screenshot_path'),
+      );
+      expect(insertCall).toBeDefined();
+      // The screenshot_path should be in the parameters (17th parameter)
+      expect(insertCall[1][16]).toMatch(/^\d+-feedback-\d+\.png$/);
+    });
+
+    it('should send notification email without attachment', async () => {
+      await service.submitFeedback(mockFeedbackDto, mockUser);
+
+      expect(mockResendSend).toHaveBeenCalledTimes(1);
+      const emailPayload = mockResendSend.mock.calls[0][0];
+      // Should NOT have attachments
+      expect(emailPayload.attachments).toBeUndefined();
+      // Should have the new subject format
+      expect(emailPayload.subject).toContain('Neues Feedback von');
+    });
+
+    it('should include admin link in notification email', async () => {
+      await service.submitFeedback(mockFeedbackDto, mockUser);
+
+      const emailPayload = mockResendSend.mock.calls[0][0];
+      expect(emailPayload.html).toContain('http://localhost:3000/admin/feedback/123');
+    });
+
+    it('should handle storage service unavailability gracefully', async () => {
+      mockStorageService.isConfigured.mockReturnValue(false);
+
+      const result = await service.submitFeedback(mockFeedbackDto, mockUser);
+
+      expect(result.screenshotStored).toBe(false);
+      expect(result.id).toBe(123);
+      expect(mockLogger.warn).toHaveBeenCalledWith(
+        expect.stringContaining('StorageService not available'),
+        'FeedbackService',
+      );
+    });
+
+    it('should continue if MinIO upload fails', async () => {
+      mockStorageService.uploadBuffer.mockRejectedValue(new Error('MinIO connection failed'));
+
+      const result = await service.submitFeedback(mockFeedbackDto, mockUser);
+
+      expect(result.screenshotStored).toBe(false);
+      expect(result.id).toBe(123);
+      expect(mockLogger.error).toHaveBeenCalledWith(
+        expect.stringContaining('Failed to upload screenshot to MinIO'),
+        expect.any(String),
+        'FeedbackService',
+      );
+    });
+
+    it('should update email status in feedback record', async () => {
+      await service.submitFeedback(mockFeedbackDto, mockUser);
+
+      const updateCall = mockPool.query.mock.calls.find(
+        (call) => call[0]?.includes?.('UPDATE feedback_submissions') && call[0]?.includes?.('email_status'),
+      );
+      expect(updateCall).toBeDefined();
+      expect(updateCall[1]).toContain('sent');
+      expect(updateCall[1]).toContain(123);
+    });
+
+    it('should fallback to insert without screenshot_path if column not exists', async () => {
+      mockPool.query.mockImplementation((query: string) => {
+        if (query.includes('information_schema.tables')) {
+          return Promise.resolve({ rows: [{ exists: true }] });
+        }
+        if (query.includes('information_schema.columns') && query.includes('screenshot_path')) {
+          return Promise.resolve({ rows: [{ exists: false }] }); // Column does not exist
+        }
+        if (query.includes('INSERT INTO feedback_submissions') && !query.includes('screenshot_path')) {
+          return Promise.resolve({ rows: [{ id: 456 }] });
+        }
+        if (query.includes('SELECT name FROM users')) {
+          return Promise.resolve({ rows: [{ name: 'Test User' }] });
+        }
+        if (query.includes('INSERT INTO email_logs')) {
+          return Promise.resolve({ rows: [] });
+        }
+        if (query.includes('UPDATE feedback_submissions')) {
+          return Promise.resolve({ rows: [] });
+        }
+        return Promise.resolve({ rows: [] });
+      });
+
+      const result = await service.submitFeedback(mockFeedbackDto, mockUser);
+
+      expect(result.id).toBe(456);
+      expect(mockLogger.warn).toHaveBeenCalledWith(
+        expect.stringContaining('screenshot_path column not found'),
+        'FeedbackService',
+      );
+    });
+
+    it('should log feedback ID when storage is successful', async () => {
+      await service.submitFeedback(mockFeedbackDto, mockUser);
+
+      expect(mockLogger.log).toHaveBeenCalledWith(
+        expect.stringContaining('Screenshot uploaded to MinIO'),
+        'FeedbackService',
+      );
+      expect(mockLogger.debug).toHaveBeenCalledWith(
+        expect.stringContaining('Feedback record 123 stored'),
+        'FeedbackService',
+      );
+    });
+  });
+
+  // STORY-041B: Tests for notification-only emails
+  describe('STORY-041B: Notification email without attachment', () => {
+    const mockFeedbackDto = {
+      screenshot: 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
+      comment: 'Test feedback for notification',
+      url: 'https://example.com/test',
+    };
+
+    const mockUser = {
+      id: 1,
+      email: 'user@test.com',
+      name: 'Test User',
+    };
+
+    beforeEach(() => {
+      mockPool.query.mockImplementation((query: string) => {
+        if (query.includes('information_schema.tables')) {
+          return Promise.resolve({ rows: [{ exists: true }] });
+        }
+        if (query.includes('information_schema.columns')) {
+          return Promise.resolve({ rows: [{ exists: true }] });
+        }
+        if (query.includes('INSERT INTO feedback_submissions')) {
+          return Promise.resolve({ rows: [{ id: 999 }] });
+        }
+        if (query.includes('SELECT name FROM users')) {
+          return Promise.resolve({ rows: [{ name: 'Test User' }] });
+        }
+        if (query.includes('INSERT INTO email_logs')) {
+          return Promise.resolve({ rows: [] });
+        }
+        if (query.includes('UPDATE feedback_submissions')) {
+          return Promise.resolve({ rows: [] });
+        }
+        return Promise.resolve({ rows: [] });
+      });
+    });
+
+    it('should not include any attachments in notification email', async () => {
+      await service.submitFeedback(mockFeedbackDto, mockUser);
+
+      const emailPayload = mockResendSend.mock.calls[0][0];
+      expect(emailPayload.attachments).toBeUndefined();
+    });
+
+    it('should include screenshot notice in email when screenshot stored', async () => {
+      await service.submitFeedback(mockFeedbackDto, mockUser);
+
+      const emailPayload = mockResendSend.mock.calls[0][0];
+      expect(emailPayload.html).toContain('Screenshot vorhanden');
+    });
+
+    it('should include feedback ID in notification email', async () => {
+      await service.submitFeedback(mockFeedbackDto, mockUser);
+
+      const emailPayload = mockResendSend.mock.calls[0][0];
+      expect(emailPayload.html).toContain('999');
+    });
+
+    it('should handle email sending failure without throwing', async () => {
+      mockResendSend.mockResolvedValueOnce({
+        data: null,
+        error: { message: 'Email API error' },
+      });
+
+      const result = await service.submitFeedback(mockFeedbackDto, mockUser);
+
+      // Should still return a result (feedback was stored)
+      expect(result.id).toBe(999);
+      expect(mockLogger.warn).toHaveBeenCalledWith(
+        expect.stringContaining('notification email failed'),
+        'FeedbackService',
+      );
+    });
+
+    it('should update email status to failed on email error', async () => {
+      mockResendSend.mockResolvedValueOnce({
+        data: null,
+        error: { message: 'Email API error' },
       });
 
       await service.submitFeedback(mockFeedbackDto, mockUser);
 
-      expect(mockLogger.log).toHaveBeenCalledWith(
-        expect.stringContaining('queued for processing'),
-        'FeedbackService',
+      const updateCall = mockPool.query.mock.calls.find(
+        (call) => call[0]?.includes?.('UPDATE feedback_submissions') && call[0]?.includes?.('email_status'),
       );
+      expect(updateCall).toBeDefined();
+      expect(updateCall[1]).toContain('failed');
     });
   });
 });

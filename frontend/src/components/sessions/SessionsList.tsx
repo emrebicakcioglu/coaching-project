@@ -1,15 +1,18 @@
 /**
  * SessionsList Component
  * STORY-008: Session Management mit "Remember Me"
+ * STORY-002-004: Sessions Page - i18n Support
  *
  * Displays a list of active sessions with the ability to terminate them.
  */
 
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { SessionItem, Session } from './SessionItem';
 
 export interface SessionsListProps {
   sessions: Session[];
+  username?: string;
   onTerminateSession: (sessionId: number) => Promise<void>;
   onTerminateAll: () => Promise<void>;
   isLoading?: boolean;
@@ -21,11 +24,13 @@ export interface SessionsListProps {
  */
 export const SessionsList: React.FC<SessionsListProps> = ({
   sessions,
+  username,
   onTerminateSession,
   onTerminateAll,
   isLoading = false,
   error = null,
 }) => {
+  const { t } = useTranslation('sessions');
   const [showConfirmDialog, setShowConfirmDialog] = React.useState(false);
   const [isTerminatingAll, setIsTerminatingAll] = React.useState(false);
 
@@ -50,10 +55,10 @@ export const SessionsList: React.FC<SessionsListProps> = ({
   if (isLoading) {
     return (
       <div className="sessions-list sessions-list--loading">
-        <div className="sessions-list__spinner" aria-label="Laden...">
+        <div className="sessions-list__spinner" aria-label={t('list.loading')}>
           <span className="spinner" />
         </div>
-        <p>Sessions werden geladen...</p>
+        <p>{t('list.loading')}</p>
       </div>
     );
   }
@@ -69,7 +74,7 @@ export const SessionsList: React.FC<SessionsListProps> = ({
   if (sessions.length === 0) {
     return (
       <div className="sessions-list sessions-list--empty">
-        <p>Keine aktiven Sessions gefunden.</p>
+        <p>{t('list.empty')}</p>
       </div>
     );
   }
@@ -79,9 +84,9 @@ export const SessionsList: React.FC<SessionsListProps> = ({
   return (
     <div className="sessions-list">
       <div className="sessions-list__header">
-        <h2 className="sessions-list__title">Aktive Sessions</h2>
+        <h2 className="sessions-list__title">{t('list.title')}</h2>
         <p className="sessions-list__subtitle">
-          {sessions.length} {sessions.length === 1 ? 'aktive Session' : 'aktive Sessions'}
+          {t('list.count', { count: sessions.length })}
         </p>
       </div>
 
@@ -90,6 +95,7 @@ export const SessionsList: React.FC<SessionsListProps> = ({
           <SessionItem
             key={session.id}
             session={session}
+            username={username}
             onTerminate={onTerminateSession}
             disabled={isLoading || isTerminatingAll}
           />
@@ -105,7 +111,7 @@ export const SessionsList: React.FC<SessionsListProps> = ({
             disabled={isLoading || isTerminatingAll}
             id="logout-all-btn"
           >
-            {isTerminatingAll ? 'Wird beendet...' : 'Alle Geräte abmelden'}
+            {isTerminatingAll ? t('list.terminating') : t('list.logoutAll')}
           </button>
         </div>
       )}
@@ -120,11 +126,10 @@ export const SessionsList: React.FC<SessionsListProps> = ({
         >
           <div className="confirm-dialog">
             <h3 id="confirm-dialog-title" className="confirm-dialog__title">
-              Alle Geräte abmelden?
+              {t('dialog.title')}
             </h3>
             <p className="confirm-dialog__message">
-              Sie werden auf allen anderen Geräten abgemeldet. Diese Aktion kann
-              nicht rückgängig gemacht werden.
+              {t('dialog.message')}
             </p>
             <div className="confirm-dialog__actions">
               <button
@@ -133,7 +138,7 @@ export const SessionsList: React.FC<SessionsListProps> = ({
                 onClick={handleCancelDialog}
                 disabled={isTerminatingAll}
               >
-                Abbrechen
+                {t('dialog.cancel')}
               </button>
               <button
                 type="button"
@@ -141,7 +146,7 @@ export const SessionsList: React.FC<SessionsListProps> = ({
                 onClick={handleConfirmTerminateAll}
                 disabled={isTerminatingAll}
               >
-                {isTerminatingAll ? 'Wird beendet...' : 'Ja, alle abmelden'}
+                {isTerminatingAll ? t('list.terminating') : t('dialog.confirm')}
               </button>
             </div>
           </div>

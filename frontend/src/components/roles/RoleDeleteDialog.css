@@ -4,6 +4,7 @@
  *
  * Styling for RoleDeleteDialog confirmation modal.
  * Uses BEM naming convention for consistency.
+ * Updated for dark mode support using CSS variables.
  */
 
 /* Content container */
@@ -22,23 +23,23 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #fee2e2;
+  background: var(--color-error-light, #fee2e2);
   border-radius: 50%;
 }
 
 .role-delete-dialog__icon-svg {
   width: 32px;
   height: 32px;
-  color: #dc2626;
+  color: var(--color-error, #dc2626);
 }
 
 /* Error message */
 .role-delete-dialog__error {
   width: 100%;
   padding: 12px 16px;
-  color: #b91c1c;
-  background: #fee2e2;
-  border: 1px solid #fecaca;
+  color: var(--color-error, #b91c1c);
+  background: var(--color-error-light, #fee2e2);
+  border: 1px solid var(--color-error, #fecaca);
   border-radius: 6px;
   font-size: 14px;
   line-height: 1.5;
@@ -52,9 +53,9 @@
   gap: 8px;
   width: 100%;
   padding: 12px 16px;
-  color: #92400e;
-  background: #fef3c7;
-  border: 1px solid #fcd34d;
+  color: var(--color-warning, #92400e);
+  background: var(--color-warning-light, #fef3c7);
+  border: 1px solid var(--color-warning, #fcd34d);
   border-radius: 6px;
   font-size: 14px;
   line-height: 1.5;
@@ -72,7 +73,7 @@
   margin: 0;
   font-size: 16px;
   font-weight: 500;
-  color: #1f2937;
+  color: var(--color-text-primary, #1f2937);
   line-height: 1.5;
 }
 
@@ -80,8 +81,8 @@
 .role-delete-dialog__role-info {
   width: 100%;
   padding: 16px;
-  background: #f9fafb;
-  border: 1px solid #e5e7eb;
+  background: var(--color-background-surface, #f9fafb);
+  border: 1px solid var(--color-border-default, #e5e7eb);
   border-radius: 8px;
   text-align: left;
 }
@@ -102,11 +103,11 @@
 }
 
 .role-delete-dialog__role-row:not(:last-child) {
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--color-border-default, #e5e7eb);
 }
 
 .role-delete-dialog__role-row--warning {
-  background: #fef3c7;
+  background: var(--color-warning-light, #fef3c7);
   margin: 8px -16px -16px;
   padding: 12px 16px;
   border-radius: 0 0 8px 8px;
@@ -116,24 +117,24 @@
 .role-delete-dialog__role-label {
   font-size: 14px;
   font-weight: 500;
-  color: #6b7280;
+  color: var(--color-text-secondary, #6b7280);
 }
 
 .role-delete-dialog__role-value {
   font-size: 14px;
-  color: #1f2937;
+  color: var(--color-text-primary, #1f2937);
   font-weight: 500;
 }
 
 .role-delete-dialog__role-value--warning {
-  color: #92400e;
+  color: var(--color-warning, #92400e);
 }
 
 /* Warning note */
 .role-delete-dialog__note {
   margin: 0;
   font-size: 13px;
-  color: #6b7280;
+  color: var(--color-text-secondary, #6b7280);
   line-height: 1.5;
   font-style: italic;
 }
@@ -163,14 +164,14 @@
 }
 
 .role-delete-dialog__btn--secondary {
-  color: #374151;
-  background: white;
-  border: 1px solid #d1d5db;
+  color: var(--color-text-primary, #374151);
+  background: var(--color-background-input, #ffffff);
+  border: 1px solid var(--color-border-default, #d1d5db);
 }
 
 .role-delete-dialog__btn--secondary:hover:not(:disabled) {
-  background: #f9fafb;
-  border-color: #9ca3af;
+  background: var(--color-background-surface, #f9fafb);
+  border-color: var(--color-border-hover, #9ca3af);
 }
 
 .role-delete-dialog__btn--secondary:focus {
@@ -180,7 +181,7 @@
 
 .role-delete-dialog__btn--danger {
   color: white;
-  background: #dc2626;
+  background: var(--color-error, #dc2626);
   border: none;
 }
 

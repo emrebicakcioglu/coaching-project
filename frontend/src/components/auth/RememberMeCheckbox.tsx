@@ -1,6 +1,7 @@
 /**
  * RememberMeCheckbox Component
  * STORY-008: Session Management mit "Remember Me"
+ * STORY-002-001: i18n Support for Login Page
  *
  * A checkbox component for the "Remember Me" option on the login page.
  * When checked, the session will be valid for 30 days instead of 24 hours.
@@ -11,6 +12,7 @@
  */
 
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import './RememberMeCheckbox.css';
 
 export interface RememberMeCheckboxProps {
@@ -37,13 +39,18 @@ export const RememberMeCheckbox: React.FC<RememberMeCheckboxProps> = ({
   checked,
   onChange,
   disabled = false,
-  label = 'Angemeldet bleiben',
+  label,
   className = '',
   id = 'remember-me',
 }) => {
+  const { t } = useTranslation('auth');
+
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     onChange(event.target.checked);
   };
+
+  // Use provided label or fall back to translated text
+  const displayLabel = label || t('login.rememberMe');
 
   return (
     <div className={`remember-me-checkbox ${className}`}>
@@ -62,10 +69,10 @@ export const RememberMeCheckbox: React.FC<RememberMeCheckboxProps> = ({
           aria-describedby={`${id}-description`}
         />
         <span className="remember-me-checkmark" aria-hidden="true" />
-        <span className="remember-me-text">{label}</span>
+        <span className="remember-me-text">{displayLabel}</span>
       </label>
       <p id={`${id}-description`} className="remember-me-description">
-        Bei Aktivierung bleiben Sie 30 Tage angemeldet
+        {t('rememberMeHint')}
       </p>
     </div>
   );

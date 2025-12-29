@@ -327,6 +327,30 @@ export class UpdateColorSchemeDto {
 }
 
 /**
+ * Database entity interface for color schemes
+ * Represents the raw data structure from PostgreSQL
+ */
+export interface ColorSchemeEntity {
+  id: number;
+  name: string;
+  description?: string;
+  is_active: boolean;
+  is_default: boolean;
+  is_light_scheme?: boolean;
+  is_dark_scheme?: boolean;
+  created_by?: number;
+  created_at: Date;
+  updated_at: Date;
+  colors: ColorSchemeColors;
+  buttons: ColorSchemeButtons;
+  typography: ColorSchemeTypography;
+  inputs: ColorSchemeInputs;
+  cards: ColorSchemeCards;
+  badges: ColorSchemeBadges;
+  alerts: ColorSchemeAlerts;
+}
+
+/**
  * Color scheme response DTO
  */
 export class ColorSchemeResponseDto {
@@ -384,7 +408,7 @@ export class ColorSchemeResponseDto {
   /**
    * Create response from database entity
    */
-  static fromEntity(entity: any): ColorSchemeResponseDto {
+  static fromEntity(entity: ColorSchemeEntity): ColorSchemeResponseDto {
     const dto = new ColorSchemeResponseDto();
     dto.id = entity.id;
     dto.name = entity.name;

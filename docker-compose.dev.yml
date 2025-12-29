@@ -161,8 +161,11 @@ services:
     networks:
       - core-app-dev-network
     restart: unless-stopped
+    # Health checks using new liveness/readiness endpoints (002-REWORK-002)
+    # Liveness: /api/health/live - fast check if app is running (< 100ms)
+    # Readiness: /api/health/ready - checks if all dependencies are healthy
     healthcheck:
-      test: ["CMD", "node", "-e", "require('http').get('http://localhost:14102/api/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"]
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:14102/api/health/ready', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"]
       interval: 30s
       timeout: 10s
       retries: 3

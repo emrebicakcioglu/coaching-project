@@ -1,0 +1,287 @@
+/**
+ * FeedbackModal Styles
+ * STORY-041G: Feedback Modal UI
+ *
+ * Styles for the feedback modal component including:
+ * - Screenshot preview with constrained height
+ * - Textarea with focus and error states
+ * - Character counter and hint text
+ * - Footer with action buttons
+ * - Loading spinner
+ */
+
+/* Container */
+.feedback-modal {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Screenshot Preview */
+.feedback-modal__preview {
+  border: 1px solid var(--color-border-default, #e5e7eb);
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--color-background-surface, #f9fafb);
+}
+
+.feedback-modal__screenshot {
+  width: 100%;
+  max-height: 300px;
+  object-fit: contain;
+  display: block;
+}
+
+/* Input Group */
+.feedback-modal__input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.feedback-modal__label {
+  font-weight: 500;
+  color: var(--color-text-primary, #111827);
+  font-size: 14px;
+}
+
+/* Textarea */
+.feedback-modal__textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--color-border-default, #e5e7eb);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.5;
+  resize: vertical;
+  min-height: 100px;
+  background: var(--color-background-input, #ffffff);
+  color: var(--color-text-primary, #111827);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.feedback-modal__textarea::placeholder {
+  color: var(--color-text-muted, #9ca3af);
+}
+
+.feedback-modal__textarea:focus {
+  outline: none;
+  border-color: var(--color-primary, #3b82f6);
+  box-shadow: 0 0 0 3px var(--color-primary-light, rgba(59, 130, 246, 0.15));
+}
+
+.feedback-modal__textarea:disabled {
+  background: var(--color-background-disabled, #f3f4f6);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.feedback-modal__textarea--error {
+  border-color: var(--color-error, #ef4444);
+}
+
+.feedback-modal__textarea--error:focus {
+  box-shadow: 0 0 0 3px var(--color-error-light, rgba(239, 68, 68, 0.15));
+}
+
+/* Meta row (char count + hint) */
+.feedback-modal__meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  gap: 8px;
+}
+
+.feedback-modal__char-count {
+  color: var(--color-text-muted, #6b7280);
+}
+
+.feedback-modal__hint {
+  color: var(--color-warning, #f59e0b);
+  font-style: italic;
+}
+
+/* Error message */
+.feedback-modal__error {
+  padding: 12px;
+  background: var(--color-error-light, #fef2f2);
+  color: var(--color-error, #ef4444);
+  border-radius: 8px;
+  font-size: 14px;
+  border: 1px solid var(--color-error-border, #fecaca);
+}
+
+/* Footer with buttons */
+.feedback-modal__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* Button base styles */
+.feedback-modal__footer .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s, opacity 0.2s, transform 0.1s;
+  min-height: 44px;
+  min-width: 100px;
+}
+
+.feedback-modal__footer .btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.feedback-modal__footer .btn:not(:disabled):hover {
+  transform: translateY(-1px);
+}
+
+.feedback-modal__footer .btn:not(:disabled):active {
+  transform: translateY(0);
+}
+
+/* Primary button */
+.feedback-modal__footer .btn--primary {
+  background: var(--color-primary, #3b82f6);
+  color: white;
+}
+
+.feedback-modal__footer .btn--primary:not(:disabled):hover {
+  background: var(--color-primary-dark, #2563eb);
+}
+
+/* Secondary button */
+.feedback-modal__footer .btn--secondary {
+  background: var(--color-background-surface, #f3f4f6);
+  color: var(--color-text-primary, #374151);
+  border: 1px solid var(--color-border-default, #d1d5db);
+}
+
+.feedback-modal__footer .btn--secondary:not(:disabled):hover {
+  background: var(--color-background-hover, #e5e7eb);
+}
+
+/* Loading spinner in button */
+.feedback-modal__spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: feedback-modal-spin 0.75s linear infinite;
+}
+
+@keyframes feedback-modal-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 768px) {
+  .feedback-modal {
+    gap: 12px;
+  }
+
+  .feedback-modal__screenshot {
+    max-height: 200px;
+  }
+
+  .feedback-modal__textarea {
+    min-height: 80px;
+  }
+
+  .feedback-modal__footer {
+    flex-direction: column-reverse;
+  }
+
+  .feedback-modal__footer .btn {
+    width: 100%;
+  }
+
+  .feedback-modal__meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .feedback-modal__preview {
+    border-color: var(--color-border-default, #374151);
+    background: var(--color-background-surface, #1f2937);
+  }
+
+  .feedback-modal__textarea {
+    background: var(--color-background-input, #1f2937);
+    border-color: var(--color-border-default, #374151);
+    color: var(--color-text-primary, #f9fafb);
+  }
+
+  .feedback-modal__textarea::placeholder {
+    color: var(--color-text-muted, #6b7280);
+  }
+
+  .feedback-modal__error {
+    background: var(--color-error-light, rgba(239, 68, 68, 0.1));
+    border-color: var(--color-error-border, rgba(239, 68, 68, 0.3));
+  }
+
+  .feedback-modal__footer .btn--secondary {
+    background: var(--color-background-surface, #374151);
+    border-color: var(--color-border-default, #4b5563);
+    color: var(--color-text-primary, #f9fafb);
+  }
+}
+
+/* Focus visible for keyboard navigation */
+.feedback-modal__footer .btn:focus-visible {
+  outline: 2px solid var(--color-primary, #3b82f6);
+  outline-offset: 2px;
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .feedback-modal__textarea {
+    border-width: 2px;
+  }
+
+  .feedback-modal__footer .btn {
+    border-width: 2px;
+  }
+
+  .feedback-modal__error {
+    border-width: 2px;
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .feedback-modal__textarea,
+  .feedback-modal__footer .btn {
+    transition: none;
+  }
+
+  .feedback-modal__spinner {
+    animation: none;
+    border-style: dotted;
+  }
+
+  .feedback-modal__footer .btn:not(:disabled):hover,
+  .feedback-modal__footer .btn:not(:disabled):active {
+    transform: none;
+  }
+}

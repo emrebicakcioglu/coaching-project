@@ -1,6 +1,7 @@
 /**
  * RegisterForm Component
  * STORY-023: User Registration
+ * STORY-002-002: i18n Support for Register Page
  *
  * Reusable registration form component with validation, password strength indicator,
  * and accessibility features.
@@ -15,11 +16,14 @@
  * - Full keyboard navigation
  * - ARIA accessibility labels
  * - Responsive design
+ * - Full i18n support with react-i18next
  */
 
 import React, { useState, useCallback, FormEvent, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { PasswordStrengthIndicator } from './PasswordStrengthIndicator';
+import { EyeIcon, EyeOffIcon } from '../icons';
 
 /**
  * Form data interface
@@ -67,51 +71,55 @@ const PASSWORD_MIN_LENGTH = 8;
 const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/;
 
 /**
- * Validate form data
+ * Type for translation function
  */
-const validateForm = (data: RegisterFormData): ValidationResult => {
+type TFunction = (key: string, options?: Record<string, unknown>) => string;
+
+/**
+ * Validate form data with i18n support
+ */
+const validateForm = (data: RegisterFormData, t: TFunction): ValidationResult => {
   const result: ValidationResult = { isValid: true };
 
   // Email validation
   if (!data.email.trim()) {
-    result.emailError = 'Bitte geben Sie Ihre E-Mail-Adresse ein.';
+    result.emailError = t('register.validation.emailRequired');
     result.isValid = false;
   } else {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(data.email)) {
-      result.emailError = 'Bitte geben Sie eine gültige E-Mail-Adresse ein.';
+      result.emailError = t('register.validation.invalidEmail');
       result.isValid = false;
     }
   }
 
   // Name validation
   if (!data.name.trim()) {
-    result.nameError = 'Bitte geben Sie Ihren Namen ein.';
+    result.nameError = t('register.validation.nameRequired');
     result.isValid = false;
   } else if (data.name.trim().length < 2) {
-    result.nameError = 'Der Name muss mindestens 2 Zeichen lang sein.';
+    result.nameError = t('register.validation.nameMinLength');
     result.isValid = false;
   }
 
   // Password validation
   if (!data.password) {
-    result.passwordError = 'Bitte geben Sie ein Passwort ein.';
+    result.passwordError = t('register.validation.passwordRequired');
     result.isValid = false;
   } else if (data.password.length < PASSWORD_MIN_LENGTH) {
-    result.passwordError = `Das Passwort muss mindestens ${PASSWORD_MIN_LENGTH} Zeichen lang sein.`;
+    result.passwordError = t('register.validation.passwordMinLength', { count: PASSWORD_MIN_LENGTH });
     result.isValid = false;
   } else if (!PASSWORD_REGEX.test(data.password)) {
-    result.passwordError =
-      'Das Passwort muss mindestens einen Großbuchstaben, einen Kleinbuchstaben, eine Zahl und ein Sonderzeichen (@$!%*?&) enthalten.';
+    result.passwordError = t('register.validation.passwordPattern');
     result.isValid = false;
   }
 
   // Password confirmation validation
   if (!data.passwordConfirm) {
-    result.passwordConfirmError = 'Bitte bestätigen Sie Ihr Passwort.';
+    result.passwordConfirmError = t('register.validation.passwordConfirmRequired');
     result.isValid = false;
   } else if (data.password !== data.passwordConfirm) {
-    result.passwordConfirmError = 'Die Passwörter stimmen nicht überein.';
+    result.passwordConfirmError = t('register.validation.passwordMismatch');
     result.isValid = false;
   }
 
@@ -129,6 +137,9 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
   autoFocus = true,
   onInputChange,
 }) => {
+  // i18n translation hook
+  const { t } = useTranslation('auth');
+
   // Form state
   const [formData, setFormData] = useState<RegisterFormData>({
     email: initialValues.email || '',
@@ -217,8 +228,8 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
     async (e: FormEvent) => {
       e.preventDefault();
 
-      // Validate form
-      const validation = validateForm(formData);
+      // Validate form with translations
+      const validation = validateForm(formData, t);
 
       if (!validation.isValid) {
         setFieldErrors({
@@ -248,7 +259,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
       // Call submit handler
       await onSubmit(formData);
     },
-    [formData, onSubmit]
+    [formData, onSubmit, t]
   );
 
   // Determine if there are any errors to display
@@ -260,7 +271,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
       className="auth-form"
       onSubmit={handleSubmit}
       noValidate
-      aria-label="Registrierungsformular"
+      aria-label={t('register.formLabel')}
       data-testid="register-form"
     >
       {/* Error Message */}
@@ -281,7 +292,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
       {/* Email Field */}
       <div className="auth-field">
         <label htmlFor="email" className="auth-label">
-          E-Mail-Adresse
+          {t('register.email')}
         </label>
         <input
           ref={emailInputRef}
@@ -291,7 +302,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
           value={formData.email}
           onChange={handleInputChange}
           className={`auth-input ${fieldErrors.email ? 'auth-input--error' : ''}`}
-          placeholder="ihre@email.de"
+          placeholder={t('register.emailPlaceholder')}
           autoComplete="email"
           required
           disabled={isLoading}
@@ -310,7 +321,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
       {/* Name Field */}
       <div className="auth-field">
         <label htmlFor="name" className="auth-label">
-          Name
+          {t('register.name')}
         </label>
         <input
           ref={nameInputRef}
@@ -320,7 +331,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
           value={formData.name}
           onChange={handleInputChange}
           className={`auth-input ${fieldErrors.name ? 'auth-input--error' : ''}`}
-          placeholder="Max Mustermann"
+          placeholder={t('register.namePlaceholder')}
           autoComplete="name"
           required
           disabled={isLoading}
@@ -339,7 +350,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
       {/* Password Field */}
       <div className="auth-field">
         <label htmlFor="password" className="auth-label">
-          Passwort
+          {t('register.password')}
         </label>
         <div className="auth-input-wrapper">
           <input
@@ -350,7 +361,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
             value={formData.password}
             onChange={handleInputChange}
             className={`auth-input ${fieldErrors.password ? 'auth-input--error' : ''}`}
-            placeholder="Mindestens 8 Zeichen"
+            placeholder={t('register.passwordPlaceholder')}
             autoComplete="new-password"
             required
             disabled={isLoading}
@@ -364,14 +375,14 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
             className="auth-input-toggle"
             onClick={togglePasswordVisibility}
             disabled={isLoading}
-            aria-label={showPassword ? 'Passwort verbergen' : 'Passwort anzeigen'}
+            aria-label={showPassword ? t('register.hidePassword') : t('register.showPassword')}
             aria-pressed={showPassword}
             data-testid="password-toggle"
           >
             {showPassword ? (
-              <span aria-hidden="true">&#128065;</span>
+              <EyeOffIcon className="w-5 h-5" aria-hidden="true" />
             ) : (
-              <span aria-hidden="true">&#128064;</span>
+              <EyeIcon className="w-5 h-5" aria-hidden="true" />
             )}
           </button>
         </div>
@@ -384,15 +395,15 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
         {/* Password Strength Indicator */}
         <PasswordStrengthIndicator password={formData.password} />
 
-        <p id="password-requirements" className="auth-field-hint">
-          Mindestens 8 Zeichen, Groß- und Kleinbuchstaben, Zahl und Sonderzeichen (@$!%*?&)
+        <p id="password-requirements" className="auth-field-hint" data-testid="password-requirements">
+          {t('register.passwordRequirements')}
         </p>
       </div>
 
       {/* Password Confirmation Field */}
       <div className="auth-field">
         <label htmlFor="passwordConfirm" className="auth-label">
-          Passwort bestätigen
+          {t('register.confirmPassword')}
         </label>
         <div className="auth-input-wrapper">
           <input
@@ -403,7 +414,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
             value={formData.passwordConfirm}
             onChange={handleInputChange}
             className={`auth-input ${fieldErrors.passwordConfirm ? 'auth-input--error' : ''}`}
-            placeholder="Passwort wiederholen"
+            placeholder={t('register.confirmPasswordPlaceholder')}
             autoComplete="new-password"
             required
             disabled={isLoading}
@@ -417,14 +428,14 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
             className="auth-input-toggle"
             onClick={togglePasswordConfirmVisibility}
             disabled={isLoading}
-            aria-label={showPasswordConfirm ? 'Passwort verbergen' : 'Passwort anzeigen'}
+            aria-label={showPasswordConfirm ? t('register.hidePassword') : t('register.showPassword')}
             aria-pressed={showPasswordConfirm}
             data-testid="password-confirm-toggle"
           >
             {showPasswordConfirm ? (
-              <span aria-hidden="true">&#128065;</span>
+              <EyeOffIcon className="w-5 h-5" aria-hidden="true" />
             ) : (
-              <span aria-hidden="true">&#128064;</span>
+              <EyeIcon className="w-5 h-5" aria-hidden="true" />
             )}
           </button>
         </div>
@@ -437,12 +448,12 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
 
       {/* Privacy Policy Link */}
       <div className="auth-field auth-field--checkbox">
-        <p className="auth-privacy-notice">
-          Mit der Registrierung stimmen Sie unseren{' '}
-          <Link to="/privacy" className="auth-link" tabIndex={isLoading ? -1 : 0}>
-            Datenschutzbestimmungen
+        <p className="auth-privacy-notice" data-testid="privacy-notice">
+          {t('register.privacyPrefix')}{' '}
+          <Link to="/privacy" className="auth-link" tabIndex={isLoading ? -1 : 0} data-testid="privacy-link">
+            {t('register.privacyPolicy')}
           </Link>{' '}
-          zu.
+          {t('register.privacySuffix')}
         </p>
       </div>
 
@@ -461,10 +472,10 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
               aria-hidden="true"
               data-testid="loading-spinner"
             />
-            <span>Wird registriert...</span>
+            <span>{t('register.submitting')}</span>
           </>
         ) : (
-          'Registrieren'
+          t('register.submit')
         )}
       </button>
     </form>

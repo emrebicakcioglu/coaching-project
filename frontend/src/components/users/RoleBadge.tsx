@@ -1,9 +1,18 @@
 /**
  * Role Badge Component
  * STORY-007B: User Role Assignment
+ * STORY-104: Users Page UI Audit
  *
  * Displays a role as a styled badge.
- * Different colors for different role types (admin, user, etc.)
+ * Different colors for different role types (admin, manager, user, etc.)
+ *
+ * Color Scheme (STORY-104):
+ * - Admin: Red (high privilege)
+ * - Manager: Orange/Yellow (elevated privilege)
+ * - Moderator: Purple
+ * - Editor: Blue
+ * - User: Green (default)
+ * - Viewer/Guest: Gray
  */
 
 import React from 'react';
@@ -22,12 +31,16 @@ export interface RoleBadgeProps {
 
 /**
  * Get badge variant based on role name
+ * STORY-104: Updated color scheme with Manager role
  */
 const getRoleVariant = (roleName: string): string => {
   const name = roleName.toLowerCase();
 
   if (name === 'admin' || name === 'administrator') {
     return 'admin';
+  }
+  if (name === 'manager') {
+    return 'manager';
   }
   if (name === 'moderator' || name === 'mod') {
     return 'moderator';
@@ -37,6 +50,9 @@ const getRoleVariant = (roleName: string): string => {
   }
   if (name === 'viewer' || name === 'guest') {
     return 'viewer';
+  }
+  if (name === 'user') {
+    return 'user';
   }
   return 'default';
 };

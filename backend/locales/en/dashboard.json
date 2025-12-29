@@ -6,7 +6,8 @@
     "activeSessions": "Active Sessions",
     "roles": "Roles",
     "systemStatus": "System Status",
-    "healthy": "Healthy"
+    "healthy": "Healthy",
+    "unhealthy": "Unhealthy"
   },
   "quickActions": {
     "title": "Quick Actions",

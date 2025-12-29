@@ -5,21 +5,26 @@
  * STORY-013B: In-App Settings Frontend UI - Admin settings with tabs
  * STORY-034: Maintenance Mode - Maintenance mode settings tab
  * BUG-003: Fixed Security button navigation with proper tab state management
+ * STORY-106: Settings Page UI Audit - Unified tab styles, consistent card styling, improved spacing
  *
  * System settings and user preferences page.
  * Admin users see tabbed admin settings (General, Security, Email).
  * All users see personal settings section.
  */
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Container } from '../components/layout';
 import { Toast, ToastType } from '../components/feedback';
+import { Card } from '../components/ui';
+import { Button } from '../components/ui/Button';
 import { useAuth } from '../contexts';
 import {
   SettingsTabs,
   SettingsTab,
+  TabNavigation,
+  TabItem,
   GeneralSettings,
   SecuritySettings,
   EmailSettings,
@@ -59,8 +64,53 @@ export const SettingsPage: React.FC = () => {
 
   // Check if user has admin settings permission
   const isAdmin = hasPermission('settings.update');
-// CSS variable styles for theming
-  const cardStyle = { backgroundColor: 'var(--color-background-card, #ffffff)' };  const textPrimaryStyle = { color: 'var(--color-text-primary, #111827)' };  const textSecondaryStyle = { color: 'var(--color-text-secondary, #6b7280)' };  const borderStyle = { borderColor: 'var(--color-border-default, #e5e7eb)' };
+
+  // CSS variable styles for theming (STORY-106: Consistent styling)
+  const textPrimaryStyle = { color: 'var(--color-text-primary, #111827)' };
+  const textSecondaryStyle = { color: 'var(--color-text-secondary, #6b7280)' };
+  const borderStyle = { borderColor: 'var(--color-border-default, #e5e7eb)' };
+  const inputStyle = {
+    backgroundColor: 'var(--color-background-input, #ffffff)',
+    borderColor: 'var(--color-border-default, #d1d5db)',
+    color: 'var(--color-text-primary, #111827)',
+  };
+
+  // STORY-106: Personal settings tabs configuration with icons for unified styling
+  const personalTabs: TabItem[] = useMemo(() => [
+    {
+      id: 'profile',
+      label: t('personal.tabs.profile'),
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+        </svg>
+      ),
+    },
+    {
+      id: 'security',
+      label: t('personal.tabs.security'),
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+        </svg>
+      ),
+    },
+  ], [t]);
+
+  /**
+   * Handle personal tab change with URL hash update
+   */
+  const handlePersonalTabChange = useCallback((tabId: string) => {
+    setActivePersonalTab(tabId as PersonalSettingsTab);
+    window.history.pushState(null, '', `#${tabId}`);
+    // Scroll to section after brief delay
+    setTimeout(() => {
+      const element = document.getElementById(tabId);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, 100);
+  }, []);
 
   // BUG-003 FIX: Handle URL hash for direct navigation to security section
   useEffect(() => {
@@ -141,7 +191,7 @@ export const SettingsPage: React.FC = () => {
   };
 
   return (
-    <Container className="py-6">
+    <Container className="py-8">
       {/* Toast Notification */}
       {toast && (
         <Toast
@@ -153,33 +203,33 @@ export const SettingsPage: React.FC = () => {
       )}
 
       {/* Page Header */}
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold" style={textPrimaryStyle}>{t('title')}</h1>
-        <p className="mt-1 text-sm" style={textSecondaryStyle}>
+      <div className="page-header">
+        <h1 className="page-title">{t('title')}</h1>
+        <p className="page-subtitle">
           {t('subtitle')}
         </p>
       </div>
 
-      {/* Admin Settings Section */}
+      {/* Admin Settings Section - STORY-106: Using Card component for consistent styling */}
       {isAdmin && (
-        <section className="mb-8">
-          <div className="rounded-lg shadow-sm border" style={{ ...cardStyle, ...borderStyle }}>
-            <div className="p-6 border-b" style={borderStyle}>
-              <h2 className="text-lg font-semibold" style={textPrimaryStyle}>
+        <section className="mb-8" data-testid="admin-settings-section">
+          <Card variant="default" data-testid="admin-settings-card">
+            <Card.Header>
+              <h2 className="card-title">
                 {t('admin.title')}
               </h2>
-              <p className="mt-1 text-sm" style={textSecondaryStyle}>
+              <p className="card-description">
                 {t('admin.subtitle')}
               </p>
-            </div>
+            </Card.Header>
 
-            {/* Tab Navigation */}
+            {/* Tab Navigation - Using SettingsTabs for Admin (maintains existing behavior) */}
             <div className="px-6 pt-4">
               <SettingsTabs
                 activeTab={activeTab}
                 onTabChange={setActiveTab}
                 hasUnsavedChanges={hasUnsavedChanges}
-                data-testid="settings-tabs"
+                data-testid="admin-settings-tabs"
               />
             </div>
 
@@ -192,172 +242,175 @@ export const SettingsPage: React.FC = () => {
             >
               {renderTabContent()}
             </div>
-          </div>
+          </Card>
         </section>
       )}
 
-      {/* Personal Settings Section */}
-      <section className="space-y-6">
-        <div className="rounded-lg shadow-sm border" style={{ ...cardStyle, ...borderStyle }}>
-          <div className="p-6 border-b" style={borderStyle}>
-            <h2 className="text-lg font-semibold" style={textPrimaryStyle}>
+      {/* Personal Settings Section - STORY-106: Using Card component and unified TabNavigation */}
+      <section className="space-y-6" data-testid="personal-settings-section">
+        <Card variant="default" data-testid="personal-settings-card">
+          <Card.Header>
+            <h2 className="card-title">
               {t('personal.title')}
             </h2>
-            <p className="mt-1 text-sm" style={textSecondaryStyle}>
+            <p className="card-description">
               {t('personal.subtitle')}
             </p>
+          </Card.Header>
+
+          {/* Personal Settings Navigation Tabs - STORY-106: Using unified TabNavigation */}
+          <div className="px-6 pt-4">
+            <TabNavigation
+              tabs={personalTabs}
+              activeTab={activePersonalTab}
+              onTabChange={handlePersonalTabChange}
+              ariaLabel={t('personal.title')}
+              data-testid="personal-settings-tabs"
+            />
           </div>
 
-          {/* Personal Settings Navigation Tabs - BUG-003 FIX */}
-          <div className="px-6 pt-4 border-b" style={borderStyle}>
-            <nav className="-mb-px flex space-x-8" aria-label={t('personal.title')}>
-              <button
-                type="button"
-                onClick={() => {
-                  setActivePersonalTab('profile');
-                  window.history.pushState(null, '', '#profile');
-                  document.getElementById('profile')?.scrollIntoView({ behavior: 'smooth' });
-                }}
-                className={`group inline-flex items-center gap-2 py-4 px-1 border-b-2 font-medium text-sm ${
-                  activePersonalTab === 'profile'
-                    ? 'border-primary-500 text-primary-600'
-                    : 'border-transparent text-neutral-500 hover:text-neutral-700 hover:border-neutral-300'
-                }`}
-                data-testid="personal-settings-profile-tab"
-              >
-                {t('personal.tabs.profile')}
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setActivePersonalTab('security');
-                  window.history.pushState(null, '', '#security');
-                  document.getElementById('security')?.scrollIntoView({ behavior: 'smooth' });
-                }}
-                className={`group inline-flex items-center gap-2 py-4 px-1 border-b-2 font-medium text-sm ${
-                  activePersonalTab === 'security'
-                    ? 'border-primary-500 text-primary-600'
-                    : 'border-transparent text-neutral-500 hover:text-neutral-700 hover:border-neutral-300'
-                }`}
-                data-testid="personal-settings-security-tab"
-              >
-                {t('personal.tabs.security')}
-              </button>
-            </nav>
-          </div>
-
-          {/* Settings Content */}
+          {/* Settings Content - STORY-106: Standardized spacing */}
           <div className="p-6 space-y-8">
-            {/* Profile Section */}
-            <section id="profile">
-              <h3 className="text-base font-semibold mb-2" style={textPrimaryStyle}>{t('profile.title')}</h3>
-              <p className="text-sm mb-4" style={textSecondaryStyle}>
-                {t('profile.subtitle')}
-              </p>
+            {/* Profile Section - STORY-106: Improved section hierarchy */}
+            <section id="profile" data-testid="profile-section">
+              <div className="pb-4 mb-4 border-b" style={borderStyle}>
+                <h3 className="text-base font-semibold" style={textPrimaryStyle}>{t('profile.title')}</h3>
+                <p className="text-sm mt-1" style={textSecondaryStyle}>
+                  {t('profile.subtitle')}
+                </p>
+              </div>
+              {/* STORY-106: Standardized form field spacing (24px between groups) */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium mb-1" style={textSecondaryStyle}>
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium" style={textPrimaryStyle}>
                     {t('profile.name')}
                   </label>
                   <input
                     type="text"
                     defaultValue={user?.name || ''}
-                    className="w-full px-3 py-2 border border-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    style={inputStyle}
                     readOnly
+                    data-testid="profile-name-input"
                   />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1" style={textSecondaryStyle}>
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium" style={textPrimaryStyle}>
                     {t('profile.email')}
                   </label>
                   <input
                     type="email"
                     defaultValue={user?.email || ''}
-                    className="w-full px-3 py-2 border border-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    style={inputStyle}
                     readOnly
+                    data-testid="profile-email-input"
                   />
                 </div>
               </div>
             </section>
 
-            {/* Divider */}
-            <hr style={borderStyle} />
+            {/* Divider - STORY-106: Clear visual separator */}
+            <hr style={borderStyle} className="my-6" />
 
-            {/* Security Section */}
-            <section id="security">
-              <h3 className="text-base font-semibold mb-2" style={textPrimaryStyle}>{t('security.title')}</h3>
-              <p className="text-sm mb-4" style={textSecondaryStyle}>
-                {t('security.subtitle')}
-              </p>
+            {/* Security Section - STORY-106: Improved section hierarchy */}
+            <section id="security" data-testid="security-section">
+              <div className="pb-4 mb-4 border-b" style={borderStyle}>
+                <h3 className="text-base font-semibold" style={textPrimaryStyle}>{t('security.title')}</h3>
+                <p className="text-sm mt-1" style={textSecondaryStyle}>
+                  {t('security.subtitle')}
+                </p>
+              </div>
               <div className="space-y-6">
-                {/* Two-Factor Authentication (STORY-005C) */}
+                {/* Two-Factor Authentication (STORY-005C, STORY-106: Changed to outline button) */}
                 <div className="pb-6 border-b" style={borderStyle}>
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <h4 className="text-sm font-medium mb-1" style={textPrimaryStyle}>
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1">
+                      <h4 className="text-sm font-semibold mb-1" style={textPrimaryStyle}>
                         {t('security.mfa.title')}
                       </h4>
                       <p className="text-sm" style={textSecondaryStyle}>
                         {t('security.mfa.description')}
                       </p>
                     </div>
+                    {/* STORY-106: Changed from primary filled to outline button (navigates to another page) */}
                     <Link
                       to="/settings/security/mfa"
-                      className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
                       data-testid="mfa-setup-link"
                     >
-                      {t('security.mfa.setup')}
+                      <Button
+                        variant="outline"
+                        size="md"
+                        data-testid="mfa-setup-button"
+                        rightIcon={
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                          </svg>
+                        }
+                      >
+                        {t('security.mfa.setup')}
+                      </Button>
                     </Link>
                   </div>
                 </div>
 
-                {/* Change Password */}
+                {/* Change Password - STORY-106: Standardized spacing */}
                 <div>
-                  <h4 className="text-sm font-medium mb-3" style={textPrimaryStyle}>
+                  <h4 className="text-sm font-semibold mb-4" style={textPrimaryStyle}>
                     {t('security.password.title')}
                   </h4>
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium mb-1" style={textSecondaryStyle}>
+                  {/* STORY-106: Consistent form field spacing (space-y-6 = 24px) */}
+                  <div className="space-y-6">
+                    <div className="space-y-2">
+                      <label className="block text-sm font-medium" style={textPrimaryStyle}>
                         {t('security.password.current')}
                       </label>
                       <input
                         type="password"
-                        className="w-full px-3 py-2 border border-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                        className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                        style={inputStyle}
+                        data-testid="password-current-input"
                       />
                     </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-1" style={textSecondaryStyle}>
+                    <div className="space-y-2">
+                      <label className="block text-sm font-medium" style={textPrimaryStyle}>
                         {t('security.password.new')}
                       </label>
                       <input
                         type="password"
-                        className="w-full px-3 py-2 border border-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                        className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                        style={inputStyle}
+                        data-testid="password-new-input"
                       />
                     </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-1" style={textSecondaryStyle}>
+                    <div className="space-y-2">
+                      <label className="block text-sm font-medium" style={textPrimaryStyle}>
                         {t('security.password.confirm')}
                       </label>
                       <input
                         type="password"
-                        className="w-full px-3 py-2 border border-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                        className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                        style={inputStyle}
+                        data-testid="password-confirm-input"
                       />
                     </div>
                   </div>
-                  <div className="mt-4 flex justify-end">
-                    <button
-                      type="button"
-                      className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
-                    >
-                      {t('security.password.update')}
-                    </button>
+                  {/* STORY-106: Visual separator before action buttons */}
+                  <div className="mt-6 pt-4 border-t" style={borderStyle}>
+                    <div className="flex justify-end">
+                      <Button
+                        variant="primary"
+                        data-testid="password-update-button"
+                      >
+                        {t('security.password.update')}
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </div>
             </section>
           </div>
-        </div>
+        </Card>
       </section>
     </Container>
   );

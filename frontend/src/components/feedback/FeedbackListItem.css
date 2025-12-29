@@ -1,0 +1,220 @@
+/**
+ * FeedbackListItem Styles
+ * STORY-041H: Feedback Admin Page
+ *
+ * Styling for the feedback list item component.
+ * Uses BEM naming convention and CSS variables for theming.
+ */
+
+/* Table row */
+.feedback-list-item {
+  transition: background-color 0.2s ease;
+}
+
+.feedback-list-item:hover {
+  background: var(--color-background-surface, #f9fafb);
+}
+
+/* Cell base styles */
+.feedback-list-item__cell {
+  padding: 16px;
+  font-size: 14px;
+  color: var(--color-text-primary, #374151);
+  border-bottom: 1px solid var(--color-border-light, #f3f4f6);
+  vertical-align: middle;
+}
+
+/* Thumbnail cell */
+.feedback-list-item__cell--thumbnail {
+  width: 80px;
+  min-width: 80px;
+}
+
+.feedback-list-item__thumbnail-container {
+  width: 60px;
+  height: 45px;
+  border-radius: 4px;
+  overflow: hidden;
+  background: var(--color-background-surface, #f3f4f6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--color-border-default, #e5e7eb);
+}
+
+.feedback-list-item__thumbnail {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.feedback-list-item__thumbnail-placeholder {
+  width: 24px;
+  height: 24px;
+  color: var(--color-text-muted, #9ca3af);
+}
+
+.feedback-list-item__thumbnail-loading {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.feedback-list-item__loading-spinner {
+  width: 20px;
+  height: 20px;
+  animation: feedback-spin 1s linear infinite;
+}
+
+.feedback-list-item__loading-circle {
+  stroke-dasharray: 30 60;
+  color: var(--color-primary, #3b82f6);
+}
+
+@keyframes feedback-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* User cell */
+.feedback-list-item__cell--user {
+  min-width: 150px;
+}
+
+.feedback-list-item__user {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.feedback-list-item__user-name {
+  font-weight: 500;
+  color: var(--color-text-primary, #1f2937);
+}
+
+.feedback-list-item__user-email {
+  font-size: 12px;
+  color: var(--color-text-secondary, #6b7280);
+}
+
+/* Comment cell */
+.feedback-list-item__cell--comment {
+  max-width: 300px;
+}
+
+.feedback-list-item__comment {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--color-text-secondary, #4b5563);
+}
+
+.feedback-list-item__jira-badge {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 4px;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #0052cc;
+  background: #deebff;
+  border-radius: 3px;
+  text-decoration: none;
+  transition: background-color 0.2s ease;
+}
+
+.feedback-list-item__jira-badge:hover {
+  background: #b3d4ff;
+}
+
+/* Date cell */
+.feedback-list-item__cell--date {
+  width: 100px;
+  min-width: 100px;
+}
+
+.feedback-list-item__date {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.feedback-list-item__date-day {
+  font-size: 14px;
+  color: var(--color-text-primary, #374151);
+}
+
+.feedback-list-item__date-time {
+  font-size: 12px;
+  color: var(--color-text-secondary, #6b7280);
+}
+
+/* Actions cell */
+.feedback-list-item__cell--actions {
+  width: 140px;
+  min-width: 140px;
+}
+
+.feedback-list-item__actions {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.feedback-list-item__action-icon {
+  width: 16px;
+  height: 16px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .feedback-list-item__cell--comment {
+    max-width: 200px;
+  }
+}
+
+@media (max-width: 768px) {
+  .feedback-list-item__cell {
+    padding: 12px 8px;
+  }
+
+  .feedback-list-item__thumbnail-container {
+    width: 48px;
+    height: 36px;
+  }
+
+  .feedback-list-item__cell--thumbnail {
+    width: 60px;
+    min-width: 60px;
+  }
+
+  .feedback-list-item__cell--user {
+    min-width: 120px;
+  }
+
+  .feedback-list-item__cell--comment {
+    max-width: 150px;
+  }
+
+  .feedback-list-item__cell--date {
+    width: 80px;
+    min-width: 80px;
+  }
+
+  .feedback-list-item__cell--actions {
+    width: 100px;
+    min-width: 100px;
+  }
+
+  .feedback-list-item__actions {
+    flex-wrap: wrap;
+    gap: 2px;
+  }
+}

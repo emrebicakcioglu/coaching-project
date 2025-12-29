@@ -8,6 +8,7 @@
 
 import React, { useState, useCallback, FormEvent } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { passwordResetService } from '../services/authService';
 import './AuthPages.css';
 
@@ -22,6 +23,8 @@ interface FormState {
  * ForgotPasswordPage Component
  */
 export const ForgotPasswordPage: React.FC = () => {
+  const { t } = useTranslation('auth');
+
   // Form state
   const [formData, setFormData] = useState<FormState>({ email: '' });
   const [isLoading, setIsLoading] = useState(false);
@@ -60,12 +63,12 @@ export const ForgotPasswordPage: React.FC = () => {
 
       // Validate email
       if (!formData.email.trim()) {
-        setError('Bitte geben Sie Ihre E-Mail-Adresse ein.');
+        setError(t('forgotPassword.errors.emailRequired'));
         return;
       }
 
       if (!validateEmail(formData.email)) {
-        setError('Bitte geben Sie eine gültige E-Mail-Adresse ein.');
+        setError(t('forgotPassword.errors.invalidEmail'));
         return;
       }
 
@@ -80,7 +83,7 @@ export const ForgotPasswordPage: React.FC = () => {
         // So we show a generic success message
         // Only show error for network/server errors
         if (err instanceof Error && err.message.includes('Network')) {
-          setError('Netzwerkfehler. Bitte überprüfen Sie Ihre Internetverbindung.');
+          setError(t('forgotPassword.errors.network'));
         } else {
           // Show success anyway to prevent email enumeration
           setIsSuccess(true);
@@ -89,7 +92,7 @@ export const ForgotPasswordPage: React.FC = () => {
         setIsLoading(false);
       }
     },
-    [formData.email]
+    [formData.email, t]
   );
 
   /**
@@ -116,14 +119,14 @@ export const ForgotPasswordPage: React.FC = () => {
       <div className="auth-page">
         <div className="auth-container">
           {/* Logo placeholder */}
-          <div className="auth-logo" aria-label="Logo">
+          <div className="auth-logo" aria-label={t('logo')}>
             <div className="auth-logo__placeholder" aria-hidden="true">
-              <span>LOGO</span>
+              <span>{t('logoText')}</span>
             </div>
           </div>
 
           <div className="auth-header">
-            <h1 className="auth-title">E-Mail gesendet</h1>
+            <h1 className="auth-title">{t('forgotPassword.success.title')}</h1>
           </div>
 
           <div className="auth-success confirmation-message">
@@ -131,15 +134,13 @@ export const ForgotPasswordPage: React.FC = () => {
               ✓
             </div>
             <p className="auth-success__message success-message">
-              Wenn ein Konto mit der E-Mail-Adresse <strong>{formData.email}</strong> existiert,
-              haben wir Ihnen einen Link zum Zurücksetzen Ihres Passworts gesendet.
+              {t('forgotPassword.success.message', { email: formData.email })}
             </p>
             <p className="auth-success__expiry">
-              Der Link ist <strong>1 Stunde</strong> gültig.
+              {t('forgotPassword.success.expiry', { time: t('forgotPassword.success.expiryTime') })}
             </p>
             <p className="auth-success__hint">
-              Bitte überprüfen Sie auch Ihren Spam-Ordner, falls Sie die E-Mail nicht in Ihrem
-              Posteingang finden.
+              {t('forgotPassword.success.spamWarning')}
             </p>
           </div>
 
@@ -147,7 +148,7 @@ export const ForgotPasswordPage: React.FC = () => {
           <div className="auth-actions">
             {resendSuccess ? (
               <p className="auth-resend-success" role="status">
-                <span aria-hidden="true">✓</span> E-Mail wurde erneut gesendet
+                <span aria-hidden="true">✓</span> {t('forgotPassword.success.resent')}
               </p>
             ) : (
               <button
@@ -159,10 +160,10 @@ export const ForgotPasswordPage: React.FC = () => {
                 {isResending ? (
                   <>
                     <span className="auth-button__spinner" aria-hidden="true" />
-                    Wird gesendet...
+                    {t('forgotPassword.resend.sending')}
                   </>
                 ) : (
-                  'E-Mail erneut senden'
+                  t('forgotPassword.resend.button')
                 )}
               </button>
             )}
@@ -170,7 +171,7 @@ export const ForgotPasswordPage: React.FC = () => {
 
           <div className="auth-links">
             <Link to="/login" className="auth-link">
-              Zurück zur Anmeldung
+              {t('forgotPassword.backToLogin')}
             </Link>
           </div>
         </div>
@@ -182,17 +183,16 @@ export const ForgotPasswordPage: React.FC = () => {
     <div className="auth-page">
       <div className="auth-container">
         {/* Logo placeholder */}
-        <div className="auth-logo" aria-label="Logo">
+        <div className="auth-logo" aria-label={t('logo')}>
           <div className="auth-logo__placeholder" aria-hidden="true">
-            <span>LOGO</span>
+            <span>{t('logoText')}</span>
           </div>
         </div>
 
         <div className="auth-header">
-          <h1 className="auth-title">Passwort vergessen?</h1>
+          <h1 className="auth-title">{t('forgotPassword.title')}</h1>
           <p className="auth-subtitle">
-            Geben Sie Ihre E-Mail-Adresse ein und wir senden Ihnen einen Link zum Zurücksetzen
-            Ihres Passworts.
+            {t('forgotPassword.subtitle')}
           </p>
         </div>
 
@@ -210,7 +210,7 @@ export const ForgotPasswordPage: React.FC = () => {
           {/* Email Field */}
           <div className="auth-field">
             <label htmlFor="email" className="auth-label">
-              E-Mail-Adresse
+              {t('forgotPassword.email')}
             </label>
             <input
               type="email"
@@ -219,7 +219,7 @@ export const ForgotPasswordPage: React.FC = () => {
               value={formData.email}
               onChange={handleInputChange}
               className={`auth-input ${error ? 'auth-input--error' : ''}`}
-              placeholder="ihre@email.de"
+              placeholder={t('forgotPassword.emailPlaceholder')}
               autoComplete="email"
               autoFocus
               required
@@ -237,10 +237,10 @@ export const ForgotPasswordPage: React.FC = () => {
             {isLoading ? (
               <>
                 <span className="auth-button__spinner" aria-hidden="true" />
-                Wird gesendet...
+                {t('forgotPassword.submitting')}
               </>
             ) : (
-              'Link senden'
+              t('forgotPassword.submit')
             )}
           </button>
         </form>
@@ -248,7 +248,7 @@ export const ForgotPasswordPage: React.FC = () => {
         {/* Links */}
         <div className="auth-links">
           <Link to="/login" className="auth-link">
-            Zurück zur Anmeldung
+            {t('forgotPassword.backToLogin')}
           </Link>
         </div>
       </div>

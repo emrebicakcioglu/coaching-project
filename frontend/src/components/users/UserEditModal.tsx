@@ -20,6 +20,7 @@ import React, { useState, useEffect } from 'react';
 import { ResponsiveModal } from '../responsive';
 import { usersService, UpdateUserDto, User } from '../../services/usersService';
 import { rolesService, Role } from '../../services/rolesService';
+import { logger } from '../../services/loggerService';
 import './UserFormModal.css';
 
 /**
@@ -108,7 +109,7 @@ export const UserEditModal: React.FC<UserEditModalProps> = ({
       const roles = await rolesService.listRoles();
       setAvailableRoles(roles);
     } catch (error) {
-      console.error('Failed to load roles:', error);
+      logger.error('Failed to load roles', error);
     }
   };
 
@@ -237,7 +238,7 @@ export const UserEditModal: React.FC<UserEditModalProps> = ({
       onSuccess?.(updatedUser);
       onClose();
     } catch (error: unknown) {
-      console.error('Failed to update user:', error);
+      logger.error('Failed to update user', error);
       const apiError = error as { response?: { data?: { message?: string } } };
       setErrors({
         general:

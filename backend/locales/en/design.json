@@ -1,0 +1,340 @@
+{
+  "title": "Design System",
+  "subtitle": "Manage color schemes and design tokens for the application",
+  "loading": "Loading...",
+  "tabs": {
+    "base": "Base/Theme",
+    "buttons": "Buttons",
+    "typography": "Typography",
+    "inputs": "Inputs",
+    "cards": "Cards",
+    "badges": "Badges",
+    "alerts": "Alerts"
+  },
+  "sidebar": {
+    "title": "Color Schemes",
+    "createTooltip": "Create new scheme",
+    "createNew": "Create new scheme"
+  },
+  "badges": {
+    "active": "Active",
+    "light": "Light",
+    "dark": "Dark"
+  },
+  "buttons": {
+    "duplicate": "Duplicate",
+    "applyScheme": "Apply Scheme",
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "create": "Create",
+    "save": "Save"
+  },
+  "labels": {
+    "useAsLight": "Use as Light Mode",
+    "useAsDark": "Use as Dark Mode",
+    "useAsLightMode": "Use as Light Mode",
+    "useAsDarkMode": "Use as Dark Mode",
+    "active": "(Active)",
+    "light": "Light",
+    "dark": "Dark",
+    "noDescription": "No description"
+  },
+  "modal": {
+    "create": {
+      "title": "Create Color Scheme",
+      "placeholder": "Scheme name"
+    },
+    "delete": {
+      "title": "Delete Color Scheme",
+      "confirm": "Are you sure you want to delete \"{{name}}\"? This action cannot be undone."
+    }
+  },
+  "messages": {
+    "schemeCreated": "Color scheme created successfully",
+    "schemeDuplicated": "Color scheme duplicated successfully",
+    "schemeApplied": "Color scheme applied successfully",
+    "schemeDeleted": "Color scheme deleted successfully",
+    "lightModeSet": "Scheme set as Light Mode",
+    "lightModeCleared": "Light Mode cleared",
+    "darkModeSet": "Scheme set as Dark Mode",
+    "darkModeCleared": "Dark Mode cleared"
+  },
+  "errors": {
+    "loadFailed": "Failed to load color schemes",
+    "createFailed": "Failed to create color scheme",
+    "duplicateFailed": "Failed to duplicate color scheme",
+    "applyFailed": "Failed to apply color scheme",
+    "deleteFailed": "Failed to delete color scheme",
+    "updateColor": "Failed to update color",
+    "updateLightMode": "Failed to update light mode",
+    "updateDarkMode": "Failed to update dark mode"
+  },
+  "descriptions": {
+    "newScheme": "New custom color scheme",
+    "copy": "(Copy)"
+  },
+  "sections": {
+    "colorPalette": "Color Palette",
+    "quickPreview": "Quick Preview",
+    "primaryColors": "Primary Colors",
+    "backgroundColors": "Background Colors",
+    "textColors": "Text Colors",
+    "statusColors": "Status Colors",
+    "borderColors": "Border Colors",
+    "buttonStyles": "Button Styles",
+    "fontFamilies": "Font Families",
+    "headings": "Headings",
+    "bodyText": "Body Text",
+    "labels": "Labels",
+    "code": "Code",
+    "inputStyles": "Input Field Styles",
+    "cardStyles": "Card Styles",
+    "badgeStyles": "Badge Styles",
+    "badgeSizes": "Badge Sizes",
+    "alertStyles": "Alert Styles",
+    "baseColors": "Global Theme Colors"
+  },
+  "colors": {
+    "primary": "Primary",
+    "primaryHover": "Primary Hover",
+    "primaryLight": "Primary Light",
+    "secondary": "Secondary",
+    "accent": "Accent",
+    "success": "Success",
+    "successLight": "Success Light",
+    "warning": "Warning",
+    "warningLight": "Warning Light",
+    "error": "Error",
+    "errorLight": "Error Light",
+    "info": "Info",
+    "infoLight": "Info Light",
+    "pageBackground": "Page Background",
+    "cardBackground": "Card Background",
+    "sidebarBackground": "Sidebar Background",
+    "modalBackground": "Modal Background",
+    "inputBackground": "Input Background",
+    "primaryText": "Primary Text",
+    "secondaryText": "Secondary Text",
+    "mutedText": "Muted Text",
+    "inverseText": "Inverse Text",
+    "linkText": "Link Text",
+    "borderLight": "Border Light",
+    "borderDefault": "Border Default",
+    "borderDark": "Border Dark"
+  },
+  "buttonTypes": {
+    "normal": {
+      "label": "Normal Button",
+      "description": "Primary action button"
+    },
+    "inactive": {
+      "label": "Inactive Button",
+      "description": "Disabled state button"
+    },
+    "abort": {
+      "label": "Abort Button",
+      "description": "Cancel/secondary action"
+    },
+    "special": {
+      "label": "Special Button",
+      "description": "Gradient/highlighted action"
+    },
+    "danger": {
+      "label": "Danger Button",
+      "description": "Destructive actions"
+    },
+    "success": {
+      "label": "Success Button",
+      "description": "Positive actions"
+    }
+  },
+  "states": {
+    "hover": "Hover State",
+    "normal": "Normal State",
+    "error": "Error State",
+    "disabled": "Disabled State"
+  },
+  "buttonProperties": {
+    "background": "Background",
+    "text": "Text",
+    "border": "Border",
+    "hoverBackground": "Hover Background",
+    "hoverText": "Hover Text",
+    "hoverBorder": "Hover Border"
+  },
+  "hints": {
+    "clickToEdit": "Click to edit"
+  },
+  "typography": {
+    "primaryFont": "Primary Font",
+    "monoFont": "Monospace Font"
+  },
+  "placeholders": {
+    "fontFamily": "Inter, system-ui, sans-serif",
+    "monoFont": "ui-monospace, monospace",
+    "textarea": "Enter longer text...",
+    "normalInput": "Enter text...",
+    "errorInput": "Invalid input",
+    "disabledInput": "Disabled field"
+  },
+  "preview": {
+    "cardTitle": "Sample Card Title",
+    "cardDescription": "This is a preview of how content will look with this color scheme applied.",
+    "primaryButton": "Primary Button",
+    "secondaryButton": "Secondary Button",
+    "pangram": "The quick brown fox jumps over the lazy dog.",
+    "codeExample": "const code = \"example\";"
+  },
+  "help": {
+    "badgeColors": "Badge colors are derived from Primary, Secondary, and Status Colors in the Colors tab.",
+    "alertColors": "Alert colors are derived from Status Colors in the Colors tab."
+  },
+  "sizes": {
+    "small": "Small",
+    "medium": "Medium",
+    "large": "Large"
+  },
+  "cards": {
+    "default": "Default Card",
+    "elevated": "Elevated Card",
+    "flat": "Flat Card",
+    "description": "This is an example of the {{type}} card style with its defined properties."
+  },
+  "alerts": {
+    "success": {
+      "title": "Success Alert",
+      "message": "Operation completed successfully!"
+    },
+    "warning": {
+      "title": "Warning Alert",
+      "message": "Please review your changes before proceeding."
+    },
+    "error": {
+      "title": "Error Alert",
+      "message": "An error occurred. Please try again."
+    },
+    "info": {
+      "title": "Info Alert",
+      "message": "Here is some helpful information for you."
+    }
+  },
+  "inputStates": {
+    "normal": "Normal",
+    "error": "Error",
+    "disabled": "Disabled"
+  },
+  "options": {
+    "option1": "Option 1",
+    "option2": "Option 2",
+    "option3": "Option 3"
+  },
+  "badgeTypes": {
+    "default": {
+      "label": "Default",
+      "description": "Neutral badge style"
+    },
+    "primary": {
+      "label": "Primary",
+      "description": "Primary emphasis badge"
+    },
+    "secondary": {
+      "label": "Secondary",
+      "description": "Secondary emphasis badge"
+    },
+    "success": {
+      "label": "Success",
+      "description": "Positive status badge"
+    },
+    "warning": {
+      "label": "Warning",
+      "description": "Caution status badge"
+    },
+    "error": {
+      "label": "Error",
+      "description": "Error status badge"
+    },
+    "info": {
+      "label": "Info",
+      "description": "Informational badge"
+    }
+  },
+  "badgeProperties": {
+    "background": "Background",
+    "text": "Text"
+  },
+  "alertTypes": {
+    "success": {
+      "description": "Positive confirmation messages"
+    },
+    "warning": {
+      "description": "Caution and warning messages"
+    },
+    "error": {
+      "description": "Error and failure messages"
+    },
+    "info": {
+      "description": "Informational messages"
+    }
+  },
+  "alertProperties": {
+    "background": "Background",
+    "border": "Border",
+    "text": "Text",
+    "icon": "Icon"
+  },
+  "inputProperties": {
+    "background": "Background",
+    "text": "Text",
+    "border": "Border",
+    "placeholder": "Placeholder",
+    "focusRing": "Focus Ring"
+  },
+  "inputs": {
+    "normal": {
+      "description": "Default input state",
+      "exampleText": "Sample text"
+    },
+    "error": {
+      "description": "Invalid input state",
+      "exampleText": "Error text"
+    },
+    "disabled": {
+      "description": "Non-interactive input state",
+      "exampleText": "Disabled"
+    }
+  },
+  "cardTypes": {
+    "default": {
+      "description": "Standard card with subtle border"
+    },
+    "elevated": {
+      "description": "Card with shadow elevation"
+    },
+    "flat": {
+      "description": "Minimal flat card style"
+    }
+  },
+  "cardProperties": {
+    "background": "Background",
+    "border": "Border"
+  },
+  "baseSections": {
+    "primaryColors": "Primary Colors",
+    "backgroundColors": "Background Colors",
+    "textColors": "Text Colors",
+    "statusColors": "Status Colors",
+    "borderColors": "Border Colors"
+  },
+  "base": {
+    "primaryColors": "Primary Colors",
+    "primaryColorsDesc": "Main brand and accent colors",
+    "backgroundColors": "Background Colors",
+    "backgroundColorsDesc": "Page, card, and surface backgrounds",
+    "textColors": "Text Colors",
+    "textColorsDesc": "Primary, secondary, and muted text",
+    "statusColors": "Status Colors",
+    "statusColorsDesc": "Success, warning, error, and info states",
+    "borderColors": "Border Colors",
+    "borderColorsDesc": "Light, default, and dark borders"
+  }
+}

@@ -51,3 +51,13 @@ export {
   type LanguageProviderProps,
   type Language,
 } from './LanguageContext';
+
+// STORY-041F: Feedback Trigger UI
+export {
+  FeedbackContext,
+  FeedbackProvider,
+  useFeedback,
+  useIsFeedbackEnabled,
+  type FeedbackContextState,
+  type FeedbackProviderProps,
+} from './FeedbackContext';

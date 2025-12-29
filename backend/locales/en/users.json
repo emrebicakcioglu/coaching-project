@@ -53,5 +53,36 @@
     "created": "User \"{{name}}\" was successfully created.",
     "updated": "User \"{{name}}\" was successfully updated.",
     "deleted": "User \"{{name}}\" was successfully deleted."
+  },
+  "details": {
+    "title": "User Details",
+    "loading": "Loading user details...",
+    "backToUsers": "Back to Users",
+    "userNotFound": "User not found",
+    "invalidUserId": "Invalid user ID",
+    "loadError": "Failed to load user details. Please try again.",
+    "cards": {
+      "userInfo": "User Information",
+      "roleManagement": "Role Management",
+      "permissions": "Aggregated Permissions"
+    },
+    "fields": {
+      "name": "Name",
+      "email": "Email",
+      "status": "Status",
+      "mfaEnabled": "MFA Enabled",
+      "lastLogin": "Last Login",
+      "created": "Created",
+      "updated": "Updated"
+    },
+    "values": {
+      "yes": "Yes",
+      "no": "No",
+      "never": "Never"
+    },
+    "permissions": {
+      "subtitle": "Permissions granted through all assigned roles:",
+      "none": "No permissions assigned. Assign roles to grant permissions."
+    }
   }
 }

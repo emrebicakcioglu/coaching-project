@@ -1,6 +1,7 @@
 /**
  * Feedback DTO Validation Tests
  * STORY-038A: Feedback-Backend API
+ * STORY-002-REWORK-003: Updated tests - screenshot is now optional
  *
  * Tests for SubmitFeedbackDto validation rules
  */
@@ -31,26 +32,25 @@ describe('SubmitFeedbackDto', () => {
       expect(errors.length).toBe(0);
     });
 
-    it('should fail when screenshot is empty', async () => {
+    // STORY-002-REWORK-003: Screenshot is now optional, empty string is acceptable
+    it('should pass when screenshot is empty (optional field)', async () => {
       const dto = plainToInstance(SubmitFeedbackDto, {
         screenshot: '',
         comment: 'Test feedback',
       });
 
       const errors = await validate(dto);
-      expect(errors.length).toBeGreaterThan(0);
-      expect(errors[0].constraints).toHaveProperty('isNotEmpty');
+      expect(errors.length).toBe(0);
     });
 
-    it('should fail when screenshot is missing', async () => {
+    // STORY-002-REWORK-003: Screenshot is now optional, missing is acceptable
+    it('should pass when screenshot is missing (optional field)', async () => {
       const dto = plainToInstance(SubmitFeedbackDto, {
         comment: 'Test feedback',
       });
 
       const errors = await validate(dto);
-      expect(errors.length).toBeGreaterThan(0);
-      const screenshotError = errors.find((e) => e.property === 'screenshot');
-      expect(screenshotError).toBeDefined();
+      expect(errors.length).toBe(0);
     });
   });
 
@@ -220,7 +220,17 @@ describe('SubmitFeedbackDto', () => {
       expect(errors.length).toBe(0);
     });
 
-    it('should pass with only required fields', async () => {
+    // STORY-002-REWORK-003: Only comment is required, screenshot is optional
+    it('should pass with only required fields (comment only)', async () => {
+      const dto = plainToInstance(SubmitFeedbackDto, {
+        comment: 'Minimal feedback',
+      });
+
+      const errors = await validate(dto);
+      expect(errors.length).toBe(0);
+    });
+
+    it('should pass with comment and optional screenshot', async () => {
       const dto = plainToInstance(SubmitFeedbackDto, {
         screenshot: 'base64data',
         comment: 'Minimal feedback',
@@ -230,11 +240,14 @@ describe('SubmitFeedbackDto', () => {
       expect(errors.length).toBe(0);
     });
 
-    it('should fail with completely empty object', async () => {
+    // STORY-002-REWORK-003: Only comment is required now, screenshot is optional
+    it('should fail with completely empty object (only comment required)', async () => {
       const dto = plainToInstance(SubmitFeedbackDto, {});
 
       const errors = await validate(dto);
-      expect(errors.length).toBeGreaterThanOrEqual(2); // At least screenshot and comment
+      expect(errors.length).toBeGreaterThanOrEqual(1); // Only comment is required
+      const commentError = errors.find((e) => e.property === 'comment');
+      expect(commentError).toBeDefined();
     });
   });
 });

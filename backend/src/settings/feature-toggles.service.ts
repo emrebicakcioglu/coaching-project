@@ -1,6 +1,7 @@
 /**
  * Feature Toggles Service
  * STORY-014A: Feature Toggles Backend
+ * STORY-041: Feedback Feature Flag
  *
  * Business logic for feature toggle management including:
  * - Get all features
@@ -54,6 +55,13 @@ export const DEFAULT_FEATURES: FeaturesMap = {
     name: 'Dark Mode',
     description: 'Allow users to switch to dark theme',
     category: 'ui',
+  },
+  // STORY-041: Feedback Feature Flag
+  'feedback': {
+    enabled: false,
+    name: 'Feedback System',
+    description: 'Allow users to submit feedback with screenshots',
+    category: 'support',
   },
 };
 

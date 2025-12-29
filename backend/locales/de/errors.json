@@ -74,5 +74,17 @@
   "feature": {
     "disabled": "Diese Funktion ist derzeit deaktiviert",
     "notAvailable": "Diese Funktion ist in Ihrem Plan nicht verfügbar"
+  },
+  "forbidden": {
+    "title": "Zugriff verweigert",
+    "code": "Forbidden",
+    "message": "Sie haben keine Berechtigung, auf diese Seite zuzugreifen. Bitte wenden Sie sich an Ihren Administrator, wenn Sie glauben, dass dies ein Fehler ist.",
+    "buttons": {
+      "goBack": "Zurück",
+      "dashboard": "Zum Dashboard"
+    },
+    "links": {
+      "support": "Support kontaktieren"
+    }
   }
 }
