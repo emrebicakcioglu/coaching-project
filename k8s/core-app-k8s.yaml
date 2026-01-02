@@ -135,7 +135,7 @@ spec:
         - name: docker-hub-secret
       containers:
         - name: backend
-          image: ritservi/core-app-backend:sha-8dd858e2
+          image: ritservi/core-app-backend:sha-c0861131
           imagePullPolicy: Always
           ports:
             - containerPort: 14102
@@ -184,7 +184,7 @@ spec:
         - name: docker-hub-secret
       containers:
         - name: frontend
-          image: ritservi/core-app-frontend:sha-8dd858e2
+          image: ritservi/core-app-frontend:sha-c0861131
           imagePullPolicy: Always
           ports:
             - containerPort: 80
