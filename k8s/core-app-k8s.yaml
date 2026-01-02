@@ -1,6 +1,6 @@
 # ============================================
 # Kubernetes Manifest fuer core-app
-# Generiert am 2026-01-02 14:46
+# Generiert am 2026-01-02 14:53
 # Automatisch erkannte Services aus Dockerfiles
 # ============================================
 
@@ -16,7 +16,8 @@ kind: ConfigMap
 metadata:
   name: core-app-config
   namespace: core-app
-data:  ADMIN_URL: "http://localhost:3000"
+data:
+  ADMIN_URL: "http://localhost:3000"
   APP_HOST: localhost
   APP_PORT: 4102
   APP_URL: "http://localhost:4102"
@@ -101,7 +102,8 @@ metadata:
   name: core-app-secrets
   namespace: core-app
 type: Opaque
-stringData:  DB_PASSWORD: "CHANGE_ME"  # TODO: Ersetzen mit echtem Wert
+stringData:
+  DB_PASSWORD: "CHANGE_ME"  # TODO: Ersetzen mit echtem Wert
   ENCRYPTION_KEY: "CHANGE_ME"  # TODO: Ersetzen mit echtem Wert
   JWT_SECRET: "CHANGE_ME"  # TODO: Ersetzen mit echtem Wert
   MFA_TEMP_TOKEN_EXPIRY: "300"
@@ -135,7 +137,7 @@ spec:
         - name: docker-hub-secret
       containers:
         - name: backend
-          image: ritservi/core-app-backend:sha-c0861131
+          image: ritservi/core-app-backend:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 14102
@@ -184,7 +186,7 @@ spec:
         - name: docker-hub-secret
       containers:
         - name: frontend
-          image: ritservi/core-app-frontend:sha-c0861131
+          image: ritservi/core-app-frontend:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 80
