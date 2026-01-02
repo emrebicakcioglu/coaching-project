@@ -56,7 +56,6 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           platforms: linux/amd64
-
       - name: Build and push Frontend image
         uses: docker/build-push-action@v5
         with:
@@ -69,7 +68,6 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           platforms: linux/amd64
-
       - name: Update deployment manifest with new image tags
         if: github.ref == 'refs/heads/k8s-deployment' && github.event_name == 'push'
         run: |
