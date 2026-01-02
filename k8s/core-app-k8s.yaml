@@ -1,6 +1,6 @@
 # ============================================
 # Kubernetes Manifest fuer core-app
-# Generiert am 2026-01-02 14:55
+# Generiert am 2026-01-02 15:01
 # Automatisch erkannte Services aus Dockerfiles
 # ============================================
 
@@ -141,9 +141,12 @@ spec:
           imagePullPolicy: Always
           ports:
             - containerPort: 14102
-          envFrom:            - configMapRef:
-                name: core-app-config            - secretRef:
-                name: core-app-secrets          resources:
+          envFrom:
+            - configMapRef:
+                name: core-app-config
+            - secretRef:
+                name: core-app-secrets
+          resources:
             requests:
               memory: "256Mi"
               cpu: "100m"
