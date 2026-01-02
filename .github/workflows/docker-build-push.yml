@@ -51,8 +51,8 @@ jobs:
           file: ./backend/Dockerfile
           push: ${{ github.event_name != 'pull_request' }}
           tags: |
-            ritservi/core-api-infrastructure-backend:latest
-            ritservi/core-api-infrastructure-backend:${{ steps.meta.outputs.VERSION }}
+            ritservi/Core-App-backend:latest
+            ritservi/Core-App-backend:${{ steps.meta.outputs.VERSION }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           platforms: linux/amd64
@@ -64,8 +64,8 @@ jobs:
           file: ./frontend/Dockerfile
           push: ${{ github.event_name != 'pull_request' }}
           tags: |
-            ritservi/core-api-infrastructure-frontend:latest
-            ritservi/core-api-infrastructure-frontend:${{ steps.meta.outputs.VERSION }}
+            ritservi/Core-App-frontend:latest
+            ritservi/Core-App-frontend:${{ steps.meta.outputs.VERSION }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           platforms: linux/amd64
@@ -73,14 +73,14 @@ jobs:
       - name: Update deployment manifest with new image tags
         if: github.ref == 'refs/heads/k8s-deployment' && github.event_name == 'push'
         run: |
-          sed -i "s|image: ritservi/core-api-infrastructure-backend:.*|image: ritservi/core-api-infrastructure-backend:${{ steps.meta.outputs.VERSION }}|g" k8s/core-api-infrastructure-k8s.yaml
-          sed -i "s|image: ritservi/core-api-infrastructure-frontend:.*|image: ritservi/core-api-infrastructure-frontend:${{ steps.meta.outputs.VERSION }}|g" k8s/core-api-infrastructure-k8s.yaml
+          sed -i "s|image: ritservi/Core-App-backend:.*|image: ritservi/Core-App-backend:${{ steps.meta.outputs.VERSION }}|g" k8s/core-app-k8s.yaml
+          sed -i "s|image: ritservi/Core-App-frontend:.*|image: ritservi/Core-App-frontend:${{ steps.meta.outputs.VERSION }}|g" k8s/core-app-k8s.yaml
           # Update timestamp for forced re-pull
-          sed -i "s|timestamp: \".*\"|timestamp: \"$(date -u +'%Y-%m-%dT%H:%M:%SZ')\"|g" k8s/core-api-infrastructure-k8s.yaml
+          sed -i "s|timestamp: \".*\"|timestamp: \"$(date -u +'%Y-%m-%dT%H:%M:%SZ')\"|g" k8s/core-app-k8s.yaml
 
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add k8s/core-api-infrastructure-k8s.yaml
+          git add k8s/core-app-k8s.yaml
           git diff --staged --quiet || git commit -m "Update image tags to ${{ steps.meta.outputs.VERSION }}"
           git push
 
