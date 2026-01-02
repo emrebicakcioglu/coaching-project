@@ -1,6 +1,6 @@
 # ============================================
 # Kubernetes Manifest fuer core-app
-# Generiert am 2026-01-02 17:21
+# Generiert am 2026-01-02 17:23
 # Automatisch erkannte Services aus Dockerfiles
 # ============================================
 
@@ -103,15 +103,15 @@ metadata:
   namespace: core-app
 type: Opaque
 stringData:
-  DB_PASSWORD: "y0iOiFbDmlt8WUPb*w6mc2WN"
-  ENCRYPTION_KEY: "d185bcade89aea419209c0c2754929514debc5759c20b6c15968ed3dac4f2a6e"
-  JWT_SECRET: "pBXLuNXRjNEYC+nbdClgAQks1QY26UreLvOmHT9snHtrkJ/lvoh3MCg9sgO4z55A"
+  DB_PASSWORD: "WgO&0wR!4ySbLGhHAsh^7mRA"
+  ENCRYPTION_KEY: "86e0e929f06e490e8bb60339d3737f266e68c1aebc3dfa5361a4cbe882d2e9f0"
+  JWT_SECRET: "1BmXcXjdDkUzXF3nKls+8Sv2649ylT6RdeEcyGlgr8lMP7MzjA7Cx74+wKXlD4iw"
   MFA_TEMP_TOKEN_EXPIRY: "300"
-  MFA_TEMP_TOKEN_SECRET: "Y0MVcJ0UhTovprc7waEvNZu/uT0xQlvLKZbpFR3R74A="
+  MFA_TEMP_TOKEN_SECRET: "glyYLj63TSa5GcV04uveAaAfC3zIxYvtvdj6lQ6TJC8="
   MINIO_ACCESS_KEY: "minioadmin"
   MINIO_ROOT_PASSWORD: "minioadmin"
   MINIO_SECRET_KEY: "minioadmin"
-  POSTGRES_PASSWORD: "y0iOiFbDmlt8WUPb*w6mc2WN"
+  POSTGRES_PASSWORD: "WgO&0wR!4ySbLGhHAsh^7mRA"
   RESEND_API_KEY: "re_7YacD4x2_Mxj12uwZvEQo99rzehVZiKYz"
   TOKEN_CLEANUP_INTERVAL_MS: "3600000"
   VERIFICATION_TOKEN_EXPIRY: "24h"
@@ -326,91 +326,6 @@ spec:
       port: 6379
       targetPort: 6379
 ---
-# MINIO PersistentVolumeClaim
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: minio-pvc
-  namespace: core-app
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 5Gi
----
-# MINIO Deployment
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: minio
-  namespace: core-app
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: minio
-  template:
-    metadata:
-      labels:
-        app: minio
-    spec:
-      containers:
-        - name: minio
-          image: minio/minio:latest
-          ports:
-            - containerPort: 9000
-          env:
-            - name: MINIO_ROOT_USER
-              valueFrom:
-                configMapKeyRef:
-                  name: core-app-config
-                  key: MINIO_ROOT_USER
-            - name: MINIO_ROOT_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: core-app-secrets
-                  key: MINIO_ROOT_PASSWORD
-          command:
-            - "server"
-            - "/data"
-            - "--console-address"
-            - ":9001"
-          volumeMounts:
-            - name: minio-storage
-              mountPath: /data
-          resources:
-            requests:
-              memory: "256Mi"
-              cpu: "100m"
-            limits:
-              memory: "512Mi"
-              cpu: "500m"
-      volumes:
-        - name: minio-storage
-          persistentVolumeClaim:
-            claimName: minio-pvc
-
----
-# MINIO Service
-apiVersion: v1
-kind: Service
-metadata:
-  name: minio-service
-  namespace: core-app
-spec:
-  selector:
-    app: minio
-  ports:
-    - protocol: TCP
-      port: 9000
-      targetPort: 9000
-      name: api
-    - protocol: TCP
-      port: 9001
-      targetPort: 9001
-      name: console
----
 # POSTGRES PersistentVolumeClaim
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -492,3 +407,89 @@ spec:
     - protocol: TCP
       port: 5432
       targetPort: 5432
+---
+# MINIO PersistentVolumeClaim
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: minio-pvc
+  namespace: core-app
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+---
+# MINIO Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: minio
+  namespace: core-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: minio
+  template:
+    metadata:
+      labels:
+        app: minio
+    spec:
+      containers:
+        - name: minio
+          image: minio/minio:latest
+          ports:
+            - containerPort: 9000
+          env:
+            - name: MINIO_ROOT_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: core-app-config
+                  key: MINIO_ROOT_USER
+            - name: MINIO_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: core-app-secrets
+                  key: MINIO_ROOT_PASSWORD
+          command:
+            - "minio"
+            - "server"
+            - "/data"
+            - "--console-address"
+            - ":9001"
+          volumeMounts:
+            - name: minio-storage
+              mountPath: /data
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+      volumes:
+        - name: minio-storage
+          persistentVolumeClaim:
+            claimName: minio-pvc
+
+---
+# MINIO Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: minio-service
+  namespace: core-app
+spec:
+  selector:
+    app: minio
+  ports:
+    - protocol: TCP
+      port: 9000
+      targetPort: 9000
+      name: api
+    - protocol: TCP
+      port: 9001
+      targetPort: 9001
+      name: console
