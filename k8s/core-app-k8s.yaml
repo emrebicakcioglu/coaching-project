@@ -1,6 +1,6 @@
 # ============================================
 # Kubernetes Manifest fuer core-app
-# Generiert am 2026-01-02 17:12
+# Generiert am 2026-01-02 17:16
 # Automatisch erkannte Services aus Dockerfiles
 # ============================================
 
@@ -103,15 +103,15 @@ metadata:
   namespace: core-app
 type: Opaque
 stringData:
-  DB_PASSWORD: "aOHWzAqaUUSd7MX60I5nlAUm"
-  ENCRYPTION_KEY: "e8100c5744037589936b432e953a6df30549a4c078d2c6540d6b4bcced412067"
-  JWT_SECRET: "B02SvU2Ce7CkYIiQXHWnh5bgRqa8oV6DFQ5KqRmHXBh3bXuCC+Z5bmiAgX8lFXny"
+  DB_PASSWORD: "DyzMG!Kyg&VhXFMOFgG81z^R"
+  ENCRYPTION_KEY: "a154f20b5507e9162cb5be7c8b56fa5271010be19cf895250528480cc75e25ed"
+  JWT_SECRET: "wZSVkitZrLq/q/YcNZomDHo+x6mg8uqeLybzwRrpvflJ64pu/r0EtwiZ9RgTITla"
   MFA_TEMP_TOKEN_EXPIRY: "300"
-  MFA_TEMP_TOKEN_SECRET: "ehxvlm86AilU5D4omqte92tJO4ykhyDXLSQLpEoo0gg="
+  MFA_TEMP_TOKEN_SECRET: "WE07oCoe5BJSiR5u1AN7uUTizezpRQIBodjzncGG538="
   MINIO_ACCESS_KEY: "minioadmin"
   MINIO_ROOT_PASSWORD: "minioadmin"
   MINIO_SECRET_KEY: "minioadmin"
-  POSTGRES_PASSWORD: "aOHWzAqaUUSd7MX60I5nlAUm"
+  POSTGRES_PASSWORD: "DyzMG!Kyg&VhXFMOFgG81z^R"
   RESEND_API_KEY: "re_7YacD4x2_Mxj12uwZvEQo99rzehVZiKYz"
   TOKEN_CLEANUP_INTERVAL_MS: "3600000"
   VERIFICATION_TOKEN_EXPIRY: "24h"
@@ -253,78 +253,6 @@ spec:
           port: 80
   tls:
     secretName: core-app-tls
----
-# REDIS PersistentVolumeClaim
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: redis-pvc
-  namespace: core-app
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 5Gi
----
-# REDIS Deployment
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: redis
-  namespace: core-app
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: redis
-  template:
-    metadata:
-      labels:
-        app: redis
-    spec:
-      containers:
-        - name: redis
-          image: redis:7-alpine
-          ports:
-            - containerPort: 6379
-          command:
-            - "redis-server"
-            - "--appendonly"
-            - "yes"
-            - "--maxmemory"
-            - "256mb"
-            - "--maxmemory-policy"
-            - "allkeys-lru"
-          volumeMounts:
-            - name: redis-storage
-              mountPath: /data
-          resources:
-            requests:
-              memory: "256Mi"
-              cpu: "100m"
-            limits:
-              memory: "512Mi"
-              cpu: "500m"
-      volumes:
-        - name: redis-storage
-          persistentVolumeClaim:
-            claimName: redis-pvc
-
----
-# REDIS Service
-apiVersion: v1
-kind: Service
-metadata:
-  name: redis-service
-  namespace: core-app
-spec:
-  selector:
-    app: redis
-  ports:
-    - protocol: TCP
-      port: 6379
-      targetPort: 6379
 ---
 # POSTGRES PersistentVolumeClaim
 apiVersion: v1
@@ -485,7 +413,80 @@ spec:
     - protocol: TCP
       port: 9000
       targetPort: 9000
+      name: api
     - protocol: TCP
       port: 9001
       targetPort: 9001
       name: console
+---
+# REDIS PersistentVolumeClaim
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: redis-pvc
+  namespace: core-app
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+---
+# REDIS Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+  namespace: core-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+        - name: redis
+          image: redis:7-alpine
+          ports:
+            - containerPort: 6379
+          command:
+            - "redis-server"
+            - "--appendonly"
+            - "yes"
+            - "--maxmemory"
+            - "256mb"
+            - "--maxmemory-policy"
+            - "allkeys-lru"
+          volumeMounts:
+            - name: redis-storage
+              mountPath: /data
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+      volumes:
+        - name: redis-storage
+          persistentVolumeClaim:
+            claimName: redis-pvc
+
+---
+# REDIS Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-service
+  namespace: core-app
+spec:
+  selector:
+    app: redis
+  ports:
+    - protocol: TCP
+      port: 6379
+      targetPort: 6379
