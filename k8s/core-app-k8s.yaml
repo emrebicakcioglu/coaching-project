@@ -1,0 +1,143 @@
+# ============================================
+# Kubernetes Manifest fuer core-app
+# Generiert am 2026-01-02 13:07
+# Automatisch erkannte Services aus Dockerfiles
+# ============================================
+
+# Namespace
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: core-app
+---
+# BACKEND Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: core-app-backend
+  namespace: core-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: core-app-backend
+  template:
+    metadata:
+      labels:
+        app: core-app-backend
+    spec:
+      imagePullSecrets:
+        - name: docker-hub-secret
+      containers:
+        - name: backend
+          image: ritservi/core-app-backend:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 14102
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+
+---
+# BACKEND Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: core-app-backend
+  namespace: core-app
+spec:
+  selector:
+    app: core-app-backend
+  ports:
+    - protocol: TCP
+      port: 14102
+      targetPort: 14102
+---
+# FRONTEND Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: core-app-frontend
+  namespace: core-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: core-app-frontend
+  template:
+    metadata:
+      labels:
+        app: core-app-frontend
+    spec:
+      imagePullSecrets:
+        - name: docker-hub-secret
+      containers:
+        - name: frontend
+          image: ritservi/core-app-frontend:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+
+---
+# FRONTEND Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: core-app-frontend
+  namespace: core-app
+spec:
+  selector:
+    app: core-app-frontend
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+---
+# SSL Certificate (Let's Encrypt)
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: core-app-cert
+  namespace: core-app
+spec:
+  secretName: core-app-tls
+  dnsNames:
+    - core-app.rit.services
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+
+---
+# Traefik IngressRoute
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: core-app-ingressroute
+  namespace: core-app
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`core-app.rit.services`) && PathPrefix(`/api`)
+      kind: Rule
+      services:
+        - name: core-app-backend
+          port: 14102
+    - match: Host(`core-app.rit.services`)
+      kind: Rule
+      services:
+        - name: core-app-frontend
+          port: 80
+  tls:
+    secretName: core-app-tls
