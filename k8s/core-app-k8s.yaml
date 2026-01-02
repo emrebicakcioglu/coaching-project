@@ -1,6 +1,6 @@
 # ============================================
 # Kubernetes Manifest fuer core-app
-# Generiert am 2026-01-02 17:04
+# Generiert am 2026-01-02 17:12
 # Automatisch erkannte Services aus Dockerfiles
 # ============================================
 
@@ -103,15 +103,15 @@ metadata:
   namespace: core-app
 type: Opaque
 stringData:
-  DB_PASSWORD: "Z$L9a9zySku00Xx#psQoI#dH"
-  ENCRYPTION_KEY: "2ccecba3283941c8e8c4ac4311e4ef12c53d89e8784f914fd8bb289596909aa1"
-  JWT_SECRET: "53HQSyTXbpO4eDEuY7q/WRv2SP8vsNMIKe7zqqfKLVm0WLkFmkR6OtxsLelwMxW0"
+  DB_PASSWORD: "aOHWzAqaUUSd7MX60I5nlAUm"
+  ENCRYPTION_KEY: "e8100c5744037589936b432e953a6df30549a4c078d2c6540d6b4bcced412067"
+  JWT_SECRET: "B02SvU2Ce7CkYIiQXHWnh5bgRqa8oV6DFQ5KqRmHXBh3bXuCC+Z5bmiAgX8lFXny"
   MFA_TEMP_TOKEN_EXPIRY: "300"
-  MFA_TEMP_TOKEN_SECRET: "9diArdO+JibDniudt2Bpbcqo0fEdMs0LFqL8aQg6tGg="
+  MFA_TEMP_TOKEN_SECRET: "ehxvlm86AilU5D4omqte92tJO4ykhyDXLSQLpEoo0gg="
   MINIO_ACCESS_KEY: "minioadmin"
   MINIO_ROOT_PASSWORD: "minioadmin"
   MINIO_SECRET_KEY: "minioadmin"
-  POSTGRES_PASSWORD: "Z$L9a9zySku00Xx#psQoI#dH"
+  POSTGRES_PASSWORD: "aOHWzAqaUUSd7MX60I5nlAUm"
   RESEND_API_KEY: "re_7YacD4x2_Mxj12uwZvEQo99rzehVZiKYz"
   TOKEN_CLEANUP_INTERVAL_MS: "3600000"
   VERIFICATION_TOKEN_EXPIRY: "24h"
@@ -137,7 +137,7 @@ spec:
         - name: docker-hub-secret
       containers:
         - name: backend
-          image: ritservi/core-app-backend:sha-f2452ad5
+          image: ritservi/core-app-backend:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 14102
@@ -189,7 +189,7 @@ spec:
         - name: docker-hub-secret
       containers:
         - name: frontend
-          image: ritservi/core-app-frontend:sha-f2452ad5
+          image: ritservi/core-app-frontend:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 80
@@ -254,11 +254,11 @@ spec:
   tls:
     secretName: core-app-tls
 ---
-# MINIO PersistentVolumeClaim
+# REDIS PersistentVolumeClaim
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: minio-pvc
+  name: redis-pvc
   namespace: core-app
 spec:
   accessModes:
@@ -267,44 +267,37 @@ spec:
     requests:
       storage: 5Gi
 ---
-# MINIO Deployment
+# REDIS Deployment
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: minio
+  name: redis
   namespace: core-app
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: minio
+      app: redis
   template:
     metadata:
       labels:
-        app: minio
+        app: redis
     spec:
       containers:
-        - name: minio
-          image: minio/minio:latest
+        - name: redis
+          image: redis:7-alpine
           ports:
-            - containerPort: 9000
-          env:
-            - name: MINIO_ROOT_USER
-              valueFrom:
-                configMapKeyRef:
-                  name: core-app-config
-                  key: MINIO_ROOT_USER
-            - name: MINIO_ROOT_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: core-app-secrets
-                  key: MINIO_ROOT_PASSWORD
+            - containerPort: 6379
           command:
-            - "server"
-            - "/data"
-            - "--console-address"
-            - ":9001"          volumeMounts:
-            - name: minio-storage
+            - "redis-server"
+            - "--appendonly"
+            - "yes"
+            - "--maxmemory"
+            - "256mb"
+            - "--maxmemory-policy"
+            - "allkeys-lru"
+          volumeMounts:
+            - name: redis-storage
               mountPath: /data
           resources:
             requests:
@@ -314,27 +307,24 @@ spec:
               memory: "512Mi"
               cpu: "500m"
       volumes:
-        - name: minio-storage
+        - name: redis-storage
           persistentVolumeClaim:
-            claimName: minio-pvc
+            claimName: redis-pvc
 
 ---
-# MINIO Service
+# REDIS Service
 apiVersion: v1
 kind: Service
 metadata:
-  name: minio-service
+  name: redis-service
   namespace: core-app
 spec:
   selector:
-    app: minio
+    app: redis
   ports:
     - protocol: TCP
-      port: 9000
-      targetPort: 9000    - protocol: TCP
-      port: 9001
-      targetPort: 9001
-      name: console
+      port: 6379
+      targetPort: 6379
 ---
 # POSTGRES PersistentVolumeClaim
 apiVersion: v1
@@ -416,11 +406,11 @@ spec:
       port: 5432
       targetPort: 5432
 ---
-# REDIS PersistentVolumeClaim
+# MINIO PersistentVolumeClaim
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: redis-pvc
+  name: minio-pvc
   namespace: core-app
 spec:
   accessModes:
@@ -429,36 +419,45 @@ spec:
     requests:
       storage: 5Gi
 ---
-# REDIS Deployment
+# MINIO Deployment
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: redis
+  name: minio
   namespace: core-app
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: redis
+      app: minio
   template:
     metadata:
       labels:
-        app: redis
+        app: minio
     spec:
       containers:
-        - name: redis
-          image: redis:7-alpine
+        - name: minio
+          image: minio/minio:latest
           ports:
-            - containerPort: 6379
+            - containerPort: 9000
+          env:
+            - name: MINIO_ROOT_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: core-app-config
+                  key: MINIO_ROOT_USER
+            - name: MINIO_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: core-app-secrets
+                  key: MINIO_ROOT_PASSWORD
           command:
-            - "redis-server"
-            - "--appendonly"
-            - "yes"
-            - "--maxmemory"
-            - "256mb"
-            - "--maxmemory-policy"
-            - "allkeys-lru"          volumeMounts:
-            - name: redis-storage
+            - "server"
+            - "/data"
+            - "--console-address"
+            - ":9001"
+          volumeMounts:
+            - name: minio-storage
               mountPath: /data
           resources:
             requests:
@@ -468,21 +467,25 @@ spec:
               memory: "512Mi"
               cpu: "500m"
       volumes:
-        - name: redis-storage
+        - name: minio-storage
           persistentVolumeClaim:
-            claimName: redis-pvc
+            claimName: minio-pvc
 
 ---
-# REDIS Service
+# MINIO Service
 apiVersion: v1
 kind: Service
 metadata:
-  name: redis-service
+  name: minio-service
   namespace: core-app
 spec:
   selector:
-    app: redis
+    app: minio
   ports:
     - protocol: TCP
-      port: 6379
-      targetPort: 6379
+      port: 9000
+      targetPort: 9000
+    - protocol: TCP
+      port: 9001
+      targetPort: 9001
+      name: console
