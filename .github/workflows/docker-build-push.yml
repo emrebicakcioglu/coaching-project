@@ -51,8 +51,8 @@ jobs:
           file: ./backend/Dockerfile
           push: ${{ github.event_name != 'pull_request' }}
           tags: |
-            ritservi/Core-App-backend:latest
-            ritservi/Core-App-backend:${{ steps.meta.outputs.VERSION }}
+            ritservi/core-app-backend:latest
+            ritservi/core-app-backend:${{ steps.meta.outputs.VERSION }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           platforms: linux/amd64
@@ -64,8 +64,8 @@ jobs:
           file: ./frontend/Dockerfile
           push: ${{ github.event_name != 'pull_request' }}
           tags: |
-            ritservi/Core-App-frontend:latest
-            ritservi/Core-App-frontend:${{ steps.meta.outputs.VERSION }}
+            ritservi/core-app-frontend:latest
+            ritservi/core-app-frontend:${{ steps.meta.outputs.VERSION }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           platforms: linux/amd64
@@ -73,8 +73,8 @@ jobs:
       - name: Update deployment manifest with new image tags
         if: github.ref == 'refs/heads/k8s-deployment' && github.event_name == 'push'
         run: |
-          sed -i "s|image: ritservi/Core-App-backend:.*|image: ritservi/Core-App-backend:${{ steps.meta.outputs.VERSION }}|g" k8s/core-app-k8s.yaml
-          sed -i "s|image: ritservi/Core-App-frontend:.*|image: ritservi/Core-App-frontend:${{ steps.meta.outputs.VERSION }}|g" k8s/core-app-k8s.yaml
+          sed -i "s|image: ritservi/core-app-backend:.*|image: ritservi/core-app-backend:${{ steps.meta.outputs.VERSION }}|g" k8s/core-app-k8s.yaml
+          sed -i "s|image: ritservi/core-app-frontend:.*|image: ritservi/core-app-frontend:${{ steps.meta.outputs.VERSION }}|g" k8s/core-app-k8s.yaml
           # Update timestamp for forced re-pull
           sed -i "s|timestamp: \".*\"|timestamp: \"$(date -u +'%Y-%m-%dT%H:%M:%SZ')\"|g" k8s/core-app-k8s.yaml
 
