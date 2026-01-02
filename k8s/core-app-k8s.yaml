@@ -1,6 +1,6 @@
 # ============================================
 # Kubernetes Manifest fuer core-app
-# Generiert am 2026-01-02 14:32
+# Generiert am 2026-01-02 14:46
 # Automatisch erkannte Services aus Dockerfiles
 # ============================================
 
@@ -9,6 +9,111 @@ apiVersion: v1
 kind: Namespace
 metadata:
   name: core-app
+---
+# ConfigMap fuer Umgebungsvariablen
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: core-app-config
+  namespace: core-app
+data:  ADMIN_URL: "http://localhost:3000"
+  APP_HOST: localhost
+  APP_PORT: 4102
+  APP_URL: "http://localhost:4102"
+  AUDIT_LOG_API_REQUESTS: false
+  AUDIT_LOG_ENABLED: true
+  AUDIT_LOG_READ_ONLY: true
+  BCRYPT_ROUNDS: 12
+  BUILD_NUMBER: ""
+  DB_HOST: localhost
+  DB_NAME: core_app
+  DB_POOL_CONNECTION_TIMEOUT_MS: 2000
+  DB_POOL_IDLE_TIMEOUT_MS: 30000
+  DB_POOL_MAX: 20
+  DB_PORT: 14101
+  DB_SSL: false
+  DB_USER: postgres
+  DEFAULT_LANGUAGE: en
+  DEFAULT_SESSION_TIMEOUT_MINUTES: 30
+  DEFAULT_SHOW_TIMEOUT_WARNING: true
+  DEFAULT_WARNING_BEFORE_TIMEOUT_MINUTES: 5
+  EMAIL_FROM_ADDRESS: noreply@yourdomain.com
+  EMAIL_FROM_NAME: "Core Application"
+  EMAIL_MAX_RETRIES: 3
+  EMAIL_QUEUE_ENABLED: true
+  EMAIL_QUEUE_PROCESS_INTERVAL: 5000
+  EMAIL_RATE_LIMIT: 60
+  EMAIL_RETRY_DELAY: 5000
+  EMAIL_RETRY_DELAY_MS: 1000
+  EMAIL_RETRY_MAX: 3
+  FALLBACK_LANGUAGE: en
+  FEEDBACK_QUEUE_PRIORITY: 5
+  FEEDBACK_RATE_LIMIT_MAX: 5
+  FEEDBACK_RATE_LIMIT_WINDOW_SECONDS: 3600
+  FEEDBACK_USE_QUEUE: true
+  FRONTEND_URL: "http://localhost:3000"
+  GIT_COMMIT: ""
+  JWT_ACCESS_EXPIRY: 15m
+  JWT_EXPIRES_IN: 24h
+  JWT_REFRESH_EXPIRES_IN: 30d
+  JWT_REFRESH_EXPIRY_LONG: 30d
+  JWT_REFRESH_EXPIRY_SHORT: 24h
+  LOG_DIR: ./logs
+  LOG_FILE_PATH: ./logs/app.log
+  LOG_LEVEL: info
+  LOG_MAX_FILES: 14d
+  LOG_MAX_SIZE: 20m
+  MFA_ISSUER: CoreApp
+  MFA_LOCKOUT_DURATION: 900
+  MINIO_BUCKET: core-app-uploads
+  MINIO_BUCKET_FEEDBACK: feedback
+  MINIO_BUCKET_LOGOS: logos
+  MINIO_BUCKET_UPLOADS: uploads
+  MINIO_CONSOLE_PORT: 14105
+  MINIO_ENDPOINT: ""
+  MINIO_PORT: 14104
+  MINIO_ROOT_USER: minioadmin
+  MINIO_USE_SSL: false
+  NODE_ENV: development
+  PERMISSION_CACHE_TTL_MS: 300000
+  PERMISSION_HIERARCHY_CACHE_TTL_MS: 600000
+  POSTGRES_DB: core_app
+  POSTGRES_USER: postgres
+  RATE_LIMIT_MAX_REQUESTS: 100
+  RATE_LIMIT_WINDOW_MS: 60000
+  REDIS_URL: "redis://localhost:14103"
+  SMTP_CHECK_TIMEOUT: 5000
+  SMTP_HOST: ""
+  SMTP_PORT: 587
+  STORAGE_CHECK_TIMEOUT: 5000
+  SUPPORT_EMAIL: support@yourdomain.com
+  SUPPORTED_LANGUAGES: en,de
+  SWAGGER_ENABLED: true
+  VITE_API_URL: "http://localhost:4102/api"
+  VITE_APP_VERSION: ""
+
+---
+# Secret fuer sensible Umgebungsvariablen
+# WICHTIG: Ersetze die Platzhalter-Werte mit echten Secrets!
+apiVersion: v1
+kind: Secret
+metadata:
+  name: core-app-secrets
+  namespace: core-app
+type: Opaque
+stringData:  DB_PASSWORD: "CHANGE_ME"  # TODO: Ersetzen mit echtem Wert
+  ENCRYPTION_KEY: "CHANGE_ME"  # TODO: Ersetzen mit echtem Wert
+  JWT_SECRET: "CHANGE_ME"  # TODO: Ersetzen mit echtem Wert
+  MFA_TEMP_TOKEN_EXPIRY: "300"
+  MFA_TEMP_TOKEN_SECRET: "CHANGE_ME"  # TODO: Ersetzen mit echtem Wert
+  MINIO_ACCESS_KEY: "minioadmin"
+  MINIO_ROOT_PASSWORD: "minioadmin"
+  MINIO_SECRET_KEY: "minioadmin"
+  POSTGRES_PASSWORD: "CHANGE_ME"  # TODO: Ersetzen mit echtem Wert
+  RESEND_API_KEY: "CHANGE_ME"  # TODO: Ersetzen mit echtem Wert
+  TOKEN_CLEANUP_INTERVAL_MS: "3600000"
+  VERIFICATION_TOKEN_EXPIRY: "24h"
+
 ---
 # BACKEND Deployment
 apiVersion: apps/v1
@@ -34,7 +139,9 @@ spec:
           imagePullPolicy: Always
           ports:
             - containerPort: 14102
-          resources:
+          envFrom:            - configMapRef:
+                name: core-app-config            - secretRef:
+                name: core-app-secrets          resources:
             requests:
               memory: "256Mi"
               cpu: "100m"
