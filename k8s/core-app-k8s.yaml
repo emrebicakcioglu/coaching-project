@@ -1,6 +1,6 @@
 # ============================================
 # Kubernetes Manifest fuer core-app
-# Generiert am 2026-01-02 16:24
+# Generiert am 2026-01-02 16:45
 # Automatisch erkannte Services aus Dockerfiles
 # ============================================
 
@@ -103,16 +103,16 @@ metadata:
   namespace: core-app
 type: Opaque
 stringData:
-  DB_PASSWORD: "Q7Jqu$vl0vVwHnqKihJ^UEoT"
-  ENCRYPTION_KEY: "c4780b993962197a14e114fa6acc9af58c71454cc7b42845a2e4e222814eee66"
-  JWT_SECRET: "CZwQFLDzWxfOn4CFsYZg1kGdm+RpgrBpxGdih9d8omifzzN9EQHmdUBl64kiyWA/"
+  DB_PASSWORD: "7eeYvP1kDh7qcrzlzipMigMN"
+  ENCRYPTION_KEY: "a1b8e9eca3f7d1288ba0599ddaba2863af309ddf0d4efdd19611c382599807e6"
+  JWT_SECRET: "LrnGNr/AxwnWLxkPiWKui4Z1wvScx/JT0T+XO/kGVZ22CD07est1PmLLx+vhNlNK"
   MFA_TEMP_TOKEN_EXPIRY: "300"
-  MFA_TEMP_TOKEN_SECRET: "o4cCMAhMe2PLTJqB62srDJWxSrJMPbEzUxglYkLu82E="
+  MFA_TEMP_TOKEN_SECRET: "aTOFm/ezcc57FG/3SvkLXhUok4m4e9lVvZakdumjbmk="
   MINIO_ACCESS_KEY: "minioadmin"
   MINIO_ROOT_PASSWORD: "minioadmin"
   MINIO_SECRET_KEY: "minioadmin"
-  POSTGRES_PASSWORD: "Q7Jqu$vl0vVwHnqKihJ^UEoT"
-  RESEND_API_KEY: "CHANGE_ME"
+  POSTGRES_PASSWORD: "7eeYvP1kDh7qcrzlzipMigMN"
+  RESEND_API_KEY: "re_7YacD4x2_Mxj12uwZvEQo99rzehVZiKYz"
   TOKEN_CLEANUP_INTERVAL_MS: "3600000"
   VERIFICATION_TOKEN_EXPIRY: "24h"
 
@@ -137,7 +137,7 @@ spec:
         - name: docker-hub-secret
       containers:
         - name: backend
-          image: ritservi/core-app-backend:sha-e270a877
+          image: ritservi/core-app-backend:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 14102
@@ -189,7 +189,7 @@ spec:
         - name: docker-hub-secret
       containers:
         - name: frontend
-          image: ritservi/core-app-frontend:sha-e270a877
+          image: ritservi/core-app-frontend:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 80
