@@ -1,6 +1,6 @@
 # ============================================
 # Kubernetes Manifest fuer core-app
-# Generiert am 2026-01-02 15:03
+# Generiert am 2026-01-02 16:24
 # Automatisch erkannte Services aus Dockerfiles
 # ============================================
 
@@ -103,16 +103,16 @@ metadata:
   namespace: core-app
 type: Opaque
 stringData:
-  DB_PASSWORD: "CHANGE_ME"  # TODO: Ersetzen mit echtem Wert
-  ENCRYPTION_KEY: "CHANGE_ME"  # TODO: Ersetzen mit echtem Wert
-  JWT_SECRET: "CHANGE_ME"  # TODO: Ersetzen mit echtem Wert
+  DB_PASSWORD: "Q7Jqu$vl0vVwHnqKihJ^UEoT"
+  ENCRYPTION_KEY: "c4780b993962197a14e114fa6acc9af58c71454cc7b42845a2e4e222814eee66"
+  JWT_SECRET: "CZwQFLDzWxfOn4CFsYZg1kGdm+RpgrBpxGdih9d8omifzzN9EQHmdUBl64kiyWA/"
   MFA_TEMP_TOKEN_EXPIRY: "300"
-  MFA_TEMP_TOKEN_SECRET: "CHANGE_ME"  # TODO: Ersetzen mit echtem Wert
+  MFA_TEMP_TOKEN_SECRET: "o4cCMAhMe2PLTJqB62srDJWxSrJMPbEzUxglYkLu82E="
   MINIO_ACCESS_KEY: "minioadmin"
   MINIO_ROOT_PASSWORD: "minioadmin"
   MINIO_SECRET_KEY: "minioadmin"
-  POSTGRES_PASSWORD: "CHANGE_ME"  # TODO: Ersetzen mit echtem Wert
-  RESEND_API_KEY: "CHANGE_ME"  # TODO: Ersetzen mit echtem Wert
+  POSTGRES_PASSWORD: "Q7Jqu$vl0vVwHnqKihJ^UEoT"
+  RESEND_API_KEY: "CHANGE_ME"
   TOKEN_CLEANUP_INTERVAL_MS: "3600000"
   VERIFICATION_TOKEN_EXPIRY: "24h"
 
