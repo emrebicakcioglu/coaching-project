@@ -65,6 +65,8 @@ jobs:
           tags: |
             ritservi/core-app-frontend:latest
             ritservi/core-app-frontend:${{ steps.meta.outputs.VERSION }}
+          build-args: |
+            VITE_API_URL=/api/v1
           cache-from: type=gha
           cache-to: type=gha,mode=max
           platforms: linux/amd64
