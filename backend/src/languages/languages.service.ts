@@ -52,6 +52,7 @@ interface LanguageRecord {
 
 /**
  * Available translation namespaces
+ * BUG-006: Added 'privacy' namespace for Privacy Policy page
  */
 export const TRANSLATION_NAMESPACES = [
   'common',
@@ -68,6 +69,7 @@ export const TRANSLATION_NAMESPACES = [
   'help',
   'languages',
   'design',
+  'privacy',
 ] as const;
 
 export type TranslationNamespace = (typeof TRANSLATION_NAMESPACES)[number];

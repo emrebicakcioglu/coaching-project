@@ -6,6 +6,7 @@
  * STORY-034: Maintenance Mode - Maintenance mode settings tab
  * BUG-003: Fixed Security button navigation with proper tab state management
  * STORY-106: Settings Page UI Audit - Unified tab styles, consistent card styling, improved spacing
+ * BUG-005: Wrapped password fields in form element for browser autofill and password manager support
  *
  * System settings and user preferences page.
  * Admin users see tabbed admin settings (General, Security, Email).
@@ -147,6 +148,17 @@ export const SettingsPage: React.FC = () => {
   const handleUnsavedChanges = useCallback((hasChanges: boolean) => {
     setHasUnsavedChanges(hasChanges);
   }, []);
+
+  /**
+   * Handle password change form submission
+   * BUG-005 FIX: Added form submit handler for password change form
+   */
+  const handlePasswordChange = useCallback((e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    // TODO: Implement actual password change API call
+    // For now, just show a placeholder message
+    setToast({ message: t('security.password.updateSuccess', 'Password update functionality coming soon'), type: 'info' });
+  }, [t]);
 
   /**
    * Render active tab content
@@ -355,40 +367,61 @@ export const SettingsPage: React.FC = () => {
                 </div>
 
                 {/* Change Password - STORY-106: Standardized spacing */}
-                <div>
+                {/* BUG-005 FIX: Wrapped password fields in form element for browser autofill and password manager support */}
+                <form onSubmit={handlePasswordChange} data-testid="password-change-form">
                   <h4 className="text-sm font-semibold mb-4" style={textPrimaryStyle}>
                     {t('security.password.title')}
                   </h4>
+                  {/* Hidden username field for accessibility and password manager support */}
+                  <input
+                    type="text"
+                    name="username"
+                    autoComplete="username"
+                    value={user?.email || ''}
+                    readOnly
+                    className="sr-only"
+                    tabIndex={-1}
+                    aria-hidden="true"
+                  />
                   {/* STORY-106: Consistent form field spacing (space-y-6 = 24px) */}
                   <div className="space-y-6">
                     <div className="space-y-2">
-                      <label className="block text-sm font-medium" style={textPrimaryStyle}>
+                      <label htmlFor="current-password" className="block text-sm font-medium" style={textPrimaryStyle}>
                         {t('security.password.current')}
                       </label>
                       <input
+                        id="current-password"
+                        name="currentPassword"
                         type="password"
+                        autoComplete="current-password"
                         className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                         style={inputStyle}
                         data-testid="password-current-input"
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="block text-sm font-medium" style={textPrimaryStyle}>
+                      <label htmlFor="new-password" className="block text-sm font-medium" style={textPrimaryStyle}>
                         {t('security.password.new')}
                       </label>
                       <input
+                        id="new-password"
+                        name="newPassword"
                         type="password"
+                        autoComplete="new-password"
                         className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                         style={inputStyle}
                         data-testid="password-new-input"
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="block text-sm font-medium" style={textPrimaryStyle}>
+                      <label htmlFor="confirm-password" className="block text-sm font-medium" style={textPrimaryStyle}>
                         {t('security.password.confirm')}
                       </label>
                       <input
+                        id="confirm-password"
+                        name="confirmPassword"
                         type="password"
+                        autoComplete="new-password"
                         className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                         style={inputStyle}
                         data-testid="password-confirm-input"
@@ -399,6 +432,7 @@ export const SettingsPage: React.FC = () => {
                   <div className="mt-6 pt-4 border-t" style={borderStyle}>
                     <div className="flex justify-end">
                       <Button
+                        type="submit"
                         variant="primary"
                         data-testid="password-update-button"
                       >
@@ -406,7 +440,7 @@ export const SettingsPage: React.FC = () => {
                       </Button>
                     </div>
                   </div>
-                </div>
+                </form>
               </div>
             </section>
           </div>

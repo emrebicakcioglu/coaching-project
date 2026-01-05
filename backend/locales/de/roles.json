@@ -6,9 +6,11 @@
     "role": "Rolle",
     "description": "Beschreibung",
     "permissions": "Berechtigungen",
-    "permissionsCount": "{{count}} Berechtigungen",
+    "permissionsCount_one": "{{count}} Berechtigung",
+    "permissionsCount_other": "{{count}} Berechtigungen",
     "users": "Benutzer",
-    "usersCount": "{{count}} Benutzer",
+    "usersCount_one": "{{count}} Benutzer",
+    "usersCount_other": "{{count}} Benutzer",
     "actions": "Aktionen"
   },
   "actions": {

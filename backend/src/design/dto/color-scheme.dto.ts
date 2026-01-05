@@ -334,6 +334,7 @@ export interface ColorSchemeEntity {
   id: number;
   name: string;
   description?: string;
+  description_key?: string;
   is_active: boolean;
   is_default: boolean;
   is_light_scheme?: boolean;
@@ -362,6 +363,9 @@ export class ColorSchemeResponseDto {
 
   @ApiPropertyOptional({ description: 'Description of the color scheme' })
   description?: string;
+
+  @ApiPropertyOptional({ description: 'i18n key for the description' })
+  description_key?: string;
 
   @ApiProperty({ description: 'Whether this scheme is currently active' })
   is_active: boolean;
@@ -413,6 +417,7 @@ export class ColorSchemeResponseDto {
     dto.id = entity.id;
     dto.name = entity.name;
     dto.description = entity.description;
+    dto.description_key = entity.description_key;
     dto.is_active = entity.is_active;
     dto.is_default = entity.is_default;
     dto.is_light_scheme = entity.is_light_scheme || false;

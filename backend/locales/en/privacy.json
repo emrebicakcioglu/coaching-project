@@ -1,0 +1,62 @@
+{
+  "title": "Privacy Policy",
+  "backToRegister": "Back to Registration",
+  "lastUpdated": "Last updated: {{date}}",
+  "registerPrompt": "Register now",
+  "loginPrompt": "Login",
+  "sections": {
+    "introduction": {
+      "title": "1. Introduction",
+      "content": "The protection of your personal data is important to us. This privacy policy informs you about how we collect, process, and protect your personal data when you use our application."
+    },
+    "responsible": {
+      "title": "2. Responsible Party",
+      "content": "The operator of this application is responsible for data processing. If you have any questions about data protection, you can reach us via the contact details provided below."
+    },
+    "dataCollection": {
+      "title": "3. What Data is Collected?",
+      "content": "When registering and using our application, we collect the following data:",
+      "items": {
+        "email": "Email address (for login and communication)",
+        "name": "Name (to personalize your account)",
+        "password": "Password (stored encrypted)",
+        "ip": "IP address (for security purposes)",
+        "browser": "Browser and device information (for session management)"
+      }
+    },
+    "purpose": {
+      "title": "4. Purpose of Data Processing",
+      "content": "We process your data for the following purposes:",
+      "items": {
+        "account": "Creation and management of your user account",
+        "authentication": "Authentication and access control",
+        "security": "Ensuring the security of our services",
+        "communication": "Communication with you regarding your account"
+      }
+    },
+    "legalBasis": {
+      "title": "5. Legal Basis",
+      "content": "The processing of your data is based on Art. 6 (1) lit. b GDPR (contract performance) and Art. 6 (1) lit. f GDPR (legitimate interest in the security of our services)."
+    },
+    "retention": {
+      "title": "6. Data Retention",
+      "content": "We store your personal data only as long as necessary to fulfill the stated purposes or until you delete your account. After deletion of your account, your data will be deleted immediately unless there are legal retention obligations."
+    },
+    "rights": {
+      "title": "7. Your Rights",
+      "content": "According to GDPR, you have the following rights:",
+      "items": {
+        "access": "Right of access (Art. 15 GDPR)",
+        "rectification": "Right to rectification (Art. 16 GDPR)",
+        "erasure": "Right to erasure (Art. 17 GDPR)",
+        "restriction": "Right to restriction of processing (Art. 18 GDPR)",
+        "portability": "Right to data portability (Art. 20 GDPR)",
+        "objection": "Right to object (Art. 21 GDPR)"
+      }
+    },
+    "contact": {
+      "title": "8. Contact",
+      "content": "If you have any questions about data protection or wish to exercise your rights, you can reach us at the following email address:"
+    }
+  }
+}

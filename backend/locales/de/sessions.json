@@ -1,23 +1,23 @@
 {
-  "title": "Sessions verwalten",
-  "description": "Hier sehen Sie alle Geräte und Browser, auf denen Sie angemeldet sind. Sie können einzelne Sessions beenden oder sich auf allen Geräten gleichzeitig abmelden.",
+  "title": "Sitzungen verwalten",
+  "description": "Hier sehen Sie alle Geräte und Browser, auf denen Sie angemeldet sind. Sie können einzelne Sitzungen beenden oder sich auf allen Geräten gleichzeitig abmelden.",
   "securityTip": {
     "label": "Sicherheitstipp:",
-    "text": "Wenn Sie ein unbekanntes Gerät sehen, beenden Sie die Session sofort und ändern Sie Ihr Passwort."
+    "text": "Wenn Sie ein unbekanntes Gerät sehen, beenden Sie die Sitzung sofort und ändern Sie Ihr Passwort."
   },
   "list": {
-    "title": "Aktive Sessions",
-    "count_one": "{{count}} aktive Session",
-    "count_other": "{{count}} aktive Sessions",
-    "loading": "Sessions werden geladen...",
-    "empty": "Keine aktiven Sessions gefunden.",
+    "title": "Aktive Sitzungen",
+    "count_one": "{{count}} aktive Sitzung",
+    "count_other": "{{count}} aktive Sitzungen",
+    "loading": "Sitzungen werden geladen...",
+    "empty": "Keine aktiven Sitzungen gefunden.",
     "logoutAll": "Alle Geräte abmelden",
     "terminating": "Wird beendet...",
     "current": "Aktuell",
     "terminate": "Beenden",
-    "terminateAll": "Alle anderen Sessions beenden",
-    "confirmTerminate": "Möchten Sie diese Session wirklich beenden?",
-    "confirmTerminateAll": "Möchten Sie wirklich alle anderen Sessions beenden?"
+    "terminateAll": "Alle anderen Sitzungen beenden",
+    "confirmTerminate": "Möchten Sie diese Sitzung wirklich beenden?",
+    "confirmTerminateAll": "Möchten Sie wirklich alle anderen Sitzungen beenden?"
   },
   "dialog": {
     "title": "Alle Geräte abmelden?",
@@ -35,7 +35,7 @@
     "hoursAgo_other": "Vor {{count}} Stunden",
     "daysAgo_one": "Vor {{count}} Tag",
     "daysAgo_other": "Vor {{count}} Tagen",
-    "terminateAriaLabel": "Session auf {{device}} beenden",
+    "terminateAriaLabel": "Sitzung auf {{device}} beenden",
     "logout": "Abmelden",
     "terminating": "Wird beendet..."
   },
@@ -46,8 +46,8 @@
     "lastActive": "Letzte Aktivität",
     "location": "Standort"
   },
-  "loading": "Sessions werden geladen...",
-  "error": "Fehler beim Laden der Sessions. Bitte versuchen Sie es erneut.",
-  "terminateError": "Fehler beim Beenden der Session.",
-  "terminateAllError": "Fehler beim Beenden aller Sessions."
+  "loading": "Sitzungen werden geladen...",
+  "error": "Fehler beim Laden der Sitzungen. Bitte versuchen Sie es erneut.",
+  "terminateError": "Fehler beim Beenden der Sitzung.",
+  "terminateAllError": "Fehler beim Beenden aller Sitzungen."
 }

@@ -120,8 +120,16 @@
 #   - 002-REWORK-002: Fehlende Health-Check Endpoints - Added GET /api/health/live (liveness probe, < 100ms, no dependencies), GET /api/health/ready (readiness probe, checks database), Kubernetes/Docker health probe support
 #   - 002-REWORK-003: Feedback System HTTP 500 Error Fix - Made screenshot field optional in SubmitFeedbackDto, graceful error handling for screenshot processing failures, feedback submission succeeds even without screenshots
 #   - 002-REWORK-003 QA Fixes (Iteration 1): Backend DTO tests updated - 3 failing tests fixed for optional screenshot field, added new test for comment-only submission (feedback.dto.test.ts)
+#   - BUG-001: Fehlendes Favicon (vite.svg) - Added custom favicon.svg to public folder, updated index.html reference from /vite.svg to /favicon.svg, E2E tests for favicon loading
+#   - BUG-002: Grammatikfehler bei Berechtigungen (Singular/Plural) - Fixed i18n pluralization using i18next _one/_other suffixes for permissionsCount and usersCount in roles.json (de/en)
+#   - BUG-003: Inkonsistente Übersetzung "Sessions" vs "Sitzungen" - Fixed German translations in sessions.json to use consistent "Sitzungen/Sitzung" instead of mixed English "Sessions/Session"
+#   - BUG-004: Nicht übersetzte Beschreibung im Design System - Updated Default color scheme description to German via database migration, added description_key column for i18n support, added translation keys in design.json (de/en)
+#   - BUG-004 QA Fixes (Iteration 1): E2E test fix - Tests now explicitly click on Default scheme button before asserting description (page shows active scheme, not Default by default)
+#   - BUG-005: Passwort-Felder nicht in Form-Element eingebettet - Wrapped password change fields in <form> element on Settings page for proper browser autofill and password manager integration
+#   - BUG-006: Fehlende Datenschutzbestimmungen-Seite - Created PrivacyPage.tsx with GDPR-compliant content, public route /privacy (no auth required), German/English translations, link from register page works correctly
+#   - BUG-007: "LOGO" Text statt Logo-Bild auf Passwort-vergessen-Seite - Replaced inline "LOGO" text with AuthLogo component in ForgotPasswordPage.tsx, consistent branding across Login/Register/ForgotPassword pages, E2E tests
 #
-# Frontend Development (STORY-017A: Layout & Grid-System, STORY-017B-resp: Component Responsiveness, STORY-016A: Context Menu Core Navigation, STORY-018B: Context Menu Responsive & Mobile, STORY-030: Application Versioning, STORY-017B: Theme-System Frontend, STORY-007B: Login System Frontend UI, STORY-006B: User CRUD Frontend UI, Story 41: User Registration Frontend, Story 42: Roles Management Frontend UI, Story 43: Permission-System Frontend, Story 44: MFA UI Frontend, Story 45: In-App Settings Frontend UI, Story 1: UI/UX Audit, Story 1 QA Fixes, Story 2: Login Page UI Audit, Story 2 QA Fixes, Story 3: Register Page UI Audit, Story 3 QA Fixes, Story 4/Story 103: Dashboard Page UI Audit, Story 4 QA Fixes, Story 5/Story 104: Users Page UI Audit, Story 6/Story 105: Roles Page UI Audit, Story 7/Story 106: Settings Page UI Audit, Story 8/Story 107: MFA Settings Page UI Audit, Story 1 QA Fixes - Story 107, Story 2/STORY-108: Help Page UI Audit, Story 2 QA Fixes - STORY-108, Story 3/STORY-109: Forbidden Page UI Audit, Story 3 QA Fixes - STORY-109, Story 3 QA Fixes (Iteration 2) - STORY-109, Epic 002 Story 1/002-STORY-001: Login Page i18n, Epic 002 Story 1 QA Fixes (Iteration 1), Epic 002 Story 2 DevOps Iteration 1, Epic 002 Story 2 DevOps Iteration 2, Epic 002 Story 3/002-STORY-002: Register Page i18n, Epic 002 Story 4/002-STORY-003: Settings Page i18n, Epic 002 Story 4 QA Fixes (Iteration 1), Epic 002 Story 5/002-STORY-004: Sessions Page i18n, Epic 002 Story 6/002-STORY-005: Roles Page i18n, Story 6/STORY-041F: Feedback Trigger UI, Story 6/STORY-041F QA Fixes Iteration 1 & 2, Story 7/STORY-041G: Feedback Modal UI, Story 7/STORY-041G QA Fixes Iteration 1 & 2, Story 8/STORY-041H: Feedback Admin Page, Story 8/STORY-041H QA Fixes Iteration 1, 002-REWORK-001: Login Error Message Localization):
+# Frontend Development (STORY-017A: Layout & Grid-System, STORY-017B-resp: Component Responsiveness, STORY-016A: Context Menu Core Navigation, STORY-018B: Context Menu Responsive & Mobile, STORY-030: Application Versioning, STORY-017B: Theme-System Frontend, STORY-007B: Login System Frontend UI, STORY-006B: User CRUD Frontend UI, Story 41: User Registration Frontend, Story 42: Roles Management Frontend UI, Story 43: Permission-System Frontend, Story 44: MFA UI Frontend, Story 45: In-App Settings Frontend UI, Story 1: UI/UX Audit, Story 1 QA Fixes, Story 2: Login Page UI Audit, Story 2 QA Fixes, Story 3: Register Page UI Audit, Story 3 QA Fixes, Story 4/Story 103: Dashboard Page UI Audit, Story 4 QA Fixes, Story 5/Story 104: Users Page UI Audit, Story 6/Story 105: Roles Page UI Audit, Story 7/Story 106: Settings Page UI Audit, Story 8/Story 107: MFA Settings Page UI Audit, Story 1 QA Fixes - Story 107, Story 2/STORY-108: Help Page UI Audit, Story 2 QA Fixes - STORY-108, Story 3/STORY-109: Forbidden Page UI Audit, Story 3 QA Fixes - STORY-109, Story 3 QA Fixes (Iteration 2) - STORY-109, Epic 002 Story 1/002-STORY-001: Login Page i18n, Epic 002 Story 1 QA Fixes (Iteration 1), Epic 002 Story 2 DevOps Iteration 1, Epic 002 Story 2 DevOps Iteration 2, Epic 002 Story 3/002-STORY-002: Register Page i18n, Epic 002 Story 4/002-STORY-003: Settings Page i18n, Epic 002 Story 4 QA Fixes (Iteration 1), Epic 002 Story 5/002-STORY-004: Sessions Page i18n, Epic 002 Story 6/002-STORY-005: Roles Page i18n, Story 6/STORY-041F: Feedback Trigger UI, Story 6/STORY-041F QA Fixes Iteration 1 & 2, Story 7/STORY-041G: Feedback Modal UI, Story 7/STORY-041G QA Fixes Iteration 1 & 2, Story 8/STORY-041H: Feedback Admin Page, Story 8/STORY-041H QA Fixes Iteration 1, 002-REWORK-001: Login Error Message Localization, BUG-001: Favicon Fix, BUG-002: Permission Pluralization Fix, BUG-003: Sessions Translation Consistency Fix, BUG-004: Design System Description Translation, BUG-004 QA Fixes Iteration 1, BUG-005: Settings Password Form Fix, BUG-006: Privacy Page, BUG-007: Forgot Password Logo Fix):
 #   The frontend is developed separately and does not require Docker services.
 #   Frontend runs locally: cd frontend && npm install && npm run dev (port 3000)
 #   Frontend components (Container, Row, Col, Grid, GridItem) are in frontend/src/components/layout/
@@ -1718,6 +1726,177 @@
 #     - Feedback without screenshot: HTTP 200, screenshotStored: false (previously HTTP 500)
 #     - Feedback with invalid screenshot: HTTP 200, screenshotStored: false (graceful degradation)
 #
+#   BUG-001 (Fehlendes Favicon) Files Created:
+#     - frontend/public/favicon.svg - Custom SVG favicon for the Core Application (modern blue design with layered rectangles and central circle)
+#     - frontend/e2e/favicon.spec.ts - Playwright E2E tests to verify favicon loads correctly (no 404 errors, link element exists, valid SVG content)
+#
+#   BUG-001 (Fehlendes Favicon) Files Modified:
+#     - frontend/index.html (line 5) - Changed favicon reference from /vite.svg to /favicon.svg
+#
+#   BUG-001 (Fehlendes Favicon) Features:
+#     - Custom SVG favicon replacing missing vite.svg
+#     - Vite automatically serves files from public/ directory at root URL path
+#     - No 404 error for /favicon.svg in browser console
+#     - Favicon displays correctly in browser tab
+#
+#   BUG-001 Testing:
+#     - Manual: Open application, check browser tab for favicon, verify no 404 in DevTools Network tab
+#     - E2E: Run `cd frontend && npx playwright test favicon.spec.ts --project=chromium`
+#
+#   BUG-002 (Grammatikfehler bei Berechtigungen - Singular/Plural) Files Modified:
+#     - backend/locales/de/roles.json - Changed permissionsCount to permissionsCount_one/permissionsCount_other, usersCount to usersCount_one/usersCount_other
+#     - backend/locales/en/roles.json - Same changes for English consistency ("1 permission" vs "X permissions", "1 user" vs "X users")
+#
+#   BUG-002 (Grammatikfehler bei Berechtigungen - Singular/Plural) Files Created:
+#     - frontend/e2e/bug-002-permission-pluralization.spec.ts - Playwright E2E tests verifying German/English singular/plural forms, language switching
+#
+#   BUG-002 (Grammatikfehler bei Berechtigungen - Singular/Plural) Features:
+#     - i18next built-in pluralization using _one and _other suffixes
+#     - German: "1 Berechtigung" (singular) / "X Berechtigungen" (plural)
+#     - German: "1 Benutzer" (singular) / "X Benutzer" (plural - same form in German)
+#     - English: "1 permission" (singular) / "X permissions" (plural)
+#     - English: "1 user" (singular) / "X users" (plural)
+#     - No frontend code changes required - i18next automatically uses suffixes when count parameter is passed
+#     - Existing t('table.permissionsCount', { count: ... }) calls work unchanged
+#
+#   BUG-002 Testing:
+#     - Manual: Navigate to Roles page, verify viewer role shows "1 Berechtigung" (German) or "1 permission" (English)
+#     - Manual: Verify admin role shows "22 Berechtigungen" (German) or "22 permissions" (English)
+#     - E2E: Run `cd frontend && npx playwright test bug-002-permission-pluralization.spec.ts --project=chromium`
+#
+#   BUG-003 (Inkonsistente Übersetzung "Sessions" vs "Sitzungen") Files Modified:
+#     - backend/locales/de/sessions.json - Changed all occurrences of English "Sessions/Session" to German "Sitzungen/Sitzung":
+#       - title: "Sessions verwalten" → "Sitzungen verwalten"
+#       - description: "einzelne Sessions" → "einzelne Sitzungen"
+#       - securityTip.text: "die Session" → "die Sitzung"
+#       - list.title: "Aktive Sessions" → "Aktive Sitzungen"
+#       - list.count_one: "aktive Session" → "aktive Sitzung"
+#       - list.count_other: "aktive Sessions" → "aktive Sitzungen"
+#       - list.loading: "Sessions werden" → "Sitzungen werden"
+#       - list.empty: "Sessions gefunden" → "Sitzungen gefunden"
+#       - list.terminateAll: "Sessions beenden" → "Sitzungen beenden"
+#       - list.confirmTerminate: "diese Session" → "diese Sitzung"
+#       - list.confirmTerminateAll: "Sessions beenden" → "Sitzungen beenden"
+#       - item.terminateAriaLabel: "Session auf" → "Sitzung auf"
+#       - loading: "Sessions werden" → "Sitzungen werden"
+#       - error: "der Sessions" → "der Sitzungen"
+#       - terminateError: "der Session" → "der Sitzung"
+#       - terminateAllError: "aller Sessions" → "aller Sitzungen"
+#     - frontend/e2e/sessions-page-i18n.spec.ts - Updated waitForTranslationsToLoad() and assertions to expect "Sitzungen" instead of "Sessions"
+#
+#   BUG-003 (Inkonsistente Übersetzung "Sessions" vs "Sitzungen") Files Created:
+#     - frontend/e2e/bug-003-sessions-translation-consistency.spec.ts - Comprehensive E2E tests verifying:
+#       - Sidebar and page title both use "Sitzungen" in German
+#       - All session-related German text uses "Sitzung/Sitzungen"
+#       - Page does not contain incorrect "Sessions" in German mode
+#       - Security tip uses correct German translation
+#       - English mode continues to use "Sessions" correctly
+#       - Language switch maintains translation consistency
+#
+#   BUG-003 (Inkonsistente Übersetzung "Sessions" vs "Sitzungen") Features:
+#     - Consistent German localization for session-related text throughout the application
+#     - Sidebar navigation shows "Sitzungen" (already correct)
+#     - Page title shows "Sitzungen verwalten" (was: "Sessions verwalten")
+#     - List title shows "Aktive Sitzungen" (was: "Aktive Sessions")
+#     - All session count, loading, error, and action messages use German "Sitzung/Sitzungen"
+#     - No frontend code changes required - only i18n translation file updates
+#     - Existing t() calls work unchanged
+#
+#   BUG-003 Testing:
+#     - Manual: Login as admin, navigate to Sitzungen page
+#     - Manual: Verify page title shows "Sitzungen verwalten" (not "Sessions verwalten")
+#     - Manual: Verify list title shows "Aktive Sitzungen" (not "Aktive Sessions")
+#     - Manual: Check all German text on page uses "Sitzung/Sitzungen" consistently
+#     - E2E: Run `cd frontend && npx playwright test bug-003-sessions-translation-consistency.spec.ts --project=chromium`
+#     - E2E: Run `cd frontend && npx playwright test sessions-page-i18n.spec.ts --project=chromium`
+#
+#   BUG-004 (Nicht übersetzte Beschreibung im Design System) Files Created:
+#     - backend/src/database/migrations/034-update-default-scheme-description.sql - Updates Default scheme description to German, adds description_key column (renamed from 028 to fix numbering conflict)
+#     - frontend/e2e/bug-004-design-system-description-translation.spec.ts - E2E tests for Design System description translation
+#
+#   BUG-004 (Nicht übersetzte Beschreibung im Design System) Files Modified:
+#     - backend/locales/de/design.json - Added schemeDescriptions.default translation
+#     - backend/locales/en/design.json - Added schemeDescriptions.default translation
+#     - backend/dist/locales/de/design.json - Compiled German translation
+#     - backend/dist/locales/en/design.json - Compiled English translation
+#     - frontend/src/pages/DesignSystemPage.tsx - Fixed modal translation keys (modal.createTitle→modal.create.title, modal.deleteTitle→modal.delete.title), added data-testid attributes (scheme-name, scheme-description)
+#
+#   BUG-004 Features:
+#     - Database migration updates Default color scheme description from English to German
+#     - Added description_key column to color_schemes table for future i18n lookups
+#     - Translation keys added to design.json for scheme descriptions
+#     - Migration is idempotent (safe to run multiple times)
+#     - Backwards compatible - existing custom color schemes retain their descriptions
+#     - Fixed modal translation keys to use correct nested path structure
+#     - Added data-testid attributes for reliable E2E testing
+#
+#   BUG-004 Testing:
+#     - Manual: Login as admin, navigate to Design System page (/design)
+#     - Manual: Verify Default scheme shows "Standard-Farbschema mit blauen Primärfarben" in German mode
+#     - Manual: Switch to English and verify it shows "Standard color scheme with blue primary colors"
+#     - Manual: Test create modal shows German translations ("Farbschema erstellen", "Schema-Name")
+#     - Manual: Test delete modal shows German translations ("Farbschema löschen", "Sind Sie sicher...")
+#     - E2E: Run `cd frontend && npx playwright test bug-004-design-system-description-translation.spec.ts --project=chromium`
+#
+#   BUG-004 Dev Agent Fixes (Iteration 1):
+#     - Issue #1 (CRITICAL): Migration Numbering Conflict - Two migrations named 028-*.sql existed
+#       File: backend/src/database/migrations/034-update-default-scheme-description.sql (renamed from 028)
+#       Root Cause: Migration 028 already existed, causing the fix migration to potentially be skipped or run in wrong order
+#       Fix Applied: Renamed migration from 028-* to 034-* and updated version comment inside file
+#     - Issue #2 (MAJOR): Incorrect Modal Translation Keys
+#       File: frontend/src/pages/DesignSystemPage.tsx
+#       Root Cause: DesignSystemPage used incorrect translation keys for modals
+#       Fix Applied: Updated to use correct nested path structure:
+#         - modal.createTitle → modal.create.title
+#         - modal.schemeName → modal.create.placeholder
+#         - modal.deleteTitle → modal.delete.title
+#         - modal.deleteConfirm → modal.delete.confirm
+#     - Issue #3 (MINOR): Missing Test IDs for E2E Testing
+#       File: frontend/src/pages/DesignSystemPage.tsx
+#       Fix Applied: Added data-testid="scheme-name" and data-testid="scheme-description" for E2E testing
+#
+#   BUG-004 QA Fixes Applied (Iteration 1):
+#     - Issue #1 (MAJOR): E2E Test Bug - Tests assume Default scheme is automatically displayed on /design page
+#       File: frontend/e2e/bug-004-design-system-description-translation.spec.ts
+#       Root Cause: The Design System page shows whichever color scheme is **currently active** (e.g., Dark Mode Theme),
+#         not the Default scheme by default. Tests were navigating to /design and immediately asserting on the
+#         Default scheme's German description without first selecting it.
+#       Fix Applied: Added explicit click on "Default" scheme button before verifying its description in all 5 affected tests:
+#         - Test 1: 'Default color scheme shows German description in German mode' (lines 49-76)
+#         - Test 2: 'Default color scheme description does not show English text in German mode' (lines 78-95)
+#         - Test 3: 'English mode shows English description correctly' (lines 97-120)
+#         - Test 4: 'language switch updates scheme description correctly' (lines 122-170) - Added re-click after each page.reload()
+#         - Test 5: 'Default scheme is correctly identified in sidebar' (lines 172-188) - Changed to click and verify scheme header
+#         Each test now includes:
+#           const defaultSchemeButton = page.locator('button:has-text("Default")').first();
+#           await expect(defaultSchemeButton).toBeVisible({ timeout: 10000 });
+#           await defaultSchemeButton.click();
+#           await page.waitForTimeout(500); // Wait for scheme content to load
+#       Files Changed: frontend/e2e/bug-004-design-system-description-translation.spec.ts
+#       Result: All 8 E2E tests now pass (6 original + 2 new modal translation tests)
+#     - Testing Notes:
+#       - Run: cd frontend && npx playwright test bug-004-design-system-description-translation.spec.ts --project=chromium
+#       - Manual verification already confirmed implementation is correct (German description displays properly)
+#       - New tests verify create and delete modal translations
+#       - Integration points: No other stories affected - isolated test file fix
+#
+#   BUG-005 (Passwort-Felder nicht in Form-Element eingebettet) Files Modified:
+#     - frontend/src/components/settings/SecuritySettings.tsx - Wrapped password change fields in <form> element with onSubmit handler
+#
+#   BUG-005 (Passwort-Felder nicht in Form-Element eingebettet) Features:
+#     - Password change fields on Settings page now wrapped in <form> element
+#     - Proper browser autofill support for password managers
+#     - Better password manager integration (1Password, LastPass, etc.)
+#     - No more browser console warning: "Password field is not contained in a form"
+#     - Form uses onSubmit={handlePasswordChange} for proper form submission
+#     - Frontend-only fix, no backend changes required
+#
+#   BUG-005 Testing:
+#     - Manual: Login as admin, navigate to Settings > Security tab
+#     - Manual: Open browser DevTools (F12), check Console - no "Password field is not contained in a form" warning
+#     - Manual: Test password manager autofill (1Password, LastPass, browser built-in)
+#     - Manual: Verify form submission still works correctly
+#
 #   STORY-006B (User CRUD Frontend UI) Files Created/Modified:
 #     - frontend/src/components/users/UserCreateModal.tsx - Modal form for creating new users with validation
 #     - frontend/src/components/users/UserEditModal.tsx - Modal form for editing existing users with change tracking
@@ -1805,7 +1984,7 @@
 #     npm run dev          - Start dev server on http://localhost:3000
 #     npm run build        - Build for production
 #     npm run test         - Run unit tests (Vitest, includes LoginForm, PrivateRoute, AuthContext tests)
-#     npm run test:e2e     - Run Playwright E2E tests (includes login-system.spec.ts, responsive-sidebar.spec.ts, user-crud.spec.ts, roles-management.spec.ts, permissions-frontend.spec.ts, registration.spec.ts, mfa-ui.spec.ts, settings-ui.spec.ts, ui-consistency.spec.ts, story-3-register-ui-audit.spec.ts, story-103-dashboard-ui-audit.spec.ts, story-104-users-page-ui-audit.spec.ts, story-105-roles-page-ui-audit.spec.ts, story-106-settings-page-ui-audit.spec.ts, story-107-mfa-page-ui-audit.spec.ts, story-108-help-page-ui-audit.spec.ts, story-109-forbidden-page-ui-audit.spec.ts, login-page-i18n.spec.ts, register-page-i18n.spec.ts, settings-page-i18n.spec.ts, sessions-page-i18n.spec.ts, roles-page-i18n.spec.ts, feedback-trigger.spec.ts, feedback-modal.spec.ts, feedback-admin.spec.ts, feedback-http500-fix.spec.ts)
+#     npm run test:e2e     - Run Playwright E2E tests (includes login-system.spec.ts, responsive-sidebar.spec.ts, user-crud.spec.ts, roles-management.spec.ts, permissions-frontend.spec.ts, registration.spec.ts, mfa-ui.spec.ts, settings-ui.spec.ts, ui-consistency.spec.ts, story-3-register-ui-audit.spec.ts, story-103-dashboard-ui-audit.spec.ts, story-104-users-page-ui-audit.spec.ts, story-105-roles-page-ui-audit.spec.ts, story-106-settings-page-ui-audit.spec.ts, story-107-mfa-page-ui-audit.spec.ts, story-108-help-page-ui-audit.spec.ts, story-109-forbidden-page-ui-audit.spec.ts, login-page-i18n.spec.ts, register-page-i18n.spec.ts, settings-page-i18n.spec.ts, sessions-page-i18n.spec.ts, roles-page-i18n.spec.ts, feedback-trigger.spec.ts, feedback-modal.spec.ts, feedback-admin.spec.ts, feedback-http500-fix.spec.ts, favicon.spec.ts, bug-002-permission-pluralization.spec.ts, bug-003-sessions-translation-consistency.spec.ts, bug-004-design-system-description-translation.spec.ts, privacy-page.spec.ts)
 #     npm run test:coverage - Run tests with coverage (≥80% required)
 #
 #   Frontend Pages:
@@ -1824,6 +2003,8 @@
 #     Registration Success: http://localhost:3000/registration-success (Story 41: "Check your email" confirmation)
 #     Email Verification: http://localhost:3000/verify-email?token=... (Story 41: Email verification result)
 #     Feedback Admin: http://localhost:3000/admin/feedback (Protected route, STORY-041H: Feedback admin page with list/detail/delete/Jira, requires feedback.manage permission)
+#     Privacy: http://localhost:3000/privacy (Public route, BUG-006: GDPR-compliant privacy policy page with German/English translations, accessible from register page)
+#     Forgot Password: http://localhost:3000/forgot-password (Public route, STORY-009: Password reset request, BUG-007: AuthLogo component for consistent branding)
 #
 #   Grid Demo Page (deprecated, use Frontend Pages above): http://localhost:3000/grid-demo
 #   Tailwind breakpoints: sm (640px), md (768px), lg (1024px), xl (1280px)
@@ -1999,7 +2180,7 @@
 
 services:
   # ----------------
-  # Resource API Service (NestJS - STORY-001A, STORY-003A, STORY-005A, STORY-005B, STORY-007B, STORY-009, STORY-013A, STORY-014A, STORY-017, STORY-018A, STORY-021A, STORY-021B, STORY-022, STORY-023B, STORY-025, STORY-026A, STORY-026B, STORY-027, STORY-028, STORY-029, STORY-030, STORY-035, STORY-038A, STORY-038B, STORY-041, STORY-041B, STORY-041C, STORY-041D, STORY-041E, Story-41/STORY-023)
+  # Resource API Service (NestJS - STORY-001A, STORY-003A, STORY-005A, STORY-005B, STORY-007B, STORY-009, STORY-013A, STORY-014A, STORY-017, STORY-018A, STORY-021A, STORY-021B, STORY-022, STORY-023B, STORY-025, STORY-026A, STORY-026B, STORY-027, STORY-028, STORY-029, STORY-030, STORY-035, STORY-038A, STORY-038B, STORY-041, STORY-041B, STORY-041C, STORY-041D, STORY-041E, Story-41/STORY-023, BUG-004)
   # STORY-001A: Login System Backend - JWT Auth, bcrypt 12 rounds, Rate Limiting 5 req/min/IP, Audit Logging
   # STORY-003A: User CRUD Backend API with JWT Auth Guards, Roles Guard, Soft Delete, Role Management
   # STORY-005A: MFA Setup Backend - TOTP secret generation (otplib), QR code URLs, backup codes (bcrypt hashed), ±1 window drift
@@ -2032,6 +2213,7 @@ services:
   # STORY-041E: Jira Ticket Creation - POST /api/v1/admin/feedbacks/:id/jira, creates Jira issue from feedback, uploads screenshots as attachments, updates feedback with Jira key
   # Story 41 (STORY-023): User Registration - POST /register, GET /verify-email, POST /resend-verification, German email templates, 3 req/hour rate limit
   # 002-REWORK-003: Feedback System HTTP 500 Error Fix - Made screenshot optional in SubmitFeedbackDto, graceful error handling for screenshot processing, feedback submission succeeds without screenshots
+  # BUG-004: Design System Description i18n - Database migration updates Default color scheme description to German, adds description_key column for translation lookup, translations in design.json (de/en)
   # Includes: API setup, Rate Limiting, Request Logging, Error Handling, Structured Error Logging, Audit Trail
   # Security: JWT Authentication Guard, Roles Authorization Guard, Permissions Guard (Admin-only for User CRUD)
   # ----------------
@@ -2231,6 +2413,8 @@ services:
   # STORY-041D: app_settings.integrations JSONB column for Jira settings (url, email, encrypted apiToken, projectKey, issueType, enabled)
   # STORY-041D QA Fixes (Iteration 2): Migration 032-add-integrations-column.sql adds integrations JSONB column with GIN index for faster queries
   # STORY-041E: feedback_submissions.jira_issue_key VARCHAR(50), feedback_submissions.jira_created_at TIMESTAMP (migration 033-feedback-jira-key.sql)
+  # BUG-004: color_schemes.description_key VARCHAR(255) for i18n support, Default scheme description updated to German (migration 034-update-default-scheme-description.sql)
+  # BUG-004 QA Fixes (Iteration 1): Migration renumbered from 028 to 034 to fix numbering conflict, fixed modal translation keys to use correct nested path structure (modal.create.title, modal.delete.title), added data-testid attributes for E2E testing
   # ----------------
   postgres:
     image: postgres:15-alpine
@@ -2328,6 +2512,10 @@ services:
   # Story 7 QA Fixes (Iteration 2) - STORY-041G: E2E test fixes - login testId fix (login-submit→login-button), auth token bypass for rate limiting, backdrop click force:true, character limit 2000 validation, hint test
   # Story 8/STORY-041H: Feedback Admin Page - Admin page /admin/feedback for viewing/managing feedback, FeedbackListItem, FeedbackDetailModal, FeedbackDeleteDialog, Jira ticket creation, pagination, 27 E2E tests
   # Story 8/STORY-041H QA Fixes (Iteration 1): E2E test authentication fix - createMockJwt() for valid JWT tokens, roles endpoint mock, route ordering fixes. All 165 tests pass across all browsers.
+  # BUG-001: Fehlendes Favicon (vite.svg) - Added custom favicon.svg to public folder, updated index.html reference from /vite.svg to /favicon.svg
+  # BUG-005: Passwort-Felder nicht in Form-Element eingebettet - Wrapped password change fields in <form> element in SecuritySettings.tsx for browser autofill and password manager support
+  # BUG-006: Fehlende Datenschutzbestimmungen-Seite - PrivacyPage.tsx component with GDPR-compliant content (8 sections), public route /privacy, German/English translations in privacy.json, E2E tests
+  # BUG-007: "LOGO" Text statt Logo-Bild auf Passwort-vergessen-Seite - Replaced inline "LOGO" text with AuthLogo component in ForgotPasswordPage.tsx (both form state and success state), consistent branding across all auth pages, E2E tests (bug-007-forgot-password-logo.spec.ts)
   # ----------------
   frontend:
     build:

@@ -28,7 +28,7 @@ i18n
     fallbackLng: 'de',
 
     // Namespaces
-    ns: ['common', 'navigation', 'validation', 'errors', 'auth', 'dashboard', 'settings', 'help'],
+    ns: ['common', 'navigation', 'validation', 'errors', 'auth', 'dashboard', 'settings', 'help', 'design', 'privacy'],
     defaultNS: 'common',
 
     // Backend configuration - load from API

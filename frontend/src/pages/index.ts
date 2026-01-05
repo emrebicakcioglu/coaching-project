@@ -10,6 +10,7 @@
  * STORY-016A: Context Menu Core Navigation
  * STORY-023: User Registration
  * STORY-005C: MFA UI (Frontend)
+ * BUG-006: Privacy Policy Page
  */
 
 // Auth Pages
@@ -24,6 +25,9 @@ export { ForbiddenPage } from './ForbiddenPage';
 export { RegisterPage } from './RegisterPage';
 export { RegistrationSuccessPage } from './RegistrationSuccessPage';
 export { EmailVerificationPage } from './EmailVerificationPage';
+
+// Privacy Policy Page (BUG-006)
+export { PrivacyPage } from './PrivacyPage';
 
 // MFA Pages (STORY-005C)
 export { MFASetupPage } from './MFASetupPage';

@@ -218,6 +218,7 @@ export interface ColorScheme {
   id: number;
   name: string;
   description?: string;
+  description_key?: string;
   is_active: boolean;
   is_default: boolean;
   is_light_scheme: boolean;

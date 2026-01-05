@@ -1,6 +1,7 @@
 /**
  * ForgotPasswordPage Component
  * STORY-009: Password Reset
+ * BUG-007: Fixed logo display - replaced "LOGO" text with AuthLogo component
  *
  * Page component for requesting a password reset email.
  * Located at /forgot-password in the application.
@@ -10,6 +11,7 @@ import React, { useState, useCallback, FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { passwordResetService } from '../services/authService';
+import { AuthLogo } from '../components/auth';
 import './AuthPages.css';
 
 /**
@@ -118,12 +120,8 @@ export const ForgotPasswordPage: React.FC = () => {
     return (
       <div className="auth-page">
         <div className="auth-container">
-          {/* Logo placeholder */}
-          <div className="auth-logo" aria-label={t('logo')}>
-            <div className="auth-logo__placeholder" aria-hidden="true">
-              <span>{t('logoText')}</span>
-            </div>
-          </div>
+          {/* Logo - BUG-007: Using shared AuthLogo component for consistency */}
+          <AuthLogo data-testid="forgot-password-auth-logo" />
 
           <div className="auth-header">
             <h1 className="auth-title">{t('forgotPassword.success.title')}</h1>
@@ -182,12 +180,8 @@ export const ForgotPasswordPage: React.FC = () => {
   return (
     <div className="auth-page">
       <div className="auth-container">
-        {/* Logo placeholder */}
-        <div className="auth-logo" aria-label={t('logo')}>
-          <div className="auth-logo__placeholder" aria-hidden="true">
-            <span>{t('logoText')}</span>
-          </div>
-        </div>
+        {/* Logo - BUG-007: Using shared AuthLogo component for consistency */}
+        <AuthLogo data-testid="forgot-password-auth-logo" />
 
         <div className="auth-header">
           <h1 className="auth-title">{t('forgotPassword.title')}</h1>

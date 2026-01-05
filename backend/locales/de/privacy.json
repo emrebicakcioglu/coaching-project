@@ -1,0 +1,62 @@
+{
+  "title": "Datenschutzbestimmungen",
+  "backToRegister": "Zurück zur Registrierung",
+  "lastUpdated": "Letzte Aktualisierung: {{date}}",
+  "registerPrompt": "Jetzt registrieren",
+  "loginPrompt": "Anmelden",
+  "sections": {
+    "introduction": {
+      "title": "1. Einleitung",
+      "content": "Der Schutz Ihrer persönlichen Daten ist uns wichtig. Diese Datenschutzerklärung informiert Sie darüber, wie wir Ihre personenbezogenen Daten erheben, verarbeiten und schützen, wenn Sie unsere Anwendung nutzen."
+    },
+    "responsible": {
+      "title": "2. Verantwortliche Stelle",
+      "content": "Verantwortlich für die Datenverarbeitung ist der Betreiber dieser Anwendung. Bei Fragen zum Datenschutz können Sie uns über die unten angegebenen Kontaktdaten erreichen."
+    },
+    "dataCollection": {
+      "title": "3. Welche Daten werden erhoben?",
+      "content": "Bei der Registrierung und Nutzung unserer Anwendung erheben wir folgende Daten:",
+      "items": {
+        "email": "E-Mail-Adresse (für die Anmeldung und Kommunikation)",
+        "name": "Name (zur Personalisierung Ihres Kontos)",
+        "password": "Passwort (verschlüsselt gespeichert)",
+        "ip": "IP-Adresse (für Sicherheitszwecke)",
+        "browser": "Browser- und Geräteinformationen (für die Sitzungsverwaltung)"
+      }
+    },
+    "purpose": {
+      "title": "4. Zweck der Datenverarbeitung",
+      "content": "Wir verarbeiten Ihre Daten zu folgenden Zwecken:",
+      "items": {
+        "account": "Erstellung und Verwaltung Ihres Benutzerkontos",
+        "authentication": "Authentifizierung und Zugriffskontrolle",
+        "security": "Gewährleistung der Sicherheit unserer Dienste",
+        "communication": "Kommunikation mit Ihnen bezüglich Ihres Kontos"
+      }
+    },
+    "legalBasis": {
+      "title": "5. Rechtsgrundlage",
+      "content": "Die Verarbeitung Ihrer Daten erfolgt auf Grundlage von Art. 6 Abs. 1 lit. b DSGVO (Vertragserfüllung) und Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an der Sicherheit unserer Dienste)."
+    },
+    "retention": {
+      "title": "6. Speicherdauer",
+      "content": "Wir speichern Ihre personenbezogenen Daten nur so lange, wie es für die Erfüllung der genannten Zwecke erforderlich ist oder Sie Ihr Konto löschen. Nach Löschung Ihres Kontos werden Ihre Daten unverzüglich gelöscht, sofern keine gesetzlichen Aufbewahrungspflichten bestehen."
+    },
+    "rights": {
+      "title": "7. Ihre Rechte",
+      "content": "Sie haben gemäß DSGVO folgende Rechte:",
+      "items": {
+        "access": "Recht auf Auskunft (Art. 15 DSGVO)",
+        "rectification": "Recht auf Berichtigung (Art. 16 DSGVO)",
+        "erasure": "Recht auf Löschung (Art. 17 DSGVO)",
+        "restriction": "Recht auf Einschränkung der Verarbeitung (Art. 18 DSGVO)",
+        "portability": "Recht auf Datenübertragbarkeit (Art. 20 DSGVO)",
+        "objection": "Widerspruchsrecht (Art. 21 DSGVO)"
+      }
+    },
+    "contact": {
+      "title": "8. Kontakt",
+      "content": "Bei Fragen zum Datenschutz oder zur Ausübung Ihrer Rechte können Sie uns unter folgender E-Mail-Adresse erreichen:"
+    }
+  }
+}

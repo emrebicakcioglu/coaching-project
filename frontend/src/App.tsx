@@ -11,6 +11,7 @@
  * STORY-041F: Feedback Trigger UI
  * STORY-041G: Feedback Modal UI
  * STORY-041H: Feedback Admin Page
+ * BUG-006: Privacy Policy Page
  *
  * Root component with routing configuration for all pages.
  * Wrapped in ThemeProvider for dynamic theming and AuthProvider for authentication.
@@ -33,6 +34,7 @@ import {
   RegisterPage,
   RegistrationSuccessPage,
   EmailVerificationPage,
+  PrivacyPage,
   MFASetupPage,
   SessionsPage,
   UsersListPage,
@@ -115,6 +117,9 @@ const App: React.FC = () => {
                   <Route path="/register" element={<RegisterPage />} />
                   <Route path="/registration-success" element={<RegistrationSuccessPage />} />
                   <Route path="/verify-email" element={<EmailVerificationPage />} />
+
+                  {/* Privacy Policy Route (BUG-006 - Public, No Auth Required) */}
+                  <Route path="/privacy" element={<PrivacyPage />} />
 
                   {/* Permission Denied Route (STORY-008B - No Layout) */}
                   <Route path="/forbidden" element={<ForbiddenPage />} />

@@ -73,6 +73,9 @@
     "newScheme": "New custom color scheme",
     "copy": "(Copy)"
   },
+  "schemeDescriptions": {
+    "default": "Standard color scheme with blue primary colors"
+  },
   "sections": {
     "colorPalette": "Color Palette",
     "quickPreview": "Quick Preview",

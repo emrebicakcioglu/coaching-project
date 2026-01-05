@@ -73,6 +73,9 @@
     "newScheme": "Neues benutzerdefiniertes Farbschema",
     "copy": "(Kopie)"
   },
+  "schemeDescriptions": {
+    "default": "Standard-Farbschema mit blauen Primärfarben"
+  },
   "sections": {
     "colorPalette": "Farbpalette",
     "quickPreview": "Schnellvorschau",

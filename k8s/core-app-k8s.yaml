@@ -95,7 +95,11 @@ data:
 
 ---
 # Secret fuer sensible Umgebungsvariablen
-# WICHTIG: Ersetze die Platzhalter-Werte mit echten Secrets!
+# WICHTIG: Erstelle Secrets separat mit kubectl oder Sealed Secrets!
+# kubectl create secret generic core-app-secrets \
+#   --from-literal=DB_PASSWORD=<your-db-password> \
+#   --from-literal=JWT_SECRET=<your-jwt-secret> \
+#   ... --namespace=core-app
 apiVersion: v1
 kind: Secret
 metadata:
@@ -103,16 +107,17 @@ metadata:
   namespace: core-app
 type: Opaque
 stringData:
-  DB_PASSWORD: "WgO&0wR!4ySbLGhHAsh^7mRA"
-  ENCRYPTION_KEY: "86e0e929f06e490e8bb60339d3737f266e68c1aebc3dfa5361a4cbe882d2e9f0"
-  JWT_SECRET: "1BmXcXjdDkUzXF3nKls+8Sv2649ylT6RdeEcyGlgr8lMP7MzjA7Cx74+wKXlD4iw"
+  # === ERSETZE DIESE PLATZHALTER MIT ECHTEN WERTEN ===
+  DB_PASSWORD: "CHANGE_ME_DB_PASSWORD"
+  ENCRYPTION_KEY: "CHANGE_ME_ENCRYPTION_KEY_64_HEX_CHARS"
+  JWT_SECRET: "CHANGE_ME_JWT_SECRET_MIN_32_CHARS"
   MFA_TEMP_TOKEN_EXPIRY: "300"
-  MFA_TEMP_TOKEN_SECRET: "glyYLj63TSa5GcV04uveAaAfC3zIxYvtvdj6lQ6TJC8="
-  MINIO_ACCESS_KEY: "minioadmin"
-  MINIO_ROOT_PASSWORD: "minioadmin"
-  MINIO_SECRET_KEY: "minioadmin"
-  POSTGRES_PASSWORD: "WgO&0wR!4ySbLGhHAsh^7mRA"
-  RESEND_API_KEY: "re_7YacD4x2_Mxj12uwZvEQo99rzehVZiKYz"
+  MFA_TEMP_TOKEN_SECRET: "CHANGE_ME_MFA_SECRET"
+  MINIO_ACCESS_KEY: "CHANGE_ME_MINIO_ACCESS"
+  MINIO_ROOT_PASSWORD: "CHANGE_ME_MINIO_PASSWORD"
+  MINIO_SECRET_KEY: "CHANGE_ME_MINIO_SECRET"
+  POSTGRES_PASSWORD: "CHANGE_ME_DB_PASSWORD"
+  RESEND_API_KEY: "CHANGE_ME_RESEND_API_KEY"
   TOKEN_CLEANUP_INTERVAL_MS: "3600000"
   VERIFICATION_TOKEN_EXPIRY: "24h"
 
@@ -153,6 +158,33 @@ spec:
             limits:
               memory: "512Mi"
               cpu: "500m"
+          # Liveness Probe - Schneller Check ob App laeuft
+          livenessProbe:
+            httpGet:
+              path: /api/health/live
+              port: 14102
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          # Readiness Probe - Prueft ob App Traffic empfangen kann
+          readinessProbe:
+            httpGet:
+              path: /api/health/ready
+              port: 14102
+            initialDelaySeconds: 15
+            periodSeconds: 5
+            timeoutSeconds: 10
+            failureThreshold: 3
+          # Startup Probe - Fuer langsame Container-Starts
+          startupProbe:
+            httpGet:
+              path: /api/health/live
+              port: 14102
+            initialDelaySeconds: 0
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 30
 
 ---
 # BACKEND Service
@@ -168,6 +200,35 @@ spec:
     - protocol: TCP
       port: 14102
       targetPort: 14102
+
+---
+# BACKEND HPA (Horizontal Pod Autoscaler)
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: core-app-backend-hpa
+  namespace: core-app
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: core-app-backend
+  minReplicas: 1
+  maxReplicas: 5
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
+
 ---
 # FRONTEND Deployment
 apiVersion: apps/v1
@@ -231,26 +292,62 @@ spec:
     kind: ClusterIssuer
 
 ---
-# Traefik IngressRoute
+# Traefik Middleware fuer Security Headers
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: core-app-headers
+  namespace: core-app
+spec:
+  headers:
+    customRequestHeaders:
+      X-Forwarded-Proto: "https"
+    customResponseHeaders:
+      X-Frame-Options: "SAMEORIGIN"
+      X-Content-Type-Options: "nosniff"
+      X-XSS-Protection: "1; mode=block"
+
+---
+# Traefik IngressRoute - Backend (API + Socket.io)
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
-  name: core-app-ingressroute
+  name: core-app-backend-ingressroute
   namespace: core-app
 spec:
   entryPoints:
+    - web
     - websecure
   routes:
-    - match: Host(`core-app.rit.services`) && PathPrefix(`/api`)
+    - match: Host(`core-app.rit.services`) && (PathPrefix(`/api`) || PathPrefix(`/socket.io`))
       kind: Rule
       services:
         - name: core-app-backend
           port: 14102
-    - match: Host(`core-app.rit.services`)
+      middlewares:
+        - name: core-app-headers
+  tls:
+    secretName: core-app-tls
+
+---
+# Traefik IngressRoute - Frontend
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: core-app-frontend-ingressroute
+  namespace: core-app
+spec:
+  entryPoints:
+    - web
+    - websecure
+  routes:
+    - match: Host(`core-app.rit.services`) && !PathPrefix(`/api`) && !PathPrefix(`/socket.io`)
       kind: Rule
       services:
         - name: core-app-frontend
           port: 80
+      middlewares:
+        - name: core-app-headers
   tls:
     secretName: core-app-tls
 ---

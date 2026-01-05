@@ -27,7 +27,8 @@ const ADMIN_PASSWORD = process.env.TEST_ADMIN_PASSWORD || 'TestPassword123!';
  */
 async function waitForTranslationsToLoad(page: import('@playwright/test').Page, language: 'en' | 'de') {
   // Wait for the sessions page title to contain the expected translated text
-  const expectedTitle = language === 'de' ? 'Sessions verwalten' : 'Manage Sessions';
+  // BUG-003 fix: German uses "Sitzungen" consistently (not "Sessions")
+  const expectedTitle = language === 'de' ? 'Sitzungen verwalten' : 'Manage Sessions';
   await page.waitForSelector(`h1:has-text("${expectedTitle}")`, { timeout: 15000 });
 }
 
@@ -70,17 +71,20 @@ test.describe('Sessions Page i18n - STORY-002-004', () => {
     });
 
     test('displays sessions page title in German', async ({ page }) => {
-      await expect(page.locator('h1')).toContainText('Sessions verwalten');
+      // BUG-003 fix: German uses "Sitzungen" consistently (not "Sessions")
+      await expect(page.locator('h1')).toContainText('Sitzungen verwalten');
     });
 
     test('displays sessions list title in German', async ({ page }) => {
-      await expect(page.locator('.sessions-list__title')).toContainText('Aktive Sessions');
+      // BUG-003 fix: German uses "Sitzungen" consistently (not "Sessions")
+      await expect(page.locator('.sessions-list__title')).toContainText('Aktive Sitzungen');
     });
 
     test('displays session count in German', async ({ page }) => {
       // Check for the session count subtitle containing German text
+      // BUG-003 fix: German uses "Sitzung/Sitzungen" consistently (not "Session/Sessions")
       const subtitle = page.locator('.sessions-list__subtitle');
-      await expect(subtitle).toContainText(/aktive Session/);
+      await expect(subtitle).toContainText(/aktive Sitzung/);
     });
 
     test('displays current browser badge in German', async ({ page }) => {
@@ -206,8 +210,8 @@ test.describe('Sessions Page i18n - STORY-002-004', () => {
       await page.goto('/sessions');
       await waitForTranslationsToLoad(page, 'de');
 
-      // Verify German
-      await expect(page.locator('.sessions-list__title')).toContainText('Aktive Sessions');
+      // Verify German - BUG-003 fix: uses "Sitzungen" consistently
+      await expect(page.locator('.sessions-list__title')).toContainText('Aktive Sitzungen');
       await expect(page.locator('.session-item__current-badge')).toContainText('Dieser Browser');
 
       // Switch to English
@@ -247,8 +251,8 @@ test.describe('Sessions Page i18n - STORY-002-004', () => {
       await page.reload();
       await waitForTranslationsToLoad(page, 'de');
 
-      // Verify German
-      await expect(page.locator('.sessions-list__title')).toContainText('Aktive Sessions');
+      // Verify German - BUG-003 fix: uses "Sitzungen" consistently
+      await expect(page.locator('.sessions-list__title')).toContainText('Aktive Sitzungen');
       await expect(page.locator('.session-item__current-badge')).toContainText('Dieser Browser');
     });
 

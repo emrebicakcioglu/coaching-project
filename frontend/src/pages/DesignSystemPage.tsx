@@ -11,6 +11,15 @@
  * - Card/Panel styles
  * - Badge styles
  * - Alert styles
+ *
+ * BUG-004 Fix: Updated modal translation keys to match translation files:
+ * - modal.createTitle -> modal.create.title
+ * - modal.schemeName -> modal.create.placeholder
+ * - modal.deleteTitle -> modal.delete.title
+ * - modal.deleteConfirm -> modal.delete.confirm
+ *
+ * Color scheme descriptions now support i18n via description_key field
+ * which maps to schemeDescriptions.{key} in the design translation namespace.
  */
 
 import { useState, useEffect, useCallback, useRef } from 'react';
@@ -432,8 +441,12 @@ export function DesignSystemPage() {
                 <div className="rounded-xl p-6 mb-6" style={{ backgroundColor: 'var(--color-background-card)', border: '1px solid var(--color-border-default)' }}>
                   <div className="flex items-start justify-between">
                     <div>
-                      <h2 className="text-xl font-semibold text-[var(--color-text-primary)]">{selectedScheme.name}</h2>
-                      <p className="text-[var(--color-text-tertiary)] mt-1">{selectedScheme.description || 'No description'}</p>
+                      <h2 className="text-xl font-semibold text-[var(--color-text-primary)]" data-testid="scheme-name">{selectedScheme.name}</h2>
+                      <p className="text-[var(--color-text-tertiary)] mt-1" data-testid="scheme-description">
+                        {selectedScheme.description_key
+                          ? t(selectedScheme.description_key)
+                          : selectedScheme.description || t('labels.noDescription')}
+                      </p>
 
                       {/* Dark Mode Assignment Checkboxes */}
                       {canManage && (
@@ -593,12 +606,12 @@ export function DesignSystemPage() {
       {showCreateModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="rounded-xl p-6 w-full max-w-md" style={{ backgroundColor: 'var(--color-background-card)' }}>
-            <h3 className="text-lg font-semibold text-[var(--color-text-primary)] mb-4">{t('modal.createTitle')}</h3>
+            <h3 className="text-lg font-semibold text-[var(--color-text-primary)] mb-4">{t('modal.create.title')}</h3>
             <input
               type="text"
               value={newSchemeName}
               onChange={(e) => setNewSchemeName(e.target.value)}
-              placeholder={t('modal.schemeName')}
+              placeholder={t('modal.create.placeholder')}
               className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               autoFocus
             />
@@ -628,9 +641,9 @@ export function DesignSystemPage() {
       {showDeleteModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="rounded-xl p-6 w-full max-w-md" style={{ backgroundColor: 'var(--color-background-card)' }}>
-            <h3 className="text-lg font-semibold text-[var(--color-text-primary)] mb-2">{t('modal.deleteTitle')}</h3>
+            <h3 className="text-lg font-semibold text-[var(--color-text-primary)] mb-2">{t('modal.delete.title')}</h3>
             <p className="text-[var(--color-text-secondary)] mb-6">
-              {t('modal.deleteConfirm', { name: selectedScheme?.name })}
+              {t('modal.delete.confirm', { name: selectedScheme?.name })}
             </p>
             <div className="flex justify-end gap-3">
               <button
