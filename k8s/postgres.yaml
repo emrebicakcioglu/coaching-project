@@ -1,0 +1,117 @@
+---
+# PostgreSQL PersistentVolumeClaim
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-pvc
+  namespace: core-app
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: longhorn
+
+---
+# PostgreSQL ConfigMap (initdb scripts)
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-init
+  namespace: core-app
+data:
+  init-db.sql: |
+    -- Create database if not exists (PostgreSQL 15+)
+    SELECT 'CREATE DATABASE core_app'
+    WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'core_app')\gexec
+
+---
+# PostgreSQL Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+  namespace: core-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  strategy:
+    type: Recreate  # Important for databases with PVC
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:16-alpine
+          ports:
+            - containerPort: 5432
+              name: postgres
+          env:
+            - name: POSTGRES_DB
+              value: "core_app"
+            - name: POSTGRES_USER
+              value: "postgres"
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: core-app-secrets
+                  key: DB_PASSWORD
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+          volumeMounts:
+            - name: postgres-storage
+              mountPath: /var/lib/postgresql/data
+            - name: init-scripts
+              mountPath: /docker-entrypoint-initdb.d
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          livenessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - pg_isready -U postgres
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - pg_isready -U postgres
+            initialDelaySeconds: 5
+            periodSeconds: 5
+      volumes:
+        - name: postgres-storage
+          persistentVolumeClaim:
+            claimName: postgres-pvc
+        - name: init-scripts
+          configMap:
+            name: postgres-init
+
+---
+# PostgreSQL Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  namespace: core-app
+spec:
+  type: ClusterIP
+  ports:
+    - port: 5432
+      targetPort: 5432
+      protocol: TCP
+      name: postgres
+  selector:
+    app: postgres
