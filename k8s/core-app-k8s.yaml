@@ -35,13 +35,13 @@ spec:
         app: core-app-backend
       annotations:
         # Forciert Re-Pull bei jedem Sync
-        timestamp: "2026-01-08T08:24:18Z"
+        timestamp: "2026-01-08T10:06:04Z"
     spec:
       imagePullSecrets:
         - name: docker-hub-secret
       containers:
         - name: backend
-          image: ritservi/core-app-backend:sha-6e9e689c
+          image: ritservi/core-app-backend:sha-340ae6df
           imagePullPolicy: Always
           ports:
             - containerPort: 14102
@@ -125,13 +125,13 @@ spec:
       labels:
         app: core-app-frontend
       annotations:
-        timestamp: "2026-01-08T08:24:18Z"
+        timestamp: "2026-01-08T10:06:04Z"
     spec:
       imagePullSecrets:
         - name: docker-hub-secret
       containers:
         - name: frontend
-          image: ritservi/core-app-frontend:sha-6e9e689c
+          image: ritservi/core-app-frontend:sha-340ae6df
           imagePullPolicy: Always
           ports:
             - containerPort: 80
