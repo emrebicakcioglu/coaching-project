@@ -4,6 +4,40 @@
  */
 
 /* ============================
+   Security Tip (STORY-107)
+   ============================ */
+
+.sessions-security-tip {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  background-color: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 0.5rem;
+  border-left: 4px solid #3b82f6;
+}
+
+.sessions-security-tip__icon {
+  font-size: 1.25rem;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.sessions-security-tip__text {
+  font-size: 0.875rem;
+  /* STORY-107: Better contrast for light mode (WCAG 2.1 AA compliant) */
+  color: #1e40af;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.sessions-security-tip__text strong {
+  font-weight: 600;
+}
+
+/* ============================
    Sessions List
    ============================ */
 
@@ -166,7 +200,8 @@
   align-items: center;
   gap: 0.5rem;
   font-size: 0.875rem;
-  color: var(--color-text-secondary, #6b7280);
+  /* STORY-107: Improved text contrast for better readability in light mode (WCAG 2.1 AA compliant) */
+  color: var(--color-text-secondary, #4b5563);
   margin-top: 0.25rem;
 }
 
@@ -296,6 +331,7 @@
 
 /* ============================
    Dark Mode
+   STORY-107: Updated to use html.dark class for consistent dark mode
    ============================ */
 
 @media (prefers-color-scheme: dark) {
@@ -367,6 +403,96 @@
   .confirm-dialog__cancel-btn:hover:not(:disabled) {
     background-color: #4b5563;
   }
+
+  /* Security Tip dark mode */
+  .sessions-security-tip {
+    background-color: #1e3a5f;
+    border-color: #3b82f6;
+  }
+
+  .sessions-security-tip__text {
+    color: #93c5fd;
+  }
+}
+
+/* STORY-107: html.dark class support for manual dark mode toggle */
+html.dark .sessions-list__title {
+  color: #f9fafb;
+}
+
+html.dark .sessions-list__subtitle {
+  color: var(--color-text-muted, #9ca3af);
+}
+
+html.dark .sessions-list__header {
+  border-bottom-color: #374151;
+}
+
+html.dark .sessions-list__actions {
+  border-top-color: #374151;
+}
+
+html.dark .sessions-list--loading,
+html.dark .sessions-list--empty {
+  color: var(--color-text-muted, #9ca3af);
+}
+
+html.dark .session-item {
+  background-color: var(--color-background-card, #1f2937);
+  border-color: #374151;
+}
+
+html.dark .session-item--current {
+  background-color: #1e3a5f;
+  border-color: #3b82f6;
+}
+
+html.dark .session-item:hover {
+  border-color: #4b5563;
+}
+
+html.dark .session-item__device {
+  color: #f9fafb;
+}
+
+html.dark .session-item__details {
+  color: var(--color-text-muted, #9ca3af);
+}
+
+html.dark .session-item__separator {
+  color: #4b5563;
+}
+
+html.dark .confirm-dialog {
+  background-color: var(--color-background-card, #1f2937);
+}
+
+html.dark .confirm-dialog__title {
+  color: #f9fafb;
+}
+
+html.dark .confirm-dialog__message {
+  color: var(--color-text-muted, #9ca3af);
+}
+
+html.dark .confirm-dialog__cancel-btn {
+  background-color: #374151;
+  color: #e5e7eb;
+  border-color: #4b5563;
+}
+
+html.dark .confirm-dialog__cancel-btn:hover:not(:disabled) {
+  background-color: #4b5563;
+}
+
+/* Security Tip dark mode */
+html.dark .sessions-security-tip {
+  background-color: #1e3a5f;
+  border-color: #3b82f6;
+}
+
+html.dark .sessions-security-tip__text {
+  color: #93c5fd;
 }
 
 /* ============================

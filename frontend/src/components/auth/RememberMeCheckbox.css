@@ -1,6 +1,7 @@
 /**
  * RememberMeCheckbox Styles
  * STORY-008: Session Management mit "Remember Me"
+ * STORY-101: Login Page UI Improvements - Updated checkbox and text colors
  */
 
 .remember-me-checkbox {
@@ -13,7 +14,8 @@
   cursor: pointer;
   user-select: none;
   font-size: 0.875rem;
-  color: #374151;
+  /* STORY-101: Match "No account yet?" text color (--color-text-secondary) */
+  color: var(--color-text-secondary, #6b7280);
 }
 
 .remember-me-label--disabled {
@@ -35,16 +37,17 @@
   justify-content: center;
   width: 1.125rem;
   height: 1.125rem;
-  border: 2px solid #d1d5db;
+  /* STORY-101: Use lighter border color for better visibility */
+  border: 2px solid var(--color-border-default, #e5e7eb);
   border-radius: 0.25rem;
-  margin-right: 1rem;
-  background-color: #fff;
+  margin-right: 0.5rem;
+  background-color: var(--color-background-input, #ffffff);
   transition: all 0.15s ease-in-out;
 }
 
 .remember-me-input:checked + .remember-me-checkmark {
-  background-color: #3b82f6;
-  border-color: #3b82f6;
+  background-color: var(--color-primary, #2563eb);
+  border-color: var(--color-primary, #2563eb);
 }
 
 .remember-me-input:checked + .remember-me-checkmark::after {
@@ -59,47 +62,73 @@
 }
 
 .remember-me-input:focus + .remember-me-checkmark {
-  outline: 2px solid #3b82f6;
+  outline: 2px solid var(--color-primary, #2563eb);
   outline-offset: 2px;
 }
 
 .remember-me-input:disabled + .remember-me-checkmark {
-  background-color: #f3f4f6;
-  border-color: #e5e7eb;
+  background-color: var(--color-input-disabled-background, #f3f4f6);
+  border-color: var(--color-input-disabled-border, #e5e7eb);
 }
 
 .remember-me-text {
   font-weight: 500;
+  /* STORY-101: Consistent text color with label */
+  color: inherit;
 }
 
 .remember-me-description {
   font-size: 0.75rem;
-  color: #6b7280;
+  color: var(--color-text-tertiary, #9ca3af);
   margin: 0.25rem 0 0 2.125rem;
 }
 
-/* Dark mode support */
+/* Dark mode support - using .dark class on html element */
+html.dark .remember-me-label {
+  color: var(--color-text-secondary, #9ca3af);
+}
+
+html.dark .remember-me-checkmark {
+  border-color: var(--color-border-default, #4b5563);
+  background-color: var(--color-background-input, #1f2937);
+}
+
+html.dark .remember-me-input:checked + .remember-me-checkmark {
+  background-color: var(--color-primary, #2563eb);
+  border-color: var(--color-primary, #2563eb);
+}
+
+html.dark .remember-me-input:disabled + .remember-me-checkmark {
+  background-color: var(--color-input-disabled-background, #374151);
+  border-color: var(--color-input-disabled-border, #4b5563);
+}
+
+html.dark .remember-me-description {
+  color: var(--color-text-tertiary, #6b7280);
+}
+
+/* Fallback for prefers-color-scheme when .dark class is not applied */
 @media (prefers-color-scheme: dark) {
-  .remember-me-label {
-    color: #e5e7eb;
+  html:not(.dark) .remember-me-label {
+    color: var(--color-text-secondary, #9ca3af);
   }
 
-  .remember-me-checkmark {
-    border-color: #4b5563;
-    background-color: #1f2937;
+  html:not(.dark) .remember-me-checkmark {
+    border-color: var(--color-border-default, #4b5563);
+    background-color: var(--color-background-input, #1f2937);
   }
 
-  .remember-me-input:checked + .remember-me-checkmark {
-    background-color: #2563eb;
-    border-color: #2563eb;
+  html:not(.dark) .remember-me-input:checked + .remember-me-checkmark {
+    background-color: var(--color-primary, #2563eb);
+    border-color: var(--color-primary, #2563eb);
   }
 
-  .remember-me-input:disabled + .remember-me-checkmark {
-    background-color: #374151;
-    border-color: #4b5563;
+  html:not(.dark) .remember-me-input:disabled + .remember-me-checkmark {
+    background-color: var(--color-input-disabled-background, #374151);
+    border-color: var(--color-input-disabled-border, #4b5563);
   }
 
-  .remember-me-description {
-    color: #9ca3af;
+  html:not(.dark) .remember-me-description {
+    color: var(--color-text-tertiary, #6b7280);
   }
 }

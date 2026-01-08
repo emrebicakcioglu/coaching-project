@@ -96,6 +96,16 @@ export const SessionsPage: React.FC = () => {
         </p>
       </div>
 
+      {/* STORY-107: Security tip moved to top for better visibility */}
+      {!isLoading && !error && sessions.length > 0 && (
+        <div className="sessions-security-tip" role="alert">
+          <span className="sessions-security-tip__icon" aria-hidden="true">🔒</span>
+          <p className="sessions-security-tip__text">
+            <strong>{t('securityTip.label')}</strong> {t('securityTip.text')}
+          </p>
+        </div>
+      )}
+
       <SessionsList
         sessions={sessions}
         username={user?.name}
@@ -104,14 +114,6 @@ export const SessionsPage: React.FC = () => {
         isLoading={isLoading}
         error={error}
       />
-
-      {!isLoading && !error && sessions.length > 0 && (
-        <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-          <p className="text-sm text-blue-800">
-            <strong>{t('securityTip.label')}</strong> {t('securityTip.text')}
-          </p>
-        </div>
-      )}
     </Container>
   );
 };

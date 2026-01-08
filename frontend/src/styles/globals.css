@@ -33,6 +33,7 @@
   --color-background-card: #f9fafb;
   --color-background-surface: #f9fafb;
   --color-background-input: #ffffff;
+  --color-background-modal: #ffffff;
 
   /* Input Colors - Normal State */
   --color-input-background: #ffffff;
@@ -612,6 +613,194 @@
     .layout-col--xl-11 { flex: 0 0 auto; width: 91.666667%; }
     .layout-col--xl-12 { flex: 0 0 auto; width: 100%; }
   }
+}
+
+/* ========================================
+   Dark Mode Theme Variables (STORY-102)
+   Applied when html.dark class is present
+   ======================================== */
+
+html.dark {
+  /* Background Colors - Dark Theme */
+  --color-background-page: #111827;
+  --color-background-card: #1f2937;
+  --color-background-surface: #1f2937;
+  --color-background-input: #374151;
+  --color-background-modal: #1f2937;
+
+  /* Text Colors - Dark Theme */
+  --color-text-primary: #f9fafb;
+  --color-text-secondary: #9ca3af;
+  --color-text-tertiary: #6b7280;
+
+  /* Border Colors - Dark Theme */
+  --color-border-default: #374151;
+  --color-border-light: #1f2937;
+  --color-border-hover: #4b5563;
+
+  /* Input Colors - Normal State (Dark) */
+  --color-input-background: #374151;
+  --color-input-text: #f9fafb;
+  --color-input-border: #4b5563;
+  --color-input-placeholder: #6b7280;
+  --color-input-focus-border: #3b82f6;
+  --color-input-focus-ring: rgba(59, 130, 246, 0.3);
+
+  /* Input Colors - Error State (Dark) */
+  --color-input-error-background: #451a1f;
+  --color-input-error-text: #fca5a5;
+  --color-input-error-border: #f87171;
+  --color-input-error-placeholder: #f87171;
+  --color-input-error-focus-border: #ef4444;
+  --color-input-error-focus-ring: rgba(239, 68, 68, 0.3);
+
+  /* Input Colors - Disabled State (Dark) */
+  --color-input-disabled-background: #1f2937;
+  --color-input-disabled-text: #6b7280;
+  --color-input-disabled-border: #374151;
+  --color-input-disabled-placeholder: #4b5563;
+
+  /* Button Colors - Normal (Dark) */
+  --color-button-normal-bg: #3b82f6;
+  --color-button-normal-text: #ffffff;
+  --color-button-normal-border: #3b82f6;
+  --color-button-normal-hover-bg: #2563eb;
+  --color-button-normal-hover-text: #ffffff;
+  --color-button-normal-hover-border: #2563eb;
+
+  /* Button Colors - Inactive (Dark) */
+  --color-button-inactive-bg: #374151;
+  --color-button-inactive-text: #9ca3af;
+  --color-button-inactive-border: #374151;
+  --color-button-inactive-hover-bg: #4b5563;
+  --color-button-inactive-hover-text: #d1d5db;
+  --color-button-inactive-hover-border: #4b5563;
+
+  /* Button Colors - Abort (Dark) */
+  --color-button-abort-bg: #1f2937;
+  --color-button-abort-text: #9ca3af;
+  --color-button-abort-border: #4b5563;
+  --color-button-abort-hover-bg: #374151;
+  --color-button-abort-hover-text: #d1d5db;
+  --color-button-abort-hover-border: #6b7280;
+
+  /* Card Colors (Dark) */
+  --color-card-default-bg: #1f2937;
+  --color-card-default-border: #374151;
+  --color-card-elevated-bg: #1f2937;
+  --color-card-flat-bg: #111827;
+
+  /* Badge Colors (Dark) */
+  --color-badge-default-bg: #374151;
+  --color-badge-default-text: #d1d5db;
+  --color-badge-primary-bg: #1e3a5f;
+  --color-badge-primary-text: #93c5fd;
+  --color-badge-success-bg: #064e3b;
+  --color-badge-success-text: #6ee7b7;
+  --color-badge-warning-bg: #78350f;
+  --color-badge-warning-text: #fcd34d;
+  --color-badge-error-bg: #7f1d1d;
+  --color-badge-error-text: #fca5a5;
+
+  /* Alert Colors (Dark) */
+  --color-alert-success-bg: #064e3b;
+  --color-alert-success-border: #10b981;
+  --color-alert-success-text: #6ee7b7;
+  --color-alert-warning-bg: #78350f;
+  --color-alert-warning-border: #f59e0b;
+  --color-alert-warning-text: #fcd34d;
+  --color-alert-error-bg: #7f1d1d;
+  --color-alert-error-border: #ef4444;
+  --color-alert-error-text: #fca5a5;
+  --color-alert-info-bg: #1e3a5f;
+  --color-alert-info-border: #3b82f6;
+  --color-alert-info-text: #93c5fd;
+
+  /* Typography Heading Colors (Dark) */
+  --typography-h1-color: #f9fafb;
+  --typography-h2-color: #f9fafb;
+  --typography-h3-color: #f9fafb;
+  --typography-h4-color: #f9fafb;
+  --typography-h5-color: #f9fafb;
+  --typography-h6-color: #f9fafb;
+
+  /* Typography Body Colors (Dark) */
+  --typography-body-large-color: #d1d5db;
+  --typography-body-normal-color: #d1d5db;
+  --typography-body-small-color: #9ca3af;
+
+  /* Neutral Colors (Dark) - inverted scale */
+  --color-neutral-50: #111827;
+  --color-neutral-100: #1f2937;
+  --color-neutral-200: #374151;
+  --color-neutral-300: #4b5563;
+  --color-neutral-400: #6b7280;
+  --color-neutral-500: #9ca3af;
+  --color-neutral-600: #d1d5db;
+  --color-neutral-700: #e5e7eb;
+  --color-neutral-800: #f3f4f6;
+  --color-neutral-900: #f9fafb;
+}
+
+/* ========================================
+   STORY-103: Responsive Layout Fixes
+   Ensures consistent icon/text heights at narrow widths
+   ======================================== */
+
+/* Fix for icons to maintain consistent size in flex containers */
+[class*="flex"] > svg,
+[class*="flex"] > [class*="icon"] {
+  flex-shrink: 0;
+}
+
+/* Ensure navigation items have consistent height on mobile */
+@media (max-width: 768px) {
+  /* Navigation items */
+  .nav-item,
+  [data-testid*="nav-"] {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+  }
+
+  /* Icon containers - fixed size */
+  .nav-item .icon,
+  .nav-item svg,
+  [data-testid*="nav-"] svg {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+  }
+
+  /* Text labels - consistent line height */
+  .nav-item span,
+  [data-testid*="nav-"] span {
+    line-height: 1.25rem;
+  }
+}
+
+/* Ensure button icons are consistently sized */
+button svg,
+a svg {
+  flex-shrink: 0;
+}
+
+/* Badge consistency at narrow widths */
+@media (max-width: 640px) {
+  .badge,
+  [class*="badge"] {
+    min-height: 1.25rem;
+    line-height: 1.25rem;
+    display: inline-flex;
+    align-items: center;
+  }
+}
+
+/* Fix for table cells with icons */
+td svg,
+th svg {
+  flex-shrink: 0;
+  vertical-align: middle;
 }
 
 /* ========================================

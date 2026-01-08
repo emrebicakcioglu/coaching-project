@@ -8,6 +8,8 @@
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+  // STORY-102: Enable class-based dark mode (uses html.dark class)
+  darkMode: 'class',
   content: [
     './index.html',
     './src/**/*.{js,ts,jsx,tsx}',

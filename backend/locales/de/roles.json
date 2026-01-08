@@ -2,6 +2,134 @@
   "title": "Rollen & Berechtigungen",
   "subtitle": "Verwalten Sie Benutzerrollen und ihre zugehörigen Berechtigungen.",
   "newRole": "Neue Rolle",
+  "modal": {
+    "createTitle": "Neue Rolle",
+    "editTitle": "Rolle bearbeiten",
+    "cancel": "Abbrechen",
+    "create": "Rolle erstellen",
+    "creating": "Erstelle...",
+    "save": "Änderungen speichern",
+    "saving": "Speichere...",
+    "fields": {
+      "name": "Rollenname",
+      "namePlaceholder": "z.B. Editor, Moderator, Viewer",
+      "description": "Beschreibung",
+      "descriptionPlaceholder": "Optionale Beschreibung der Rolle...",
+      "permissions": "Berechtigungen",
+      "permissionsSelected": "{{count}} ausgewählt",
+      "charactersCount": "{{count}}/{{max}} Zeichen"
+    },
+    "validation": {
+      "nameRequired": "Rollenname ist erforderlich",
+      "nameMinLength": "Rollenname muss mindestens 2 Zeichen lang sein",
+      "nameMaxLength": "Rollenname darf maximal 100 Zeichen lang sein",
+      "descriptionMaxLength": "Beschreibung darf maximal 500 Zeichen lang sein"
+    },
+    "errors": {
+      "loadPermissions": "Berechtigungen konnten nicht geladen werden.",
+      "createFailed": "Rolle konnte nicht erstellt werden. Bitte versuchen Sie es erneut.",
+      "updateFailed": "Rolle konnte nicht aktualisiert werden. Bitte versuchen Sie es erneut.",
+      "validationErrors": "Validierungsfehler"
+    },
+    "loading": {
+      "permissions": "Lade Berechtigungen..."
+    },
+    "noPermissions": "Keine Berechtigungen verfügbar."
+  },
+  "permissions": {
+    "selectAll": "Alle {{category}} Berechtigungen auswählen",
+    "users": {
+      "name": "Benutzer",
+      "create": {
+        "name": "Benutzer erstellen",
+        "description": "Erlaubt das Erstellen neuer Benutzerkonten"
+      },
+      "read": {
+        "name": "Benutzer anzeigen",
+        "description": "Erlaubt das Anzeigen der Benutzerliste und Benutzerdetails"
+      },
+      "update": {
+        "name": "Benutzer bearbeiten",
+        "description": "Erlaubt das Ändern vorhandener Benutzerinformationen"
+      },
+      "delete": {
+        "name": "Benutzer löschen",
+        "description": "Erlaubt das dauerhafte Löschen von Benutzerkonten"
+      },
+      "list": {
+        "name": "Benutzer auflisten",
+        "description": "Erlaubt das Anzeigen der Benutzerliste"
+      }
+    },
+    "roles": {
+      "name": "Rollen",
+      "create": {
+        "name": "Rollen erstellen",
+        "description": "Erlaubt das Erstellen neuer Rollen"
+      },
+      "read": {
+        "name": "Rollen anzeigen",
+        "description": "Erlaubt das Anzeigen von Rollendetails"
+      },
+      "update": {
+        "name": "Rollen bearbeiten",
+        "description": "Erlaubt das Ändern vorhandener Rollen"
+      },
+      "delete": {
+        "name": "Rollen löschen",
+        "description": "Erlaubt das Löschen von Rollen"
+      },
+      "list": {
+        "name": "Rollen auflisten",
+        "description": "Erlaubt das Anzeigen der Rollenliste"
+      },
+      "assign": {
+        "name": "Rollen zuweisen",
+        "description": "Erlaubt das Zuweisen von Rollen an Benutzer"
+      }
+    },
+    "permissions": {
+      "name": "Berechtigungen",
+      "read": {
+        "name": "Berechtigungen anzeigen",
+        "description": "Erlaubt das Anzeigen von Berechtigungsdetails"
+      },
+      "list": {
+        "name": "Berechtigungen auflisten",
+        "description": "Erlaubt das Anzeigen der Berechtigungsliste"
+      },
+      "assign": {
+        "name": "Berechtigungen zuweisen",
+        "description": "Erlaubt das Zuweisen von Berechtigungen an Rollen"
+      }
+    },
+    "settings": {
+      "name": "Einstellungen",
+      "read": {
+        "name": "Einstellungen anzeigen",
+        "description": "Erlaubt das Anzeigen von Anwendungseinstellungen"
+      },
+      "update": {
+        "name": "Einstellungen bearbeiten",
+        "description": "Erlaubt das Ändern von Anwendungseinstellungen"
+      }
+    },
+    "system": {
+      "name": "System",
+      "admin": {
+        "name": "Systemadministrator",
+        "description": "Voller Administratorzugriff auf alle Systemfunktionen"
+      },
+      "audit": {
+        "name": "Audit-Protokolle",
+        "description": "Erlaubt das Anzeigen von System-Audit-Protokollen"
+      },
+      "maintenance": {
+        "name": "Wartungsmodus",
+        "description": "Erlaubt das Ein- und Ausschalten des Wartungsmodus"
+      }
+    }
+  },
   "table": {
     "role": "Rolle",
     "description": "Beschreibung",

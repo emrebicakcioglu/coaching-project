@@ -8,8 +8,8 @@
   "filter": {
     "statusLabel": "Status filtern",
     "roleLabel": "Rolle filtern",
-    "allStatus": "Alle Status",
-    "allRoles": "Alle Rollen"
+    "anyStatus": "Beliebiger Status",
+    "anyRole": "Beliebige Rolle"
   },
   "status": {
     "active": "Aktiv",
@@ -19,9 +19,10 @@
   },
   "roles": {
     "admin": "Admin",
+    "manager": "Manager",
     "user": "Benutzer",
     "editor": "Editor",
-    "viewer": "Viewer"
+    "viewer": "Betrachter"
   },
   "table": {
     "name": "Name",

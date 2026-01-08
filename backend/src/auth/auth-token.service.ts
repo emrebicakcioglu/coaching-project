@@ -95,8 +95,81 @@ export class AuthTokenService {
   }
 
   /**
+   * Generate session fingerprint from user-agent and IP address
+   * STORY-107: Used for session reuse detection
+   *
+   * @param userAgent - User-Agent header
+   * @param ipAddress - Client IP address
+   * @returns SHA256 hash fingerprint
+   */
+  generateSessionFingerprint(userAgent: string | null, ipAddress: string | null): string {
+    const data = `${userAgent || 'unknown'}|${ipAddress || 'unknown'}`;
+    return crypto.createHash('sha256').update(data).digest('hex');
+  }
+
+  /**
+   * Find existing active session by fingerprint
+   * STORY-107: Used for session reuse logic
+   *
+   * @param userId - User ID
+   * @param fingerprint - Session fingerprint
+   * @returns Existing session or null
+   */
+  async findExistingSessionByFingerprint(
+    userId: number,
+    fingerprint: string,
+  ): Promise<RefreshToken | null> {
+    const pool = this.databaseService.ensurePool();
+
+    const result = await pool.query<RefreshToken>(
+      `SELECT * FROM refresh_tokens
+       WHERE user_id = $1
+         AND fingerprint = $2
+         AND revoked_at IS NULL
+         AND expires_at > NOW()
+         AND device_info != 'PASSWORD_RESET'
+       ORDER BY last_used_at DESC
+       LIMIT 1`,
+      [userId, fingerprint],
+    );
+
+    return result.rows.length > 0 ? result.rows[0] : null;
+  }
+
+  /**
+   * Update existing session with new activity and extend expiry
+   * STORY-107: Reuses session instead of creating duplicate
+   *
+   * @param sessionId - Session ID to update
+   * @param newExpiresAt - New expiration date
+   * @returns Updated token hash
+   */
+  async updateExistingSession(
+    sessionId: number,
+    newExpiresAt: Date,
+  ): Promise<string> {
+    const pool = this.databaseService.ensurePool();
+
+    // Generate a new token for security (token rotation)
+    const newToken = crypto.randomBytes(64).toString('hex');
+    const newTokenHash = crypto.createHash('sha256').update(newToken).digest('hex');
+
+    await pool.query(
+      `UPDATE refresh_tokens
+       SET token_hash = $1,
+           last_used_at = NOW(),
+           expires_at = $2
+       WHERE id = $3`,
+      [newTokenHash, newExpiresAt, sessionId],
+    );
+
+    return newToken;
+  }
+
+  /**
    * Generate and store refresh token
    * STORY-008: Updated to support rememberMe and enhanced session info
+   * STORY-107: Updated to support session reuse for same browser/device
    *
    * @param user - User entity
    * @param request - Express request for device info extraction
@@ -111,14 +184,6 @@ export class AuthTokenService {
   ): Promise<string> {
     const pool = this.databaseService.ensurePool();
 
-    // Generate random token
-    const token = crypto.randomBytes(64).toString('hex');
-    const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
-
-    // Calculate expiration
-    const expiryDuration = this.parseExpiresIn(expiresIn || this.jwtRefreshExpiresIn);
-    const expiresAt = new Date(Date.now() + expiryDuration * 1000);
-
     // Get device info and IP
     const deviceInfo = request.headers['user-agent'] || null;
     const ipAddress =
@@ -127,15 +192,35 @@ export class AuthTokenService {
       request.ip ||
       null;
 
+    // STORY-107: Generate session fingerprint for session reuse
+    const fingerprint = this.generateSessionFingerprint(deviceInfo, ipAddress);
+
+    // STORY-107: Check for existing session with same fingerprint
+    const existingSession = await this.findExistingSessionByFingerprint(user.id, fingerprint);
+
+    // Calculate expiration
+    const expiryDuration = this.parseExpiresIn(expiresIn || this.jwtRefreshExpiresIn);
+    const expiresAt = new Date(Date.now() + expiryDuration * 1000);
+
+    if (existingSession) {
+      // STORY-107: Reuse existing session - update last activity and extend expiry
+      const newToken = await this.updateExistingSession(existingSession.id, expiresAt);
+      return newToken;
+    }
+
+    // Generate random token for new session
+    const token = crypto.randomBytes(64).toString('hex');
+    const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+
     // STORY-008: Parse browser name from user-agent
     const browser = this.parseBrowserFromUserAgent(deviceInfo);
 
-    // Store in database with new session management columns
+    // Store in database with new session management columns including fingerprint
     await pool.query(
       `INSERT INTO refresh_tokens
-       (user_id, token_hash, expires_at, device_info, ip_address, browser, remember_me, last_used_at)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())`,
-      [user.id, tokenHash, expiresAt, deviceInfo, ipAddress, browser, rememberMe],
+       (user_id, token_hash, expires_at, device_info, ip_address, browser, remember_me, last_used_at, fingerprint)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), $8)`,
+      [user.id, tokenHash, expiresAt, deviceInfo, ipAddress, browser, rememberMe, fingerprint],
     );
 
     return token;

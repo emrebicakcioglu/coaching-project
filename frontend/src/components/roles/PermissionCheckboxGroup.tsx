@@ -1,9 +1,15 @@
 /**
  * PermissionCheckboxGroup Component
  * STORY-025B: Roles Management UI
+ * STORY-106: Roles & Permissions UX Improvements
  *
  * Displays permissions grouped by category with checkboxes for selection.
  * Supports select all/deselect all per category.
+ *
+ * STORY-106 Fixes:
+ * - Permission names and descriptions are now translated
+ * - Category names are translated
+ * - All UI text uses translation keys
  *
  * @example
  * ```tsx
@@ -17,6 +23,7 @@
  */
 
 import React, { useMemo, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Permission } from '../../services/rolesService';
 import './PermissionCheckboxGroup.css';
 
@@ -51,16 +58,6 @@ function groupByCategory(permissions: Permission[]): Record<string, Permission[]
 }
 
 /**
- * Format category name for display
- */
-function formatCategoryName(category: string): string {
-  // Capitalize first letter and replace underscores with spaces
-  return category
-    .replace(/_/g, ' ')
-    .replace(/\b\w/g, (char) => char.toUpperCase());
-}
-
-/**
  * PermissionCheckboxGroup Component
  */
 export const PermissionCheckboxGroup: React.FC<PermissionCheckboxGroupProps> = ({
@@ -70,11 +67,67 @@ export const PermissionCheckboxGroup: React.FC<PermissionCheckboxGroupProps> = (
   disabled = false,
   'data-testid': testId = 'permission-checkbox-group',
 }) => {
+  const { t, i18n } = useTranslation('roles');
+
   // Group permissions by category
   const groupedPermissions = useMemo(() => groupByCategory(permissions), [permissions]);
 
   // Get sorted category names
   const categories = useMemo(() => Object.keys(groupedPermissions).sort(), [groupedPermissions]);
+
+  /**
+   * STORY-106: Get translated category name
+   * Falls back to formatted category name if translation not found
+   */
+  const getTranslatedCategoryName = useCallback((category: string): string => {
+    const translationKey = `permissions.${category.toLowerCase()}.name`;
+    const translated = t(translationKey, { defaultValue: '' });
+    if (translated && translated !== translationKey) {
+      return translated;
+    }
+    // Fallback: Capitalize first letter and replace underscores with spaces
+    return category
+      .replace(/_/g, ' ')
+      .replace(/\b\w/g, (char) => char.toUpperCase());
+  }, [t]);
+
+  /**
+   * STORY-106: Get translated permission name
+   * Falls back to permission.name if translation not found
+   */
+  const getTranslatedPermissionName = useCallback((permission: Permission): string => {
+    // Permission names are typically like "users.create", "roles.read"
+    // We look up translations at permissions.users.create.name, etc.
+    const nameParts = permission.name.toLowerCase().split('.');
+    if (nameParts.length >= 2) {
+      const category = nameParts[0];
+      const action = nameParts[1];
+      const translationKey = `permissions.${category}.${action}.name`;
+      const translated = t(translationKey, { defaultValue: '' });
+      if (translated && translated !== translationKey) {
+        return translated;
+      }
+    }
+    return permission.name;
+  }, [t]);
+
+  /**
+   * STORY-106: Get translated permission description
+   * Falls back to permission.description if translation not found
+   */
+  const getTranslatedPermissionDescription = useCallback((permission: Permission): string | undefined => {
+    const nameParts = permission.name.toLowerCase().split('.');
+    if (nameParts.length >= 2) {
+      const category = nameParts[0];
+      const action = nameParts[1];
+      const translationKey = `permissions.${category}.${action}.description`;
+      const translated = t(translationKey, { defaultValue: '' });
+      if (translated && translated !== translationKey) {
+        return translated;
+      }
+    }
+    return permission.description;
+  }, [t]);
 
   /**
    * Toggle a single permission
@@ -142,7 +195,7 @@ export const PermissionCheckboxGroup: React.FC<PermissionCheckboxGroupProps> = (
   if (permissions.length === 0) {
     return (
       <div className="permission-checkbox-group__empty" data-testid={testId}>
-        <p>Keine Berechtigungen verfügbar.</p>
+        <p>{t('modal.noPermissions')}</p>
       </div>
     );
   }
@@ -153,6 +206,7 @@ export const PermissionCheckboxGroup: React.FC<PermissionCheckboxGroupProps> = (
         const categoryPermissions = groupedPermissions[category];
         const isFullySelected = isCategoryFullySelected(category);
         const isPartiallySelected = isCategoryPartiallySelected(category);
+        const translatedCategoryName = getTranslatedCategoryName(category);
 
         return (
           <div
@@ -174,10 +228,10 @@ export const PermissionCheckboxGroup: React.FC<PermissionCheckboxGroupProps> = (
                   }}
                   onChange={() => handleToggleCategory(category)}
                   disabled={disabled}
-                  aria-label={`Alle ${formatCategoryName(category)} Berechtigungen auswählen`}
+                  aria-label={t('permissions.selectAll', { category: translatedCategoryName })}
                 />
                 <span className="permission-checkbox-group__category-name">
-                  {formatCategoryName(category)}
+                  {translatedCategoryName}
                 </span>
                 <span className="permission-checkbox-group__category-count">
                   ({categoryPermissions.filter((p) => selectedIds.includes(p.id)).length}/
@@ -188,39 +242,44 @@ export const PermissionCheckboxGroup: React.FC<PermissionCheckboxGroupProps> = (
 
             {/* Individual permissions */}
             <div className="permission-checkbox-group__permissions">
-              {categoryPermissions.map((permission) => (
-                <label
-                  key={permission.id}
-                  className="permission-checkbox-group__permission"
-                  data-testid={`${testId}-permission-${permission.id}`}
-                >
-                  <input
-                    type="checkbox"
-                    className="permission-checkbox-group__checkbox"
-                    checked={selectedIds.includes(permission.id)}
-                    onChange={() => handleTogglePermission(permission.id)}
-                    disabled={disabled}
-                    aria-describedby={
-                      permission.description
-                        ? `permission-desc-${permission.id}`
-                        : undefined
-                    }
-                  />
-                  <div className="permission-checkbox-group__permission-info">
-                    <span className="permission-checkbox-group__permission-name">
-                      {permission.name}
-                    </span>
-                    {permission.description && (
-                      <span
-                        id={`permission-desc-${permission.id}`}
-                        className="permission-checkbox-group__permission-description"
-                      >
-                        {permission.description}
+              {categoryPermissions.map((permission) => {
+                const translatedName = getTranslatedPermissionName(permission);
+                const translatedDescription = getTranslatedPermissionDescription(permission);
+
+                return (
+                  <label
+                    key={permission.id}
+                    className="permission-checkbox-group__permission"
+                    data-testid={`${testId}-permission-${permission.id}`}
+                  >
+                    <input
+                      type="checkbox"
+                      className="permission-checkbox-group__checkbox"
+                      checked={selectedIds.includes(permission.id)}
+                      onChange={() => handleTogglePermission(permission.id)}
+                      disabled={disabled}
+                      aria-describedby={
+                        translatedDescription
+                          ? `permission-desc-${permission.id}`
+                          : undefined
+                      }
+                    />
+                    <div className="permission-checkbox-group__permission-info">
+                      <span className="permission-checkbox-group__permission-name">
+                        {translatedName}
                       </span>
-                    )}
-                  </div>
-                </label>
-              ))}
+                      {translatedDescription && (
+                        <span
+                          id={`permission-desc-${permission.id}`}
+                          className="permission-checkbox-group__permission-description"
+                        >
+                          {translatedDescription}
+                        </span>
+                      )}
+                    </div>
+                  </label>
+                );
+              })}
             </div>
           </div>
         );

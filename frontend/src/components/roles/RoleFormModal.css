@@ -1,10 +1,14 @@
 /**
  * Role Form Modal Styles
  * STORY-025B: Roles Management UI
+ * STORY-106: Roles & Permissions UX Improvements
  *
  * Styling for CreateRoleModal and EditRoleModal components.
  * Uses BEM naming convention for consistency with existing styles.
  * Updated for dark mode support using CSS variables.
+ *
+ * STORY-106 Additions:
+ * - Error summary section with jump-to-field links
  */
 
 /* Form container */
@@ -12,6 +16,60 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
+}
+
+/* STORY-106: Error summary with jump-to-field links */
+.role-form-modal__error-summary {
+  padding: 16px;
+  background: var(--color-error-light, #fef2f2);
+  border: 1px solid var(--color-error-border, #fecaca);
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+
+.role-form-modal__error-summary-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-error, #dc2626);
+  margin: 0 0 12px 0;
+}
+
+.role-form-modal__error-summary-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.role-form-modal__error-summary-link {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 0;
+  background: none;
+  border: none;
+  color: var(--color-error, #dc2626);
+  font-size: 13px;
+  line-height: 1.4;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.role-form-modal__error-summary-link:hover {
+  text-decoration: none;
+}
+
+.role-form-modal__error-summary-link:focus {
+  outline: 2px solid var(--color-error, #dc2626);
+  outline-offset: 2px;
+  text-decoration: none;
+}
+
+.role-form-modal__error-summary-link strong {
+  font-weight: 600;
 }
 
 /* General error message */
@@ -23,6 +81,94 @@
   border-radius: 6px;
   font-size: 14px;
   line-height: 1.5;
+}
+
+/* Dark mode support for error summary */
+html.dark .role-form-modal__error-summary {
+  background: rgba(220, 38, 38, 0.1);
+  border-color: rgba(220, 38, 38, 0.3);
+}
+
+html.dark .role-form-modal__error-summary-title {
+  color: #fca5a5;
+}
+
+html.dark .role-form-modal__error-summary-link {
+  color: #fca5a5;
+}
+
+html.dark .role-form-modal__error {
+  background: rgba(220, 38, 38, 0.1);
+  border-color: rgba(220, 38, 38, 0.3);
+  color: #fca5a5;
+}
+
+/* STORY-102: Dark mode support for form elements */
+html.dark .role-form-modal__input,
+html.dark .role-form-modal__textarea {
+  background: var(--color-background-input, #374151);
+  color: var(--color-text-primary, #f9fafb);
+  border-color: var(--color-border-default, #4b5563);
+}
+
+html.dark .role-form-modal__input::placeholder,
+html.dark .role-form-modal__textarea::placeholder {
+  color: var(--color-text-tertiary, #6b7280);
+}
+
+html.dark .role-form-modal__input:focus,
+html.dark .role-form-modal__textarea:focus {
+  border-color: var(--color-primary, #3b82f6);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+}
+
+html.dark .role-form-modal__input:disabled,
+html.dark .role-form-modal__textarea:disabled {
+  background: var(--color-background-surface, #1f2937);
+  color: var(--color-text-tertiary, #6b7280);
+}
+
+html.dark .role-form-modal__label {
+  color: var(--color-text-primary, #f9fafb);
+}
+
+html.dark .role-form-modal__label-hint,
+html.dark .role-form-modal__hint {
+  color: var(--color-text-secondary, #9ca3af);
+}
+
+html.dark .role-form-modal__info {
+  background: var(--color-background-surface, #1f2937);
+}
+
+html.dark .role-form-modal__info-label {
+  color: var(--color-text-secondary, #9ca3af);
+}
+
+html.dark .role-form-modal__info-value {
+  color: var(--color-text-primary, #f9fafb);
+}
+
+html.dark .role-form-modal__system-badge {
+  color: var(--color-text-secondary, #9ca3af);
+  background: var(--color-background-input, #374151);
+}
+
+html.dark .role-form-modal__loading {
+  color: var(--color-text-secondary, #9ca3af);
+  background: var(--color-background-surface, #1f2937);
+  border-color: var(--color-border-default, #4b5563);
+}
+
+html.dark .role-form-modal__btn--secondary {
+  color: var(--color-text-primary, #f9fafb);
+  background: var(--color-background-input, #374151);
+  border-color: var(--color-border-default, #4b5563);
+}
+
+html.dark .role-form-modal__btn--secondary:hover:not(:disabled) {
+  background: var(--color-background-surface, #4b5563);
+  border-color: var(--color-border-hover, #6b7280);
 }
 
 /* Role info display (for edit modal) */

@@ -6,6 +6,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Core Application - Layout & Grid System Demo" />
     <title>Core Application</title>
+    <!--
+      STORY-102: Dark Mode Functionality Fixes
+      Early theme loading script - runs BEFORE React hydration
+      This prevents Flash of Incorrect Theme (FOIT) by applying
+      the saved dark mode preference immediately.
+    -->
+    <script>
+      (function() {
+        try {
+          // Check localStorage for dark mode preference
+          var darkModePref = localStorage.getItem('app_dark_mode_preference');
+          var isDark = darkModePref === 'true';
+
+          // Apply dark class to html element immediately
+          if (isDark) {
+            document.documentElement.classList.add('dark');
+          }
+
+          // Also check for system preference as fallback if no preference saved
+          if (darkModePref === null && window.matchMedia) {
+            var systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (systemPrefersDark) {
+              document.documentElement.classList.add('dark');
+            }
+          }
+        } catch (e) {
+          // Silent fail - localStorage might not be available
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

@@ -7,6 +7,7 @@
  * STORY-CAPTCHA: Login Security with CAPTCHA
  * STORY-3: Register Page UI Audit - Logo consistency
  * STORY-002-REWORK-001: Login Error Message Localization
+ * STORY-104: Language Selection on Login Page
  *
  * Page component for user authentication.
  * Located at /login in the application.
@@ -23,6 +24,7 @@
  * - 10 second delay for subsequent attempts
  * - Consistent branding with shared AuthLogo component
  * - Localized error messages (DE/EN)
+ * - Language selector for pre-login language switching (STORY-104)
  */
 
 import React, { useState, useCallback, useEffect } from 'react';
@@ -30,6 +32,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts';
 import { LoginForm, LoginFormData, CaptchaChallengeData, AuthLogo } from '../components/auth';
+import { LanguageSelector } from '../components/navigation/LanguageSelector';
 import { captchaService, CaptchaChallenge } from '../services/authService';
 import { logger } from '../services/loggerService';
 import './AuthPages.css';
@@ -249,6 +252,11 @@ export const LoginPage: React.FC = () => {
 
   return (
     <div className="auth-page" data-testid="login-page">
+      {/* STORY-104: Language Selector - positioned in top-right corner */}
+      <div className="auth-page__language-selector" data-testid="login-language-selector">
+        <LanguageSelector variant="icon" />
+      </div>
+
       <div className="auth-container" data-testid="login-container">
         {/* Logo - STORY-3: Using shared AuthLogo component for consistency */}
         <AuthLogo data-testid="login-auth-logo" />

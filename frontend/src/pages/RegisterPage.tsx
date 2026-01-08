@@ -2,6 +2,7 @@
  * RegisterPage Component
  * STORY-023: User Registration
  * STORY-3: Register Page UI Audit - Logo and UI consistency
+ * STORY-104: Language Selection on Login Page
  *
  * Page component for user registration.
  * Located at /register in the application.
@@ -15,6 +16,7 @@
  * - Full keyboard navigation
  * - ARIA accessibility labels
  * - Consistent branding with shared AuthLogo component
+ * - Language selector for pre-login language switching (STORY-104)
  */
 
 import React, { useState, useCallback, useEffect } from 'react';
@@ -22,6 +24,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts';
 import { RegisterForm, RegisterFormData, AuthLogo } from '../components/auth';
+import { LanguageSelector } from '../components/navigation/LanguageSelector';
 import { registrationService } from '../services/authService';
 import './AuthPages.css';
 
@@ -117,6 +120,11 @@ export const RegisterPage: React.FC = () => {
 
   return (
     <div className="auth-page" data-testid="register-page">
+      {/* STORY-104: Language Selector - positioned in top-right corner */}
+      <div className="auth-page__language-selector" data-testid="register-language-selector">
+        <LanguageSelector variant="icon" />
+      </div>
+
       <div className="auth-container auth-container--register" data-testid="register-container">
         {/* Logo - STORY-3: Using shared AuthLogo component for consistency */}
         <AuthLogo data-testid="register-auth-logo" />

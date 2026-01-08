@@ -176,3 +176,54 @@
     gap: 4px;
   }
 }
+
+/* STORY-102: Dark mode support */
+html.dark .user-delete-dialog__icon {
+  background: rgba(217, 119, 6, 0.2);
+}
+
+html.dark .user-delete-dialog__icon-svg {
+  color: #fbbf24;
+}
+
+html.dark .user-delete-dialog__error {
+  background: rgba(220, 38, 38, 0.1);
+  border-color: rgba(220, 38, 38, 0.3);
+  color: #fca5a5;
+}
+
+html.dark .user-delete-dialog__message {
+  color: var(--color-text-primary, #f9fafb);
+}
+
+html.dark .user-delete-dialog__user-info {
+  background: var(--color-background-surface, #1f2937);
+  border-color: var(--color-border-default, #4b5563);
+}
+
+html.dark .user-delete-dialog__user-row:not(:last-child) {
+  border-bottom-color: var(--color-border-default, #4b5563);
+}
+
+html.dark .user-delete-dialog__user-label {
+  color: var(--color-text-secondary, #9ca3af);
+}
+
+html.dark .user-delete-dialog__user-value {
+  color: var(--color-text-primary, #f9fafb);
+}
+
+html.dark .user-delete-dialog__note {
+  color: var(--color-text-secondary, #9ca3af);
+}
+
+html.dark .user-delete-dialog__btn--secondary {
+  color: var(--color-text-primary, #f9fafb);
+  background: var(--color-background-input, #374151);
+  border-color: var(--color-border-default, #4b5563);
+}
+
+html.dark .user-delete-dialog__btn--secondary:hover:not(:disabled) {
+  background: var(--color-background-surface, #4b5563);
+  border-color: var(--color-border-hover, #6b7280);
+}

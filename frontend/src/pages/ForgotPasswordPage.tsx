@@ -2,6 +2,7 @@
  * ForgotPasswordPage Component
  * STORY-009: Password Reset
  * BUG-007: Fixed logo display - replaced "LOGO" text with AuthLogo component
+ * STORY-104: Language Selection on Login Page
  *
  * Page component for requesting a password reset email.
  * Located at /forgot-password in the application.
@@ -12,6 +13,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { passwordResetService } from '../services/authService';
 import { AuthLogo } from '../components/auth';
+import { LanguageSelector } from '../components/navigation/LanguageSelector';
 import './AuthPages.css';
 
 /**
@@ -119,6 +121,11 @@ export const ForgotPasswordPage: React.FC = () => {
   if (isSuccess) {
     return (
       <div className="auth-page">
+        {/* STORY-104: Language Selector - positioned in top-right corner */}
+        <div className="auth-page__language-selector">
+          <LanguageSelector variant="icon" />
+        </div>
+
         <div className="auth-container">
           {/* Logo - BUG-007: Using shared AuthLogo component for consistency */}
           <AuthLogo data-testid="forgot-password-auth-logo" />
@@ -179,6 +186,11 @@ export const ForgotPasswordPage: React.FC = () => {
 
   return (
     <div className="auth-page">
+      {/* STORY-104: Language Selector - positioned in top-right corner */}
+      <div className="auth-page__language-selector">
+        <LanguageSelector variant="icon" />
+      </div>
+
       <div className="auth-container">
         {/* Logo - BUG-007: Using shared AuthLogo component for consistency */}
         <AuthLogo data-testid="forgot-password-auth-logo" />
