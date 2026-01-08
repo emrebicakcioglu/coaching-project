@@ -145,7 +145,7 @@ spec:
           image: ritservi/core-app-backend:sha-7b511a4b
           imagePullPolicy: Always
           ports:
-            - containerPort: 14102
+            - containerPort: 4102
           envFrom:
             - configMapRef:
                 name: core-app-config
@@ -162,7 +162,7 @@ spec:
           livenessProbe:
             httpGet:
               path: /api/health/live
-              port: 14102
+              port: 4102
             initialDelaySeconds: 10
             periodSeconds: 10
             timeoutSeconds: 5
@@ -171,7 +171,7 @@ spec:
           readinessProbe:
             httpGet:
               path: /api/health/ready
-              port: 14102
+              port: 4102
             initialDelaySeconds: 15
             periodSeconds: 5
             timeoutSeconds: 10
@@ -180,7 +180,7 @@ spec:
           startupProbe:
             httpGet:
               path: /api/health/live
-              port: 14102
+              port: 4102
             initialDelaySeconds: 0
             periodSeconds: 5
             timeoutSeconds: 5
@@ -198,8 +198,8 @@ spec:
     app: core-app-backend
   ports:
     - protocol: TCP
-      port: 14102
-      targetPort: 14102
+      port: 4102
+      targetPort: 4102
 
 ---
 # BACKEND HPA (Horizontal Pod Autoscaler)
@@ -323,7 +323,7 @@ spec:
       kind: Rule
       services:
         - name: core-app-backend
-          port: 14102
+          port: 4102
       middlewares:
         - name: core-app-headers
   tls:
