@@ -48,6 +48,39 @@ spec:
           env:
             - name: NODE_ENV
               value: "production"
+            - name: APP_PORT
+              value: "14102"
+            - name: APP_HOST
+              value: "0.0.0.0"
+            - name: APP_URL
+              value: "https://core-app.rit.services"
+            - name: FRONTEND_URL
+              value: "https://core-app.rit.services"
+            # Database Configuration (TODO: Set up actual database)
+            - name: DB_HOST
+              value: "postgres.core-app.svc.cluster.local"
+            - name: DB_PORT
+              value: "5432"
+            - name: DB_USER
+              value: "postgres"
+            - name: DB_NAME
+              value: "core_app"
+            - name: DB_SSL
+              value: "false"
+            # Email Configuration
+            - name: EMAIL_FROM_NAME
+              value: "Core Application"
+            - name: EMAIL_FROM_ADDRESS
+              value: "noreply@rit.services"
+            # Other configurations
+            - name: JWT_EXPIRES_IN
+              value: "24h"
+            - name: JWT_REFRESH_EXPIRES_IN
+              value: "30d"
+            - name: BCRYPT_ROUNDS
+              value: "12"
+            - name: LOG_LEVEL
+              value: "info"
             # Weitere Umgebungsvariablen hier hinzufuegen
           envFrom:
             - secretRef:
