@@ -33,7 +33,7 @@ COPY . .
 RUN rm -rf node_modules/.cache node_modules/.vite
 
 # Build argument for API URL (can be overridden at build time)
-ARG VITE_API_URL=http://localhost:14102/api/v1
+ARG VITE_API_URL=/api/v1
 ENV VITE_API_URL=$VITE_API_URL
 
 # Build the application
