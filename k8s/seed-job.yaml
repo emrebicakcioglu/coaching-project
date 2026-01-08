@@ -1,0 +1,78 @@
+---
+# Database Seed Job
+# Runs once to populate initial data (permissions, roles, users)
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: core-app-db-seed
+  namespace: core-app
+spec:
+  # Run only once, don't retry on failure (can be manually re-run if needed)
+  backoffLimit: 0
+  ttlSecondsAfterFinished: 3600  # Clean up after 1 hour
+  template:
+    metadata:
+      labels:
+        app: core-app-db-seed
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: seed
+          image: ritservi/core-app-backend:sha-d669c810
+          command: 
+            - /bin/sh
+            - -c
+            - |
+              echo "=== Starting Database Seeding ==="
+              echo "Waiting 10 seconds for database to be ready..."
+              sleep 10
+              
+              echo "Running database seed..."
+              npm run db:seed
+              
+              EXIT_CODE=$?
+              if [ $EXIT_CODE -eq 0 ]; then
+                echo "✅ Database seeding completed successfully"
+              else
+                echo "❌ Database seeding failed with exit code: $EXIT_CODE"
+                exit $EXIT_CODE
+              fi
+          env:
+            - name: NODE_ENV
+              value: "production"
+            - name: DB_HOST
+              value: "postgres"
+            - name: DB_PORT
+              value: "5432"
+            - name: DB_USER
+              value: "postgres"
+            - name: DB_NAME
+              value: "core_app"
+            - name: DB_SSL
+              value: "false"
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: core-app-secrets
+                  key: DB_PASSWORD
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: core-app-secrets
+                  key: JWT_SECRET
+            - name: RESEND_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: core-app-secrets
+                  key: RESEND_API_KEY
+            - name: EMAIL_FROM_NAME
+              value: "Core Application"
+            - name: EMAIL_FROM_ADDRESS
+              value: "noreply@rit.services"
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
