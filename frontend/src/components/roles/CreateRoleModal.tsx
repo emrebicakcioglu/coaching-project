@@ -1,9 +1,16 @@
 /**
  * CreateRoleModal Component
  * STORY-025B: Roles Management UI
+ * STORY-106: Roles & Permissions UX Improvements
  *
  * Modal form for creating new roles.
  * Includes role name, description, and permission selection.
+ *
+ * STORY-106 Fixes:
+ * - Added scroll-to-error behavior when validation fails
+ * - Added error summary with jump-to-field functionality
+ * - Using translation keys for all text (no hardcoded strings)
+ * - Permission descriptions are now translated
  *
  * @example
  * ```tsx
@@ -15,7 +22,8 @@
  * ```
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ResponsiveModal } from '../responsive';
 import { rolesService, Role, Permission, CreateRoleDto } from '../../services/rolesService';
 import { PermissionCheckboxGroup } from './PermissionCheckboxGroup';
@@ -70,11 +78,17 @@ export const CreateRoleModal: React.FC<CreateRoleModalProps> = ({
   onClose,
   onSuccess,
 }) => {
+  const { t } = useTranslation('roles');
   const [formData, setFormData] = useState<RoleFormData>(initialFormData);
   const [errors, setErrors] = useState<FormErrors>({});
   const [isLoading, setIsLoading] = useState(false);
   const [permissions, setPermissions] = useState<Permission[]>([]);
   const [loadingPermissions, setLoadingPermissions] = useState(false);
+
+  // STORY-106: Refs for scroll-to-error behavior
+  const errorSummaryRef = useRef<HTMLDivElement>(null);
+  const nameInputRef = useRef<HTMLInputElement>(null);
+  const descriptionInputRef = useRef<HTMLTextAreaElement>(null);
 
   // Reset form and load permissions when modal opens
   useEffect(() => {
@@ -84,6 +98,21 @@ export const CreateRoleModal: React.FC<CreateRoleModalProps> = ({
       loadPermissions();
     }
   }, [isOpen]);
+
+  // STORY-106: Scroll to error summary when errors change
+  useEffect(() => {
+    const errorKeys = Object.keys(errors).filter(key => key !== 'general' && errors[key as keyof FormErrors]);
+    if (errorKeys.length > 0 && errorSummaryRef.current) {
+      errorSummaryRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // Focus first error field for accessibility
+      const firstErrorKey = errorKeys[0];
+      if (firstErrorKey === 'name' && nameInputRef.current) {
+        nameInputRef.current.focus();
+      } else if (firstErrorKey === 'description' && descriptionInputRef.current) {
+        descriptionInputRef.current.focus();
+      }
+    }
+  }, [errors]);
 
   /**
    * Load available permissions
@@ -95,7 +124,7 @@ export const CreateRoleModal: React.FC<CreateRoleModalProps> = ({
       setPermissions(allPermissions);
     } catch (error) {
       logger.error('Failed to load permissions', error);
-      setErrors({ general: 'Berechtigungen konnten nicht geladen werden.' });
+      setErrors({ general: t('modal.errors.loadPermissions') });
     } finally {
       setLoadingPermissions(false);
     }
@@ -126,6 +155,19 @@ export const CreateRoleModal: React.FC<CreateRoleModalProps> = ({
   };
 
   /**
+   * STORY-106: Focus a specific field (for error summary links)
+   */
+  const focusField = useCallback((fieldName: string) => {
+    if (fieldName === 'name' && nameInputRef.current) {
+      nameInputRef.current.focus();
+      nameInputRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    } else if (fieldName === 'description' && descriptionInputRef.current) {
+      descriptionInputRef.current.focus();
+      descriptionInputRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, []);
+
+  /**
    * Validate form data
    */
   const validateForm = (): boolean => {
@@ -133,16 +175,16 @@ export const CreateRoleModal: React.FC<CreateRoleModalProps> = ({
 
     // Name validation
     if (!formData.name.trim()) {
-      newErrors.name = 'Rollenname ist erforderlich';
+      newErrors.name = t('modal.validation.nameRequired');
     } else if (formData.name.trim().length < 2) {
-      newErrors.name = 'Rollenname muss mindestens 2 Zeichen lang sein';
+      newErrors.name = t('modal.validation.nameMinLength');
     } else if (formData.name.trim().length > 100) {
-      newErrors.name = 'Rollenname darf maximal 100 Zeichen lang sein';
+      newErrors.name = t('modal.validation.nameMaxLength');
     }
 
     // Description validation (optional but max length)
     if (formData.description && formData.description.length > 500) {
-      newErrors.description = 'Beschreibung darf maximal 500 Zeichen lang sein';
+      newErrors.description = t('modal.validation.descriptionMaxLength');
     }
 
     setErrors(newErrors);
@@ -176,13 +218,28 @@ export const CreateRoleModal: React.FC<CreateRoleModalProps> = ({
       logger.error('Failed to create role', error);
       const apiError = error as { response?: { data?: { message?: string } } };
       setErrors({
-        general:
-          apiError.response?.data?.message ||
-          'Rolle konnte nicht erstellt werden. Bitte versuchen Sie es erneut.',
+        general: apiError.response?.data?.message || t('modal.errors.createFailed'),
       });
     } finally {
       setIsLoading(false);
     }
+  };
+
+  /**
+   * Get field-level errors for error summary
+   */
+  const getFieldErrors = (): Array<{ field: string; label: string; message: string }> => {
+    const fieldErrors: Array<{ field: string; label: string; message: string }> = [];
+    if (errors.name) {
+      fieldErrors.push({ field: 'name', label: t('modal.fields.name'), message: errors.name });
+    }
+    if (errors.description) {
+      fieldErrors.push({ field: 'description', label: t('modal.fields.description'), message: errors.description });
+    }
+    if (errors.permissions) {
+      fieldErrors.push({ field: 'permissions', label: t('modal.fields.permissions'), message: errors.permissions });
+    }
+    return fieldErrors;
   };
 
   /**
@@ -196,7 +253,7 @@ export const CreateRoleModal: React.FC<CreateRoleModalProps> = ({
         onClick={onClose}
         disabled={isLoading}
       >
-        Abbrechen
+        {t('modal.cancel')}
       </button>
       <button
         type="submit"
@@ -204,16 +261,18 @@ export const CreateRoleModal: React.FC<CreateRoleModalProps> = ({
         className="role-form-modal__btn role-form-modal__btn--primary"
         disabled={isLoading || loadingPermissions}
       >
-        {isLoading ? 'Erstelle...' : 'Rolle erstellen'}
+        {isLoading ? t('modal.creating') : t('modal.create')}
       </button>
     </div>
   );
+
+  const fieldErrors = getFieldErrors();
 
   return (
     <ResponsiveModal
       isOpen={isOpen}
       onClose={onClose}
-      title="Neue Rolle"
+      title={t('modal.createTitle')}
       size="lg"
       footer={renderFooter()}
       data-testid="create-role-modal"
@@ -224,6 +283,33 @@ export const CreateRoleModal: React.FC<CreateRoleModalProps> = ({
         onSubmit={handleSubmit}
         noValidate
       >
+        {/* STORY-106: Error summary with jump-to-field links */}
+        {fieldErrors.length > 0 && (
+          <div
+            ref={errorSummaryRef}
+            className="role-form-modal__error-summary"
+            role="alert"
+            aria-live="polite"
+          >
+            <h3 className="role-form-modal__error-summary-title">
+              {t('modal.errors.validationErrors')} ({fieldErrors.length})
+            </h3>
+            <ul className="role-form-modal__error-summary-list">
+              {fieldErrors.map(({ field, label, message }) => (
+                <li key={field}>
+                  <button
+                    type="button"
+                    className="role-form-modal__error-summary-link"
+                    onClick={() => focusField(field)}
+                  >
+                    <strong>{label}:</strong> {message}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
         {/* General error message */}
         {errors.general && (
           <div className="role-form-modal__error" role="alert">
@@ -234,9 +320,10 @@ export const CreateRoleModal: React.FC<CreateRoleModalProps> = ({
         {/* Name field */}
         <div className="role-form-modal__field">
           <label htmlFor="create-role-name" className="role-form-modal__label">
-            Rollenname *
+            {t('modal.fields.name')} *
           </label>
           <input
+            ref={nameInputRef}
             type="text"
             id="create-role-name"
             name="name"
@@ -245,7 +332,7 @@ export const CreateRoleModal: React.FC<CreateRoleModalProps> = ({
             onChange={handleInputChange}
             disabled={isLoading}
             autoFocus
-            placeholder="z.B. Editor, Moderator, Viewer"
+            placeholder={t('modal.fields.namePlaceholder')}
             aria-invalid={!!errors.name}
             aria-describedby={errors.name ? 'create-role-name-error' : undefined}
           />
@@ -259,9 +346,10 @@ export const CreateRoleModal: React.FC<CreateRoleModalProps> = ({
         {/* Description field */}
         <div className="role-form-modal__field">
           <label htmlFor="create-role-description" className="role-form-modal__label">
-            Beschreibung
+            {t('modal.fields.description')}
           </label>
           <textarea
+            ref={descriptionInputRef}
             id="create-role-description"
             name="description"
             className={`role-form-modal__textarea ${errors.description ? 'role-form-modal__textarea--error' : ''}`}
@@ -269,7 +357,7 @@ export const CreateRoleModal: React.FC<CreateRoleModalProps> = ({
             onChange={handleInputChange}
             disabled={isLoading}
             rows={3}
-            placeholder="Optionale Beschreibung der Rolle..."
+            placeholder={t('modal.fields.descriptionPlaceholder')}
             aria-invalid={!!errors.description}
             aria-describedby={errors.description ? 'create-role-description-error' : undefined}
           />
@@ -279,22 +367,22 @@ export const CreateRoleModal: React.FC<CreateRoleModalProps> = ({
             </span>
           )}
           <span className="role-form-modal__hint">
-            {formData.description.length}/500 Zeichen
+            {t('modal.fields.charactersCount', { count: formData.description.length, max: 500 })}
           </span>
         </div>
 
         {/* Permissions field */}
         <div className="role-form-modal__field">
           <label className="role-form-modal__label">
-            Berechtigungen
+            {t('modal.fields.permissions')}
             <span className="role-form-modal__label-hint">
-              ({formData.permissionIds.length} ausgewählt)
+              ({t('modal.fields.permissionsSelected', { count: formData.permissionIds.length })})
             </span>
           </label>
           {loadingPermissions ? (
             <div className="role-form-modal__loading">
               <div className="role-form-modal__spinner" />
-              <span>Lade Berechtigungen...</span>
+              <span>{t('modal.loading.permissions')}</span>
             </div>
           ) : (
             <PermissionCheckboxGroup

@@ -26,6 +26,33 @@
   justify-content: center;
   background: var(--color-background-page);
   padding: 20px;
+  position: relative;
+}
+
+/* ========================================
+   STORY-104: Language Selector on Auth Pages
+   ======================================== */
+
+.auth-page__language-selector {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 10;
+}
+
+/* Dark mode support for language selector dropdown on auth pages */
+html.dark .auth-page__language-selector [data-testid$="-dropdown"] {
+  background-color: var(--color-background-card, #1f2937);
+  border-color: var(--color-border-default, #374151);
+}
+
+html.dark .auth-page__language-selector button {
+  color: var(--color-text-secondary, #9ca3af);
+}
+
+html.dark .auth-page__language-selector button:hover {
+  color: var(--color-text-primary, #f9fafb);
+  background-color: var(--color-background-surface, #374151);
 }
 
 .auth-container {
@@ -701,4 +728,106 @@
   width: 16px;
   height: 16px;
   flex-shrink: 0;
+}
+
+/* ========================================
+   Dark Mode Support (STORY-102)
+   ======================================== */
+
+html.dark .auth-container {
+  background-color: var(--color-background-card, #1f2937);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+html.dark .auth-title {
+  color: var(--color-text-primary, #f9fafb);
+}
+
+html.dark .auth-subtitle {
+  color: var(--color-text-secondary, #9ca3af);
+}
+
+html.dark .auth-label {
+  color: var(--color-text-primary, #f9fafb);
+}
+
+html.dark .auth-input {
+  background-color: var(--color-background-input, #374151);
+  border-color: var(--color-border-default, #4b5563);
+  color: var(--color-text-primary, #f9fafb);
+}
+
+html.dark .auth-input::placeholder {
+  color: var(--color-text-tertiary, #6b7280);
+}
+
+html.dark .auth-input:focus {
+  border-color: var(--color-primary, #3b82f6) !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+}
+
+html.dark .auth-input:disabled {
+  background-color: var(--color-input-disabled-background, #1f2937);
+  color: var(--color-input-disabled-text, #6b7280);
+}
+
+html.dark .auth-input-toggle {
+  color: var(--color-text-secondary, #9ca3af);
+}
+
+html.dark .auth-input-toggle:hover {
+  color: var(--color-text-primary, #f9fafb);
+}
+
+html.dark .auth-link {
+  color: var(--color-primary, #3b82f6);
+}
+
+html.dark .auth-link:hover {
+  color: #60a5fa;
+}
+
+html.dark .auth-footer {
+  border-top-color: var(--color-border-default, #374151);
+}
+
+html.dark .auth-footer__text {
+  color: var(--color-text-secondary, #9ca3af);
+}
+
+html.dark .auth-error {
+  background-color: var(--color-alert-error-bg, #7f1d1d);
+  border-color: var(--color-alert-error-border, #ef4444);
+  color: var(--color-alert-error-text, #fca5a5);
+}
+
+html.dark .auth-error__icon {
+  background-color: #ef4444;
+}
+
+html.dark .auth-success-message,
+html.dark .success-message {
+  background-color: var(--color-alert-success-bg, #064e3b);
+  border-color: var(--color-alert-success-border, #10b981);
+  color: var(--color-alert-success-text, #6ee7b7);
+}
+
+html.dark .auth-delay-message {
+  background-color: var(--color-alert-warning-bg, #78350f);
+  border-color: var(--color-alert-warning-border, #f59e0b);
+  color: var(--color-alert-warning-text, #fcd34d);
+}
+
+html.dark .auth-loading__spinner {
+  border-color: var(--color-border-default, #374151);
+  border-top-color: var(--color-primary, #3b82f6);
+}
+
+html.dark .private-route-loading {
+  background: var(--color-background-page, #111827);
+}
+
+html.dark .private-route-loading__spinner {
+  border-color: var(--color-border-default, #374151);
+  border-top-color: var(--color-primary, #3b82f6);
 }

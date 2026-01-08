@@ -83,12 +83,24 @@ export interface DarkModeProviderProps {
  *
  * Wraps the application to provide dark mode state management.
  * Loads preference from localStorage on mount and applies the appropriate scheme.
+ *
+ * STORY-102: Dark Mode Functionality Fixes
+ * - Now syncs with early loading script in index.html
+ * - Reads initial state from DOM (which is set before React loads)
+ * - Supports cross-tab synchronization via storage events
  */
 export const DarkModeProvider: React.FC<DarkModeProviderProps> = ({
   children,
   'data-testid': testId = 'dark-mode-provider',
 }) => {
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  // STORY-102: Initialize from DOM state (set by early loading script in index.html)
+  // This ensures React state matches what's already rendered, preventing flash
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return document.documentElement.classList.contains('dark');
+    }
+    return false;
+  });
   const [isLoading, setIsLoading] = useState(true);
   const [isConfigured, setIsConfigured] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -116,6 +128,9 @@ export const DarkModeProvider: React.FC<DarkModeProviderProps> = ({
    * Load scheme modes and preference on mount
    * IMPORTANT: The toggle now ALWAYS works, even without backend schemes.
    * This prevents the recurring bug where the toggle disappears.
+   *
+   * STORY-102: The CSS class is already applied by the early loading script
+   * in index.html, so we only need to sync state and load backend schemes.
    */
   useEffect(() => {
     const initialize = async () => {
@@ -123,12 +138,21 @@ export const DarkModeProvider: React.FC<DarkModeProviderProps> = ({
         setIsLoading(true);
         setError(null);
 
-        // Load preference from localStorage first (always works)
-        const preferDark = themeService.getDarkModePreference();
-        setIsDarkMode(preferDark);
+        // STORY-102: Read the current DOM state (already set by early loading script)
+        // This syncs React state with what's already visible on screen
+        const currentDarkState = document.documentElement.classList.contains('dark');
 
-        // ALWAYS apply CSS class based on preference - this works without backend
-        applyCssClass(preferDark);
+        // Only update state if it differs from DOM (shouldn't happen normally)
+        if (currentDarkState !== isDarkMode) {
+          setIsDarkMode(currentDarkState);
+        }
+
+        // Ensure localStorage matches DOM state (for consistency)
+        const storedPref = themeService.getDarkModePreference();
+        if (storedPref !== currentDarkState) {
+          // Early script might have used system preference, sync localStorage
+          themeService.setDarkModePreference(currentDarkState);
+        }
 
         // Check if user has an access token (likely authenticated)
         const hasToken = !!localStorage.getItem('access_token');
@@ -144,10 +168,10 @@ export const DarkModeProvider: React.FC<DarkModeProviderProps> = ({
             setIsConfigured(configured);
 
             // If configured, apply the appropriate backend scheme
-            if (configured && preferDark && modes.darkSchemeId) {
+            if (configured && currentDarkState && modes.darkSchemeId) {
               await designService.applyScheme(modes.darkSchemeId);
               window.dispatchEvent(new CustomEvent('theme-changed'));
-            } else if (configured && !preferDark && modes.lightSchemeId) {
+            } else if (configured && !currentDarkState && modes.lightSchemeId) {
               await designService.applyScheme(modes.lightSchemeId);
               window.dispatchEvent(new CustomEvent('theme-changed'));
             }
@@ -169,7 +193,30 @@ export const DarkModeProvider: React.FC<DarkModeProviderProps> = ({
     };
 
     initialize();
-  }, [applyCssClass]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only run once on mount - isDarkMode is read from DOM
+
+  /**
+   * STORY-102: Listen for storage changes from other tabs
+   * This enables cross-tab synchronization of dark mode preference
+   */
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'app_dark_mode_preference' && e.newValue !== null) {
+        const newDarkMode = e.newValue === 'true';
+        if (newDarkMode !== isDarkMode) {
+          applyCssClass(newDarkMode);
+          setIsDarkMode(newDarkMode);
+          window.dispatchEvent(new CustomEvent('theme-changed'));
+        }
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, [isDarkMode, applyCssClass]);
 
   /**
    * Apply a specific mode

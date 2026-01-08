@@ -459,6 +459,8 @@ export interface RefreshToken {
   location?: string | null;
   last_used_at?: Date | null;
   remember_me?: boolean;
+  // STORY-107: Session fingerprint for session reuse detection
+  fingerprint?: string | null;
 }
 
 export interface RefreshTokenInsert {
@@ -471,6 +473,8 @@ export interface RefreshTokenInsert {
   browser?: string | null;
   location?: string | null;
   remember_me?: boolean;
+  // STORY-107: Session fingerprint for session reuse detection
+  fingerprint?: string | null;
 }
 
 /**

@@ -144,3 +144,43 @@
     font-size: 13px;
   }
 }
+
+/* STORY-102: Dark mode support */
+html.dark .permission-checkbox-group__empty {
+  color: #9ca3af;
+  background: #1f2937;
+  border-color: #4b5563;
+}
+
+html.dark .permission-checkbox-group__category {
+  border-color: #4b5563;
+}
+
+html.dark .permission-checkbox-group__category-header {
+  background: #374151;
+  border-bottom-color: #4b5563;
+}
+
+html.dark .permission-checkbox-group__category-label {
+  color: #f9fafb;
+}
+
+html.dark .permission-checkbox-group__category-name {
+  color: #f9fafb;
+}
+
+html.dark .permission-checkbox-group__category-count {
+  color: #9ca3af;
+}
+
+html.dark .permission-checkbox-group__permission:hover {
+  background: #374151;
+}
+
+html.dark .permission-checkbox-group__permission-name {
+  color: #f9fafb;
+}
+
+html.dark .permission-checkbox-group__permission-description {
+  color: #9ca3af;
+}

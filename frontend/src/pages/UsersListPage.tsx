@@ -3,6 +3,7 @@
  * STORY-007B: User Role Assignment
  * STORY-006B: User CRUD Frontend UI
  * STORY-104: Users Page UI Audit
+ * STORY-105: User Management UI Improvements
  *
  * Page for displaying a list of users with their roles.
  * Shows role badges for each user in the list.
@@ -13,6 +14,14 @@
  * - "Keine Rollen" styled as neutral badge
  * - Status badges use standardized Badge component
  * - Role badges use updated color scheme (Manager=orange)
+ *
+ * STORY-105 Fixes:
+ * - Changed "All Status" to "Any Status"
+ * - Added Manager role to filter dropdown
+ * - Filters ordered by role importance (Admin > Manager > Editor > User > Viewer)
+ * - Added deleted status to status filter
+ * - Date formatting with leading zeros
+ * - Role badges sorted by importance
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
@@ -35,6 +44,44 @@ interface ToastState {
   message: string;
   type: ToastType;
 }
+
+/**
+ * STORY-105: Role importance order for sorting badges
+ * Lower number = higher importance (displayed first)
+ */
+const ROLE_IMPORTANCE: Record<string, number> = {
+  admin: 1,
+  administrator: 1,
+  manager: 2,
+  moderator: 3,
+  editor: 4,
+  user: 5,
+  viewer: 6,
+  guest: 7,
+};
+
+/**
+ * STORY-105: Sort roles by importance
+ */
+const sortRolesByImportance = (roles: Array<{ id: number; name: string }>) => {
+  return [...roles].sort((a, b) => {
+    const aImportance = ROLE_IMPORTANCE[a.name.toLowerCase()] ?? 99;
+    const bImportance = ROLE_IMPORTANCE[b.name.toLowerCase()] ?? 99;
+    return aImportance - bImportance;
+  });
+};
+
+/**
+ * STORY-105: Format date with leading zeros
+ * Formats date as DD/MM/YYYY with consistent leading zeros
+ */
+const formatDateWithLeadingZeros = (dateString: string): string => {
+  const date = new Date(dateString);
+  const day = date.getDate().toString().padStart(2, '0');
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const year = date.getFullYear();
+  return `${day}/${month}/${year}`;
+};
 
 /**
  * UsersListPage Component
@@ -262,10 +309,12 @@ export const UsersListPage: React.FC = () => {
             aria-label={t('filter.statusLabel')}
             data-testid="users-status-filter"
           >
-            <option value="">{t('filter.allStatus')}</option>
+            {/* STORY-105: Changed "All Status" to "Any Status" */}
+            <option value="">{t('filter.anyStatus')}</option>
             <option value="active">{t('status.active')}</option>
             <option value="inactive">{t('status.inactive')}</option>
             <option value="suspended">{t('status.suspended')}</option>
+            <option value="deleted">{t('status.deleted')}</option>
           </select>
         </div>
         <div className="users-list__filter-group">
@@ -276,10 +325,12 @@ export const UsersListPage: React.FC = () => {
             aria-label={t('filter.roleLabel')}
             data-testid="users-role-filter"
           >
-            <option value="">{t('filter.allRoles')}</option>
+            {/* STORY-105: Changed "All Roles" to "Any Role", added Manager role, ordered by importance */}
+            <option value="">{t('filter.anyRole')}</option>
             <option value="admin">{t('roles.admin')}</option>
-            <option value="user">{t('roles.user')}</option>
+            <option value="manager">{t('roles.manager')}</option>
             <option value="editor">{t('roles.editor')}</option>
+            <option value="user">{t('roles.user')}</option>
             <option value="viewer">{t('roles.viewer')}</option>
           </select>
         </div>
@@ -334,7 +385,8 @@ export const UsersListPage: React.FC = () => {
                       <td className="users-list__cell users-list__cell--roles">
                         <div className="users-list__roles">
                           {user.roles && user.roles.length > 0 ? (
-                            user.roles.map((role) => (
+                            /* STORY-105: Sort roles by importance (Admin first) */
+                            sortRolesByImportance(user.roles).map((role) => (
                               <RoleBadge key={role.id} name={role.name} small />
                             ))
                           ) : (
@@ -349,8 +401,9 @@ export const UsersListPage: React.FC = () => {
                         </div>
                       </td>
                       <td className="users-list__cell users-list__cell--login">
+                        {/* STORY-105: Date formatting with leading zeros */}
                         {user.last_login
-                          ? new Date(user.last_login).toLocaleDateString()
+                          ? formatDateWithLeadingZeros(user.last_login)
                           : t('table.never')}
                       </td>
                       <td className="users-list__cell users-list__cell--actions">

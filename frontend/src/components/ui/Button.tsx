@@ -1,17 +1,20 @@
 /**
  * Button Component
  * UI-AUDIT: Standardized button component with consistent variants
+ * STORY-105: User Management UI Improvements - Interactive button styling
  *
  * Usage recommendations from MFA Setup Page (reference design):
  * - Primary Action: Filled blue (variant="primary")
  * - Secondary Action: Outlined (variant="outline")
  * - Destructive Action: Red (variant="destructive")
+ * - Ghost Action: Transparent with blue text (variant="ghost") - looks interactive
  *
  * @example
  * ```tsx
  * <Button variant="primary">Save Changes</Button>
  * <Button variant="outline" onClick={handleCancel}>Cancel</Button>
  * <Button variant="destructive" onClick={handleDelete}>Delete</Button>
+ * <Button variant="ghost">Details</Button>
  * <Button variant="primary" isLoading>Saving...</Button>
  * ```
  */
@@ -88,11 +91,12 @@ const getVariantStyles = (variant: ButtonVariant): React.CSSProperties => {
     };
   }
 
-  // Ghost variant uses transparent background
+  // STORY-105: Ghost variant uses transparent background with blue text
+  // to indicate interactivity (not gray/disabled appearance)
   if (variant === 'ghost') {
     return {
       backgroundColor: 'transparent',
-      color: `var(--color-button-${themeType}-text, ${defaults.text})`,
+      color: 'var(--color-primary, #2563eb)',
       borderColor: 'transparent',
     };
   }
