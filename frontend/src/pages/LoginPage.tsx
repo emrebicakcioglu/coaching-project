@@ -85,13 +85,16 @@ export const LoginPage: React.FC = () => {
   const [captchaError, setCaptchaError] = useState<string | null>(null);
   const [delayMessage, setDelayMessage] = useState<string | null>(null);
 
-  // Redirect if already authenticated
+  // Track if we're currently logging in to prevent race condition
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+
+  // Redirect if already authenticated (but not if we're in the middle of logging in)
   useEffect(() => {
-    if (!authLoading && isAuthenticated) {
+    if (!authLoading && isAuthenticated && !isLoggingIn) {
       const returnUrl = locationState?.returnUrl || locationState?.from || '/dashboard';
       navigate(returnUrl, { replace: true });
     }
-  }, [isAuthenticated, authLoading, navigate, locationState]);
+  }, [isAuthenticated, authLoading, isLoggingIn, navigate, locationState]);
 
   // Clear location state after reading message
   useEffect(() => {
@@ -145,6 +148,7 @@ export const LoginPage: React.FC = () => {
   const handleSubmit = useCallback(
     async (formData: LoginFormData) => {
       setIsLoading(true);
+      setIsLoggingIn(true); // Prevent useEffect navigation during login
       setError(null);
       setSuccessMessage(null);
       setCaptchaError(null);
@@ -159,7 +163,8 @@ export const LoginPage: React.FC = () => {
           captchaAnswer: formData.captchaAnswer,
         });
 
-        // Redirect to return URL or dashboard on success
+        // Login completed successfully - now safe to navigate
+        setIsLoggingIn(false);
         const returnUrl = locationState?.returnUrl || locationState?.from || '/dashboard';
         navigate(returnUrl, { replace: true });
       } catch (err: unknown) {
@@ -231,9 +236,10 @@ export const LoginPage: React.FC = () => {
         }
       } finally {
         setIsLoading(false);
+        setIsLoggingIn(false); // Reset login state on error
       }
     },
-    [login, navigate, locationState]
+    [login, navigate, locationState, t]
   );
 
   // Show loading while checking auth state
