@@ -49,6 +49,9 @@ spec:
             - name: NODE_ENV
               value: "production"
             # Weitere Umgebungsvariablen hier hinzufuegen
+          envFrom:
+            - secretRef:
+                name: core-app-secrets
           resources:
             requests:
               memory: "256Mi"
