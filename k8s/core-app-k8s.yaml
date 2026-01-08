@@ -1,7 +1,6 @@
 # ============================================
 # Kubernetes Manifest fuer core-app
-# Generiert am 2026-01-02 17:23
-# Automatisch erkannte Services aus Dockerfiles
+# Generiert am 2026-01-08 09:17
 # ============================================
 
 # Namespace
@@ -9,125 +8,23 @@ apiVersion: v1
 kind: Namespace
 metadata:
   name: core-app
----
-# ConfigMap fuer Umgebungsvariablen
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: core-app-config
-  namespace: core-app
-data:
-  ADMIN_URL: "http://localhost:3000"
-  APP_HOST: "localhost"
-  APP_PORT: "4102"
-  APP_URL: "http://localhost:4102"
-  AUDIT_LOG_API_REQUESTS: "false"
-  AUDIT_LOG_ENABLED: "true"
-  AUDIT_LOG_READ_ONLY: "true"
-  BCRYPT_ROUNDS: "12"
-  BUILD_NUMBER: ""
-  DB_HOST: "postgres-service"
-  DB_NAME: "core_app"
-  DB_POOL_CONNECTION_TIMEOUT_MS: "2000"
-  DB_POOL_IDLE_TIMEOUT_MS: "30000"
-  DB_POOL_MAX: "20"
-  DB_PORT: "5432"
-  DB_SSL: "false"
-  DB_USER: "postgres"
-  DEFAULT_LANGUAGE: "en"
-  DEFAULT_SESSION_TIMEOUT_MINUTES: "30"
-  DEFAULT_SHOW_TIMEOUT_WARNING: "true"
-  DEFAULT_WARNING_BEFORE_TIMEOUT_MINUTES: "5"
-  EMAIL_FROM_ADDRESS: "noreply@yourdomain.com"
-  EMAIL_FROM_NAME: "Core Application"
-  EMAIL_MAX_RETRIES: "3"
-  EMAIL_QUEUE_ENABLED: "true"
-  EMAIL_QUEUE_PROCESS_INTERVAL: "5000"
-  EMAIL_RATE_LIMIT: "60"
-  EMAIL_RETRY_DELAY: "5000"
-  EMAIL_RETRY_DELAY_MS: "1000"
-  EMAIL_RETRY_MAX: "3"
-  FALLBACK_LANGUAGE: "en"
-  FEEDBACK_QUEUE_PRIORITY: "5"
-  FEEDBACK_RATE_LIMIT_MAX: "5"
-  FEEDBACK_RATE_LIMIT_WINDOW_SECONDS: "3600"
-  FEEDBACK_USE_QUEUE: "true"
-  FRONTEND_URL: "http://localhost:3000"
-  GIT_COMMIT: ""
-  JWT_ACCESS_EXPIRY: "15m"
-  JWT_EXPIRES_IN: "24h"
-  JWT_REFRESH_EXPIRES_IN: "30d"
-  JWT_REFRESH_EXPIRY_LONG: "30d"
-  JWT_REFRESH_EXPIRY_SHORT: "24h"
-  LOG_DIR: "./logs"
-  LOG_FILE_PATH: "./logs/app.log"
-  LOG_LEVEL: "info"
-  LOG_MAX_FILES: "14d"
-  LOG_MAX_SIZE: "20m"
-  MFA_ISSUER: "CoreApp"
-  MFA_LOCKOUT_DURATION: "900"
-  MINIO_BUCKET: "core-app-uploads"
-  MINIO_BUCKET_FEEDBACK: "feedback"
-  MINIO_BUCKET_LOGOS: "logos"
-  MINIO_BUCKET_UPLOADS: "uploads"
-  MINIO_CONSOLE_PORT: "14105"
-  MINIO_ENDPOINT: "minio-service"
-  MINIO_PORT: "9000"
-  MINIO_ROOT_USER: "minioadmin"
-  MINIO_USE_SSL: "false"
-  NODE_ENV: "development"
-  PERMISSION_CACHE_TTL_MS: "300000"
-  PERMISSION_HIERARCHY_CACHE_TTL_MS: "600000"
-  POSTGRES_DB: "core_app"
-  POSTGRES_USER: "postgres"
-  RATE_LIMIT_MAX_REQUESTS: "100"
-  RATE_LIMIT_WINDOW_MS: "60000"
-  REDIS_URL: "redis://redis-service:6379"
-  SMTP_CHECK_TIMEOUT: "5000"
-  SMTP_HOST: ""
-  SMTP_PORT: "587"
-  STORAGE_CHECK_TIMEOUT: "5000"
-  SUPPORT_EMAIL: "support@yourdomain.com"
-  SUPPORTED_LANGUAGES: "en,de"
-  SWAGGER_ENABLED: "true"
-  VITE_API_URL: "http://localhost:4102/api"
-  VITE_APP_VERSION: ""
 
 ---
-# Secret fuer sensible Umgebungsvariablen
-# WICHTIG: Erstelle Secrets separat mit kubectl oder Sealed Secrets!
-# kubectl create secret generic core-app-secrets \
-#   --from-literal=DB_PASSWORD=<your-db-password> \
-#   --from-literal=JWT_SECRET=<your-jwt-secret> \
-#   ... --namespace=core-app
-apiVersion: v1
-kind: Secret
-metadata:
-  name: core-app-secrets
-  namespace: core-app
-type: Opaque
-stringData:
-  # === ERSETZE DIESE PLATZHALTER MIT ECHTEN WERTEN ===
-  DB_PASSWORD: "CHANGE_ME_DB_PASSWORD"
-  ENCRYPTION_KEY: "CHANGE_ME_ENCRYPTION_KEY_64_HEX_CHARS"
-  JWT_SECRET: "CHANGE_ME_JWT_SECRET_MIN_32_CHARS"
-  MFA_TEMP_TOKEN_EXPIRY: "300"
-  MFA_TEMP_TOKEN_SECRET: "CHANGE_ME_MFA_SECRET"
-  MINIO_ACCESS_KEY: "CHANGE_ME_MINIO_ACCESS"
-  MINIO_ROOT_PASSWORD: "CHANGE_ME_MINIO_PASSWORD"
-  MINIO_SECRET_KEY: "CHANGE_ME_MINIO_SECRET"
-  POSTGRES_PASSWORD: "CHANGE_ME_DB_PASSWORD"
-  RESEND_API_KEY: "CHANGE_ME_RESEND_API_KEY"
-  TOKEN_CLEANUP_INTERVAL_MS: "3600000"
-  VERIFICATION_TOKEN_EXPIRY: "24h"
+# Docker Hub Secret (muss separat erstellt werden)
+# Verwende: .\Setup-ArgoCD.ps1 fuer automatische Erstellung
 
 ---
-# BACKEND Deployment
+# ============================================
+# Backend Deployment
+# ============================================
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: core-app-backend
   namespace: core-app
+  annotations:
+    # ArgoCD: Immer neuestes Image pullen
+    argocd.argoproj.io/hook: PreSync
 spec:
   replicas: 1
   selector:
@@ -137,20 +34,22 @@ spec:
     metadata:
       labels:
         app: core-app-backend
+      annotations:
+        # Forciert Re-Pull bei jedem Sync
+        timestamp: "TIMESTAMP_PLACEHOLDER"
     spec:
       imagePullSecrets:
         - name: docker-hub-secret
       containers:
         - name: backend
-          image: ritservi/core-app-backend:sha-90980362
+          image: ritservi/core-app-backend:latest
           imagePullPolicy: Always
           ports:
-            - containerPort: 4102
-          envFrom:
-            - configMapRef:
-                name: core-app-config
-            - secretRef:
-                name: core-app-secrets
+            - containerPort: 14102
+          env:
+            - name: NODE_ENV
+              value: "production"
+            # Weitere Umgebungsvariablen hier hinzufuegen
           resources:
             requests:
               memory: "256Mi"
@@ -158,36 +57,21 @@ spec:
             limits:
               memory: "512Mi"
               cpu: "500m"
-          # Liveness Probe - Schneller Check ob App laeuft
           livenessProbe:
             httpGet:
-              path: /api/health/live
-              port: 4102
-            initialDelaySeconds: 10
+              path: /health
+              port: 14102
+            initialDelaySeconds: 30
             periodSeconds: 10
-            timeoutSeconds: 5
-            failureThreshold: 3
-          # Readiness Probe - Prueft ob App Traffic empfangen kann
           readinessProbe:
             httpGet:
-              path: /api/health/ready
-              port: 4102
-            initialDelaySeconds: 15
+              path: /health
+              port: 14102
+            initialDelaySeconds: 5
             periodSeconds: 5
-            timeoutSeconds: 10
-            failureThreshold: 3
-          # Startup Probe - Fuer langsame Container-Starts
-          startupProbe:
-            httpGet:
-              path: /api/health/live
-              port: 4102
-            initialDelaySeconds: 0
-            periodSeconds: 5
-            timeoutSeconds: 5
-            failureThreshold: 30
 
 ---
-# BACKEND Service
+# Backend Service
 apiVersion: v1
 kind: Service
 metadata:
@@ -198,11 +82,11 @@ spec:
     app: core-app-backend
   ports:
     - protocol: TCP
-      port: 4102
-      targetPort: 4102
+      port: 14102
+      targetPort: 14102
 
 ---
-# BACKEND HPA (Horizontal Pod Autoscaler)
+# Backend HPA (Horizontal Pod Autoscaler)
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
@@ -221,16 +105,12 @@ spec:
         name: cpu
         target:
           type: Utilization
-          averageUtilization: 70
-    - type: Resource
-      resource:
-        name: memory
-        target:
-          type: Utilization
           averageUtilization: 80
 
 ---
-# FRONTEND Deployment
+# ============================================
+# Frontend Deployment
+# ============================================
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -245,12 +125,14 @@ spec:
     metadata:
       labels:
         app: core-app-frontend
+      annotations:
+        timestamp: "TIMESTAMP_PLACEHOLDER"
     spec:
       imagePullSecrets:
         - name: docker-hub-secret
       containers:
         - name: frontend
-          image: ritservi/core-app-frontend:sha-90980362
+          image: ritservi/core-app-frontend:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 80
@@ -263,7 +145,7 @@ spec:
               cpu: "200m"
 
 ---
-# FRONTEND Service
+# Frontend Service
 apiVersion: v1
 kind: Service
 metadata:
@@ -276,8 +158,11 @@ spec:
     - protocol: TCP
       port: 80
       targetPort: 80
+
 ---
+# ============================================
 # SSL Certificate (Let's Encrypt)
+# ============================================
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
@@ -290,9 +175,14 @@ spec:
   issuerRef:
     name: letsencrypt-prod
     kind: ClusterIssuer
+    group: cert-manager.io
+  privateKey:
+    rotationPolicy: Always
 
 ---
-# Traefik Middleware fuer Security Headers
+# ============================================
+# Traefik IngressRoute
+# ============================================
 apiVersion: traefik.io/v1alpha1
 kind: Middleware
 metadata:
@@ -305,10 +195,9 @@ spec:
     customResponseHeaders:
       X-Frame-Options: "SAMEORIGIN"
       X-Content-Type-Options: "nosniff"
-      X-XSS-Protection: "1; mode=block"
 
 ---
-# Traefik IngressRoute - Backend (API + Socket.io)
+# Backend IngressRoute (API)
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
@@ -323,14 +212,14 @@ spec:
       kind: Rule
       services:
         - name: core-app-backend
-          port: 4102
+          port: 14102
       middlewares:
         - name: core-app-headers
   tls:
     secretName: core-app-tls
 
 ---
-# Traefik IngressRoute - Frontend
+# Frontend IngressRoute
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
@@ -350,243 +239,3 @@ spec:
         - name: core-app-headers
   tls:
     secretName: core-app-tls
----
-# REDIS PersistentVolumeClaim
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: redis-pvc
-  namespace: core-app
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 5Gi
----
-# REDIS Deployment
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: redis
-  namespace: core-app
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: redis
-  template:
-    metadata:
-      labels:
-        app: redis
-    spec:
-      containers:
-        - name: redis
-          image: redis:7-alpine
-          ports:
-            - containerPort: 6379
-          command:
-            - "redis-server"
-            - "--appendonly"
-            - "yes"
-            - "--maxmemory"
-            - "256mb"
-            - "--maxmemory-policy"
-            - "allkeys-lru"
-          volumeMounts:
-            - name: redis-storage
-              mountPath: /data
-          resources:
-            requests:
-              memory: "256Mi"
-              cpu: "100m"
-            limits:
-              memory: "512Mi"
-              cpu: "500m"
-      volumes:
-        - name: redis-storage
-          persistentVolumeClaim:
-            claimName: redis-pvc
-
----
-# REDIS Service
-apiVersion: v1
-kind: Service
-metadata:
-  name: redis-service
-  namespace: core-app
-spec:
-  selector:
-    app: redis
-  ports:
-    - protocol: TCP
-      port: 6379
-      targetPort: 6379
----
-# POSTGRES PersistentVolumeClaim
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: postgres-pvc
-  namespace: core-app
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 5Gi
----
-# POSTGRES Deployment
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: postgres
-  namespace: core-app
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: postgres
-  template:
-    metadata:
-      labels:
-        app: postgres
-    spec:
-      containers:
-        - name: postgres
-          image: postgres:15-alpine
-          ports:
-            - containerPort: 5432
-          env:
-            - name: POSTGRES_USER
-              valueFrom:
-                configMapKeyRef:
-                  name: core-app-config
-                  key: POSTGRES_USER
-            - name: POSTGRES_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: core-app-secrets
-                  key: POSTGRES_PASSWORD
-            - name: POSTGRES_DB
-              valueFrom:
-                configMapKeyRef:
-                  name: core-app-config
-                  key: POSTGRES_DB
-            - name: PGDATA
-              value: "/var/lib/postgresql/data/pgdata"
-          volumeMounts:
-            - name: postgres-storage
-              mountPath: /var/lib/postgresql/data
-          resources:
-            requests:
-              memory: "256Mi"
-              cpu: "100m"
-            limits:
-              memory: "512Mi"
-              cpu: "500m"
-      volumes:
-        - name: postgres-storage
-          persistentVolumeClaim:
-            claimName: postgres-pvc
-
----
-# POSTGRES Service
-apiVersion: v1
-kind: Service
-metadata:
-  name: postgres-service
-  namespace: core-app
-spec:
-  selector:
-    app: postgres
-  ports:
-    - protocol: TCP
-      port: 5432
-      targetPort: 5432
----
-# MINIO PersistentVolumeClaim
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: minio-pvc
-  namespace: core-app
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 5Gi
----
-# MINIO Deployment
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: minio
-  namespace: core-app
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: minio
-  template:
-    metadata:
-      labels:
-        app: minio
-    spec:
-      containers:
-        - name: minio
-          image: minio/minio:latest
-          ports:
-            - containerPort: 9000
-          env:
-            - name: MINIO_ROOT_USER
-              valueFrom:
-                configMapKeyRef:
-                  name: core-app-config
-                  key: MINIO_ROOT_USER
-            - name: MINIO_ROOT_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: core-app-secrets
-                  key: MINIO_ROOT_PASSWORD
-          command:
-            - "minio"
-            - "server"
-            - "/data"
-            - "--console-address"
-            - ":9001"
-          volumeMounts:
-            - name: minio-storage
-              mountPath: /data
-          resources:
-            requests:
-              memory: "256Mi"
-              cpu: "100m"
-            limits:
-              memory: "512Mi"
-              cpu: "500m"
-      volumes:
-        - name: minio-storage
-          persistentVolumeClaim:
-            claimName: minio-pvc
-
----
-# MINIO Service
-apiVersion: v1
-kind: Service
-metadata:
-  name: minio-service
-  namespace: core-app
-spec:
-  selector:
-    app: minio
-  ports:
-    - protocol: TCP
-      port: 9000
-      targetPort: 9000
-      name: api
-    - protocol: TCP
-      port: 9001
-      targetPort: 9001
-      name: console
