@@ -4,7 +4,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: core-app-db-seed
+  name: core-app-db-seed-v2
   namespace: core-app
 spec:
   # Run only once, don't retry on failure (can be manually re-run if needed)
@@ -28,7 +28,7 @@ spec:
               sleep 10
               
               echo "Running database seed..."
-              npm run db:seed
+              npm run db:seed:prod
               
               EXIT_CODE=$?
               if [ $EXIT_CODE -eq 0 ]; then
