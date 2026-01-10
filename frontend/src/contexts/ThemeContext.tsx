@@ -415,16 +415,17 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
    */
   useEffect(() => {
     const handleThemeChanged = () => {
-      // STORY-102: Re-apply CSS with current colors when theme/dark mode changes
-      // This ensures inline styles are properly added/removed based on dark mode state
-      applyThemeToCss(colors);
+      // BUG-FIX: Re-fetch theme colors from the server when a new scheme is applied
+      // Previously this only re-applied the old colors state, which meant new schemes
+      // never updated the CSS variables until page refresh
+      fetchTheme();
     };
 
     window.addEventListener('theme-changed', handleThemeChanged);
     return () => {
       window.removeEventListener('theme-changed', handleThemeChanged);
     };
-  }, [colors]);
+  }, [fetchTheme]);
 
   /**
    * Apply CSS variables whenever colors change
