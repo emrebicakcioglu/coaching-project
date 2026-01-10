@@ -45,6 +45,9 @@ FROM node:20-alpine AS production
 
 WORKDIR /app
 
+# Install PostgreSQL client for pg_isready (used by K8s init container)
+RUN apk add --no-cache postgresql-client
+
 # Create non-root user for security
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S nodejs -u 1001
