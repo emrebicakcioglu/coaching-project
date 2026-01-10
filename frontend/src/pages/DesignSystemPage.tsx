@@ -804,7 +804,7 @@ export function DesignSystemPage() {
               value={newSchemeName}
               onChange={(e) => setNewSchemeName(e.target.value)}
               placeholder={t('modal.create.placeholder')}
-              className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              className="w-full px-3 py-2 bg-[var(--color-background-input)] text-[var(--color-text-primary)] border border-[var(--color-border-default)] rounded-lg focus:ring-2 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] placeholder:text-[var(--color-text-muted)]"
               autoFocus
             />
             <div className="flex justify-end gap-3 mt-6">
@@ -820,7 +820,7 @@ export function DesignSystemPage() {
               <button
                 onClick={handleCreateScheme}
                 disabled={!newSchemeName.trim() || isSaving}
-                className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50"
+                className="px-4 py-2 bg-[var(--color-primary)] text-[var(--color-text-inverse)] rounded-lg hover:bg-[var(--color-primary-hover)] transition-colors disabled:opacity-50"
               >
                 {t('buttons.create')}
               </button>
@@ -872,7 +872,7 @@ export function DesignSystemPage() {
                 type="file"
                 accept=".json"
                 onChange={handleFileSelect}
-                className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm"
+                className="w-full px-3 py-2 bg-[var(--color-background-input)] text-[var(--color-text-primary)] border border-[var(--color-border-default)] rounded-lg focus:ring-2 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] text-sm"
               />
             </div>
 
@@ -889,13 +889,13 @@ export function DesignSystemPage() {
                 }}
                 placeholder={t('modal.import.jsonPlaceholder')}
                 rows={8}
-                className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 font-mono text-sm"
+                className="w-full px-3 py-2 bg-[var(--color-background-input)] text-[var(--color-text-primary)] border border-[var(--color-border-default)] rounded-lg focus:ring-2 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] placeholder:text-[var(--color-text-muted)] font-mono text-sm"
               />
             </div>
 
             {/* Error message */}
             {importError && (
-              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+              <div className="mb-4 p-3 bg-[var(--color-status-error-light,#fef2f2)] border border-[var(--color-status-error,#ef4444)]/30 rounded-lg text-[var(--color-status-error,#ef4444)] text-sm">
                 {importError}
               </div>
             )}
@@ -917,7 +917,7 @@ export function DesignSystemPage() {
               <button
                 onClick={handleImportScheme}
                 disabled={!importData.trim() || isSaving}
-                className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50"
+                className="px-4 py-2 bg-[var(--color-primary)] text-[var(--color-text-inverse)] rounded-lg hover:bg-[var(--color-primary-hover)] transition-colors disabled:opacity-50"
               >
                 {t('buttons.import')}
               </button>
@@ -936,7 +936,7 @@ export function DesignSystemPage() {
               value={renameSchemeName}
               onChange={(e) => setRenameSchemeName(e.target.value)}
               placeholder={t('modal.rename.placeholder')}
-              className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              className="w-full px-3 py-2 bg-[var(--color-background-input)] text-[var(--color-text-primary)] border border-[var(--color-border-default)] rounded-lg focus:ring-2 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] placeholder:text-[var(--color-text-muted)]"
               autoFocus
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && renameSchemeName.trim()) {
@@ -957,7 +957,7 @@ export function DesignSystemPage() {
               <button
                 onClick={handleRenameScheme}
                 disabled={!renameSchemeName.trim() || isSaving}
-                className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50"
+                className="px-4 py-2 bg-[var(--color-primary)] text-[var(--color-text-inverse)] rounded-lg hover:bg-[var(--color-primary-hover)] transition-colors disabled:opacity-50"
               >
                 {t('buttons.save')}
               </button>
