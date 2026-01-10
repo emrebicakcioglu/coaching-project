@@ -93,7 +93,9 @@ export function DesignSystemPage() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
+  const [showRenameModal, setShowRenameModal] = useState(false);
   const [newSchemeName, setNewSchemeName] = useState('');
+  const [renameSchemeName, setRenameSchemeName] = useState('');
   const [importData, setImportData] = useState<string>('');
   const [importError, setImportError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -173,6 +175,33 @@ export function DesignSystemPage() {
       setError(err instanceof Error ? err.message : 'Failed to duplicate color scheme');
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  // Rename scheme
+  const handleRenameScheme = async () => {
+    if (!selectedScheme || !renameSchemeName.trim()) return;
+
+    setIsSaving(true);
+    try {
+      const renamed = await designService.renameScheme(selectedScheme.id, renameSchemeName.trim());
+      setSchemes(prev => prev.map(s => s.id === renamed.id ? renamed : s));
+      setSelectedScheme(renamed);
+      setShowRenameModal(false);
+      setRenameSchemeName('');
+      setSuccessMessage(t('messages.schemeRenamed'));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t('errors.renameFailed'));
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  // Open rename modal
+  const openRenameModal = () => {
+    if (selectedScheme) {
+      setRenameSchemeName(selectedScheme.name);
+      setShowRenameModal(true);
     }
   };
 
@@ -650,6 +679,13 @@ export function DesignSystemPage() {
                         >
                           {t('buttons.duplicate')}
                         </button>
+                        <button
+                          onClick={openRenameModal}
+                          disabled={isSaving}
+                          className="px-3 py-2 text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-background-surface)] rounded-lg transition-colors"
+                        >
+                          {t('buttons.rename')}
+                        </button>
                         {!selectedScheme.is_active && (
                           <button
                             onClick={handleApplyScheme}
@@ -884,6 +920,46 @@ export function DesignSystemPage() {
                 className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50"
               >
                 {t('buttons.import')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Rename Modal */}
+      {showRenameModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="rounded-xl p-6 w-full max-w-md" style={{ backgroundColor: 'var(--color-background-card)' }}>
+            <h3 className="text-lg font-semibold text-[var(--color-text-primary)] mb-4">{t('modal.rename.title')}</h3>
+            <input
+              type="text"
+              value={renameSchemeName}
+              onChange={(e) => setRenameSchemeName(e.target.value)}
+              placeholder={t('modal.rename.placeholder')}
+              className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              autoFocus
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && renameSchemeName.trim()) {
+                  handleRenameScheme();
+                }
+              }}
+            />
+            <div className="flex justify-end gap-3 mt-6">
+              <button
+                onClick={() => {
+                  setShowRenameModal(false);
+                  setRenameSchemeName('');
+                }}
+                className="px-4 py-2 text-[var(--color-text-secondary)] hover:bg-[var(--color-background-surface)] rounded-lg transition-colors"
+              >
+                {t('buttons.cancel')}
+              </button>
+              <button
+                onClick={handleRenameScheme}
+                disabled={!renameSchemeName.trim() || isSaving}
+                className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50"
+              >
+                {t('buttons.save')}
               </button>
             </div>
           </div>

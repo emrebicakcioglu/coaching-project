@@ -23,6 +23,7 @@
   },
   "buttons": {
     "duplicate": "Duplizieren",
+    "rename": "Umbenennen",
     "applyScheme": "Schema anwenden",
     "delete": "Löschen",
     "cancel": "Abbrechen",
@@ -55,6 +56,10 @@
       "selectFile": "JSON-Datei auswählen",
       "orPasteJson": "Oder JSON einfügen",
       "jsonPlaceholder": "JSON-Daten hier einfügen..."
+    },
+    "rename": {
+      "title": "Farbschema umbenennen",
+      "placeholder": "Neuer Schema-Name"
     }
   },
   "messages": {
@@ -62,6 +67,7 @@
     "schemeDuplicated": "Farbschema erfolgreich dupliziert",
     "schemeApplied": "Farbschema erfolgreich angewendet",
     "schemeDeleted": "Farbschema erfolgreich gelöscht",
+    "schemeRenamed": "Farbschema erfolgreich umbenannt",
     "lightModeSet": "Schema als Hellmodus festgelegt",
     "lightModeCleared": "Hellmodus zurückgesetzt",
     "darkModeSet": "Schema als Dunkelmodus festgelegt",
@@ -81,6 +87,7 @@
     "duplicateFailed": "Farbschema konnte nicht dupliziert werden",
     "applyFailed": "Farbschema konnte nicht angewendet werden",
     "deleteFailed": "Farbschema konnte nicht gelöscht werden",
+    "renameFailed": "Farbschema konnte nicht umbenannt werden",
     "updateColor": "Farbe konnte nicht aktualisiert werden",
     "updateLightMode": "Hellmodus konnte nicht aktualisiert werden",
     "updateDarkMode": "Dunkelmodus konnte nicht aktualisiert werden"

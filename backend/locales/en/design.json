@@ -23,6 +23,7 @@
   },
   "buttons": {
     "duplicate": "Duplicate",
+    "rename": "Rename",
     "applyScheme": "Apply Scheme",
     "delete": "Delete",
     "cancel": "Cancel",
@@ -55,6 +56,10 @@
       "selectFile": "Select JSON file",
       "orPasteJson": "Or paste JSON",
       "jsonPlaceholder": "Paste JSON data here..."
+    },
+    "rename": {
+      "title": "Rename Color Scheme",
+      "placeholder": "New scheme name"
     }
   },
   "messages": {
@@ -62,6 +67,7 @@
     "schemeDuplicated": "Color scheme duplicated successfully",
     "schemeApplied": "Color scheme applied successfully",
     "schemeDeleted": "Color scheme deleted successfully",
+    "schemeRenamed": "Color scheme renamed successfully",
     "lightModeSet": "Scheme set as Light Mode",
     "lightModeCleared": "Light Mode cleared",
     "darkModeSet": "Scheme set as Dark Mode",
@@ -81,6 +87,7 @@
     "duplicateFailed": "Failed to duplicate color scheme",
     "applyFailed": "Failed to apply color scheme",
     "deleteFailed": "Failed to delete color scheme",
+    "renameFailed": "Failed to rename color scheme",
     "updateColor": "Failed to update color",
     "updateLightMode": "Failed to update light mode",
     "updateDarkMode": "Failed to update dark mode"

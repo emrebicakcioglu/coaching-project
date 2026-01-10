@@ -415,6 +415,14 @@ export const designService = {
   },
 
   /**
+   * Rename a color scheme
+   */
+  async renameScheme(id: number, newName: string): Promise<ColorScheme> {
+    const response = await designApi.put<ColorScheme>(`/design/schemes/${id}`, { name: newName });
+    return response.data;
+  },
+
+  /**
    * Validate hex color
    */
   /**
