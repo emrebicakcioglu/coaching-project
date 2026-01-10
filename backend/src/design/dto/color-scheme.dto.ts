@@ -457,3 +457,66 @@ export class ActiveColorSchemeResponseDto {
     alerts: ColorSchemeAlerts;
   };
 }
+
+/**
+ * Export format for color schemes
+ * Contains all design tokens without system fields
+ */
+export interface ColorSchemeExportDto {
+  name: string;
+  description?: string;
+  colors: ColorSchemeColors;
+  buttons: ColorSchemeButtons;
+  typography: ColorSchemeTypography;
+  inputs: ColorSchemeInputs;
+  cards: ColorSchemeCards;
+  badges: ColorSchemeBadges;
+  alerts: ColorSchemeAlerts;
+  exportedAt: string;
+  version: string;
+}
+
+/**
+ * Import color scheme DTO
+ */
+export class ImportColorSchemeDto {
+  @ApiProperty({ description: 'Name of the color scheme', example: 'My Custom Theme' })
+  @IsString()
+  @MinLength(1)
+  @MaxLength(100)
+  name: string;
+
+  @ApiPropertyOptional({ description: 'Description of the color scheme' })
+  @IsString()
+  @IsOptional()
+  @MaxLength(500)
+  description?: string;
+
+  @ApiProperty({ description: 'Color definitions' })
+  @IsObject()
+  colors: ColorSchemeColors;
+
+  @ApiProperty({ description: 'Button style definitions' })
+  @IsObject()
+  buttons: ColorSchemeButtons;
+
+  @ApiProperty({ description: 'Typography definitions' })
+  @IsObject()
+  typography: ColorSchemeTypography;
+
+  @ApiProperty({ description: 'Input field style definitions' })
+  @IsObject()
+  inputs: ColorSchemeInputs;
+
+  @ApiProperty({ description: 'Card/panel style definitions' })
+  @IsObject()
+  cards: ColorSchemeCards;
+
+  @ApiProperty({ description: 'Badge style definitions' })
+  @IsObject()
+  badges: ColorSchemeBadges;
+
+  @ApiProperty({ description: 'Alert style definitions' })
+  @IsObject()
+  alerts: ColorSchemeAlerts;
+}

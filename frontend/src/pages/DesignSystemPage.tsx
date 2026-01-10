@@ -24,7 +24,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { designService, ColorScheme, UpdateColorSchemeDto } from '../services/designService';
+import { designService, ColorScheme, UpdateColorSchemeDto, ImportColorSchemeDto } from '../services/designService';
 import { useAuth } from '../contexts/AuthContext';
 import {
   TabType,
@@ -56,7 +56,11 @@ export function DesignSystemPage() {
   // Modal states
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
   const [newSchemeName, setNewSchemeName] = useState('');
+  const [importData, setImportData] = useState<string>('');
+  const [importError, setImportError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Refs for debounced color changes
   const pendingChangesRef = useRef<UpdateColorSchemeDto>({});
@@ -311,6 +315,95 @@ export function DesignSystemPage() {
     }
   };
 
+  // Export scheme
+  const handleExportScheme = async () => {
+    if (!selectedScheme) return;
+
+    try {
+      const exportData = await designService.exportScheme(selectedScheme.id);
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${exportData.name.replace(/[^a-z0-9]/gi, '-').toLowerCase()}-theme.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      setSuccessMessage(t('messages.exportSuccess'));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t('messages.exportError'));
+    }
+  };
+
+  // Handle file selection for import
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const content = event.target?.result as string;
+      setImportData(content);
+      setImportError(null);
+    };
+    reader.onerror = () => {
+      setImportError(t('messages.fileReadError'));
+    };
+    reader.readAsText(file);
+  };
+
+  // Import scheme
+  const handleImportScheme = async () => {
+    if (!importData.trim()) {
+      setImportError(t('messages.noDataToImport'));
+      return;
+    }
+
+    try {
+      const parsed = JSON.parse(importData);
+
+      // Validate required fields
+      if (!parsed.name || !parsed.colors || !parsed.buttons || !parsed.typography ||
+          !parsed.inputs || !parsed.cards || !parsed.badges || !parsed.alerts) {
+        setImportError(t('messages.invalidSchemeFormat'));
+        return;
+      }
+
+      const importDto: ImportColorSchemeDto = {
+        name: parsed.name,
+        description: parsed.description,
+        colors: parsed.colors,
+        buttons: parsed.buttons,
+        typography: parsed.typography,
+        inputs: parsed.inputs,
+        cards: parsed.cards,
+        badges: parsed.badges,
+        alerts: parsed.alerts,
+      };
+
+      setIsSaving(true);
+      const newScheme = await designService.importScheme(importDto);
+      setSchemes(prev => [...prev, newScheme]);
+      setSelectedScheme(newScheme);
+      setShowImportModal(false);
+      setImportData('');
+      setImportError(null);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+      setSuccessMessage(t('messages.importSuccess'));
+    } catch (err) {
+      if (err instanceof SyntaxError) {
+        setImportError(t('messages.invalidJson'));
+      } else {
+        setImportError(err instanceof Error ? err.message : t('messages.importError'));
+      }
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   // Render tabs
   const tabs: TabDefinition[] = [
     { id: 'base', label: t('tabs.base') },
@@ -382,15 +475,26 @@ export function DesignSystemPage() {
               <div className="flex items-center justify-between mb-4">
                 <h2 className="font-semibold text-[var(--color-text-primary)]">{t('sidebar.title')}</h2>
                 {canManage && (
-                  <button
-                    onClick={() => setShowCreateModal(true)}
-                    className="p-1.5 text-[var(--color-text-tertiary)] hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
-                    title={t('sidebar.createNew')}
-                  >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                    </svg>
-                  </button>
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => setShowImportModal(true)}
+                      className="p-1.5 text-[var(--color-text-tertiary)] hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
+                      title={t('buttons.import')}
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                      </svg>
+                    </button>
+                    <button
+                      onClick={() => setShowCreateModal(true)}
+                      className="p-1.5 text-[var(--color-text-tertiary)] hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
+                      title={t('sidebar.createNew')}
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                      </svg>
+                    </button>
+                  </div>
                 )}
               </div>
 
@@ -487,6 +591,17 @@ export function DesignSystemPage() {
                     </div>
                     {canManage && (
                       <div className="flex items-center gap-2">
+                        <button
+                          onClick={handleExportScheme}
+                          disabled={isSaving}
+                          className="px-3 py-2 text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-background-surface)] rounded-lg transition-colors flex items-center gap-1"
+                          title={t('buttons.export')}
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                          </svg>
+                          {t('buttons.export')}
+                        </button>
                         <button
                           onClick={handleDuplicateScheme}
                           disabled={isSaving}
@@ -658,6 +773,76 @@ export function DesignSystemPage() {
                 className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50"
               >
                 {t('buttons.delete')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Import Modal */}
+      {showImportModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="rounded-xl p-6 w-full max-w-lg" style={{ backgroundColor: 'var(--color-background-card)' }}>
+            <h3 className="text-lg font-semibold text-[var(--color-text-primary)] mb-4">{t('modal.import.title')}</h3>
+
+            {/* File Upload */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-[var(--color-text-secondary)] mb-2">
+                {t('modal.import.selectFile')}
+              </label>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".json"
+                onChange={handleFileSelect}
+                className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm"
+              />
+            </div>
+
+            {/* Or paste JSON */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-[var(--color-text-secondary)] mb-2">
+                {t('modal.import.orPasteJson')}
+              </label>
+              <textarea
+                value={importData}
+                onChange={(e) => {
+                  setImportData(e.target.value);
+                  setImportError(null);
+                }}
+                placeholder={t('modal.import.jsonPlaceholder')}
+                rows={8}
+                className="w-full px-3 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 font-mono text-sm"
+              />
+            </div>
+
+            {/* Error message */}
+            {importError && (
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                {importError}
+              </div>
+            )}
+
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => {
+                  setShowImportModal(false);
+                  setImportData('');
+                  setImportError(null);
+                  if (fileInputRef.current) {
+                    fileInputRef.current.value = '';
+                  }
+                }}
+                className="px-4 py-2 text-[var(--color-text-secondary)] hover:bg-[var(--color-background-surface)] rounded-lg transition-colors"
+              >
+                {t('buttons.cancel')}
+              </button>
+              <button
+                onClick={handleImportScheme}
+                disabled={!importData.trim() || isSaving}
+                className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50"
+              >
+                {t('buttons.import')}
               </button>
             </div>
           </div>

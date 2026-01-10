@@ -44,6 +44,8 @@ import {
   UpdateColorSchemeDto,
   ColorSchemeResponseDto,
   ActiveColorSchemeResponseDto,
+  ColorSchemeExportDto,
+  ImportColorSchemeDto,
 } from './dto/color-scheme.dto';
 import { Request } from 'express';
 
@@ -610,6 +612,84 @@ export class DesignService {
     if (result.rows.length === 0) {
       throw new NotFoundException(`Color scheme with ID ${id} not found`);
     }
+
+    return ColorSchemeResponseDto.fromEntity(result.rows[0]);
+  }
+
+  /**
+   * Export a color scheme to JSON format
+   */
+  async exportScheme(id: number): Promise<ColorSchemeExportDto> {
+    const pool = this.databaseService.ensurePool();
+
+    const result = await pool.query(
+      'SELECT * FROM color_schemes WHERE id = $1',
+      [id],
+    );
+
+    if (result.rows.length === 0) {
+      throw new NotFoundException(`Color scheme with ID ${id} not found`);
+    }
+
+    const scheme = result.rows[0];
+
+    return {
+      name: scheme.name,
+      description: scheme.description,
+      colors: scheme.colors,
+      buttons: scheme.buttons,
+      typography: scheme.typography,
+      inputs: scheme.inputs,
+      cards: scheme.cards,
+      badges: scheme.badges,
+      alerts: scheme.alerts,
+      exportedAt: new Date().toISOString(),
+      version: '1.0',
+    };
+  }
+
+  /**
+   * Import a color scheme from JSON format
+   */
+  async importScheme(
+    importDto: ImportColorSchemeDto,
+    userId: number | undefined,
+    request: AuthRequest,
+  ): Promise<ColorSchemeResponseDto> {
+    const pool = this.databaseService.ensurePool();
+
+    const result = await pool.query(
+      `INSERT INTO color_schemes (name, description, created_by, colors, buttons, typography, inputs, cards, badges, alerts)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+       RETURNING *`,
+      [
+        importDto.name,
+        importDto.description || null,
+        userId || null,
+        JSON.stringify(importDto.colors),
+        JSON.stringify(importDto.buttons),
+        JSON.stringify(importDto.typography),
+        JSON.stringify(importDto.inputs),
+        JSON.stringify(importDto.cards),
+        JSON.stringify(importDto.badges),
+        JSON.stringify(importDto.alerts),
+      ],
+    );
+
+    // Log audit event
+    await this.auditService.log({
+      action: 'design.scheme.import',
+      resource: 'color_scheme',
+      resourceId: result.rows[0].id,
+      userId: userId,
+      details: { name: importDto.name },
+      request,
+    });
+
+    this.logger.log(
+      `Color scheme imported: ${importDto.name} (ID: ${result.rows[0].id})`,
+      'DesignService',
+    );
 
     return ColorSchemeResponseDto.fromEntity(result.rows[0]);
   }

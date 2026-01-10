@@ -27,7 +27,9 @@
     "delete": "Delete",
     "cancel": "Cancel",
     "create": "Create",
-    "save": "Save"
+    "save": "Save",
+    "export": "Export",
+    "import": "Import"
   },
   "labels": {
     "useAsLight": "Use as Light Mode",
@@ -47,6 +49,12 @@
     "delete": {
       "title": "Delete Color Scheme",
       "confirm": "Are you sure you want to delete \"{{name}}\"? This action cannot be undone."
+    },
+    "import": {
+      "title": "Import Color Scheme",
+      "selectFile": "Select JSON file",
+      "orPasteJson": "Or paste JSON",
+      "jsonPlaceholder": "Paste JSON data here..."
     }
   },
   "messages": {
@@ -57,7 +65,15 @@
     "lightModeSet": "Scheme set as Light Mode",
     "lightModeCleared": "Light Mode cleared",
     "darkModeSet": "Scheme set as Dark Mode",
-    "darkModeCleared": "Dark Mode cleared"
+    "darkModeCleared": "Dark Mode cleared",
+    "exportSuccess": "Color scheme exported successfully",
+    "importSuccess": "Color scheme imported successfully",
+    "exportError": "Failed to export color scheme",
+    "importError": "Failed to import color scheme",
+    "invalidJson": "Invalid JSON format",
+    "invalidSchemeFormat": "Invalid color scheme format. Required fields are missing.",
+    "noDataToImport": "No data to import",
+    "fileReadError": "Failed to read file"
   },
   "errors": {
     "loadFailed": "Failed to load color schemes",
@@ -74,7 +90,8 @@
     "copy": "(Copy)"
   },
   "schemeDescriptions": {
-    "default": "Standard color scheme with blue primary colors"
+    "default": "Standard color scheme with blue primary colors",
+    "darkMode": "Dark color scheme for reduced eye strain"
   },
   "sections": {
     "colorPalette": "Color Palette",

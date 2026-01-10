@@ -45,6 +45,8 @@ import {
   UpdateColorSchemeDto,
   ColorSchemeResponseDto,
   ActiveColorSchemeResponseDto,
+  ColorSchemeExportDto,
+  ImportColorSchemeDto,
 } from './dto/color-scheme.dto';
 import { Request } from 'express';
 
@@ -346,5 +348,47 @@ export class DesignController {
   ): Promise<ColorSchemeResponseDto> {
     const userId = request.user?.id;
     return this.designService.clearDarkScheme(id, userId, request);
+  }
+
+  /**
+   * Export a color scheme to JSON
+   */
+  @Get('schemes/:id/export')
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequirePermission('design.read')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Export a color scheme to JSON' })
+  @ApiParam({ name: 'id', description: 'Color scheme ID to export' })
+  @ApiResponse({
+    status: 200,
+    description: 'Color scheme exported successfully',
+  })
+  @ApiResponse({ status: 404, description: 'Color scheme not found' })
+  async exportScheme(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<ColorSchemeExportDto> {
+    return this.designService.exportScheme(id);
+  }
+
+  /**
+   * Import a color scheme from JSON
+   */
+  @Post('schemes/import')
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequirePermission('design.manage')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Import a color scheme from JSON' })
+  @ApiBody({ type: ImportColorSchemeDto })
+  @ApiResponse({
+    status: 201,
+    description: 'Color scheme imported successfully',
+    type: ColorSchemeResponseDto,
+  })
+  async importScheme(
+    @Body() importDto: ImportColorSchemeDto,
+    @Req() request: AuthRequest,
+  ): Promise<ColorSchemeResponseDto> {
+    const userId = request.user?.id;
+    return this.designService.importScheme(importDto, userId, request);
   }
 }

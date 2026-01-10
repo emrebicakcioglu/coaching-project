@@ -458,11 +458,59 @@ export const designService = {
   },
 
   /**
+   * Export a color scheme to JSON
+   */
+  async exportScheme(id: number): Promise<ColorSchemeExportDto> {
+    const response = await designApi.get<ColorSchemeExportDto>(`/design/schemes/${id}/export`);
+    return response.data;
+  },
+
+  /**
+   * Import a color scheme from JSON
+   */
+  async importScheme(data: ImportColorSchemeDto): Promise<ColorScheme> {
+    const response = await designApi.post<ColorScheme>('/design/schemes/import', data);
+    return response.data;
+  },
+
+  /**
    * Validate hex color
    */
   isValidHexColor(color: string): boolean {
     return /^#[0-9A-Fa-f]{6}$/.test(color);
   },
 };
+
+/**
+ * Export format for color schemes
+ */
+export interface ColorSchemeExportDto {
+  name: string;
+  description?: string;
+  colors: ColorSchemeColors;
+  buttons: ColorSchemeButtons;
+  typography: ColorSchemeTypography;
+  inputs: ColorSchemeInputs;
+  cards: ColorSchemeCards;
+  badges: ColorSchemeBadges;
+  alerts: ColorSchemeAlerts;
+  exportedAt: string;
+  version: string;
+}
+
+/**
+ * Import color scheme DTO
+ */
+export interface ImportColorSchemeDto {
+  name: string;
+  description?: string;
+  colors: ColorSchemeColors;
+  buttons: ColorSchemeButtons;
+  typography: ColorSchemeTypography;
+  inputs: ColorSchemeInputs;
+  cards: ColorSchemeCards;
+  badges: ColorSchemeBadges;
+  alerts: ColorSchemeAlerts;
+}
 
 export default designService;

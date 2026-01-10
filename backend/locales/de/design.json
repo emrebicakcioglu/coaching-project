@@ -27,7 +27,9 @@
     "delete": "Löschen",
     "cancel": "Abbrechen",
     "create": "Erstellen",
-    "save": "Speichern"
+    "save": "Speichern",
+    "export": "Exportieren",
+    "import": "Importieren"
   },
   "labels": {
     "useAsLight": "Als Hellmodus verwenden",
@@ -47,6 +49,12 @@
     "delete": {
       "title": "Farbschema löschen",
       "confirm": "Sind Sie sicher, dass Sie \"{{name}}\" löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden."
+    },
+    "import": {
+      "title": "Farbschema importieren",
+      "selectFile": "JSON-Datei auswählen",
+      "orPasteJson": "Oder JSON einfügen",
+      "jsonPlaceholder": "JSON-Daten hier einfügen..."
     }
   },
   "messages": {
@@ -57,7 +65,15 @@
     "lightModeSet": "Schema als Hellmodus festgelegt",
     "lightModeCleared": "Hellmodus zurückgesetzt",
     "darkModeSet": "Schema als Dunkelmodus festgelegt",
-    "darkModeCleared": "Dunkelmodus zurückgesetzt"
+    "darkModeCleared": "Dunkelmodus zurückgesetzt",
+    "exportSuccess": "Farbschema erfolgreich exportiert",
+    "importSuccess": "Farbschema erfolgreich importiert",
+    "exportError": "Fehler beim Exportieren des Farbschemas",
+    "importError": "Fehler beim Importieren des Farbschemas",
+    "invalidJson": "Ungültiges JSON-Format",
+    "invalidSchemeFormat": "Ungültiges Farbschema-Format. Erforderliche Felder fehlen.",
+    "noDataToImport": "Keine Daten zum Importieren vorhanden",
+    "fileReadError": "Fehler beim Lesen der Datei"
   },
   "errors": {
     "loadFailed": "Farbschemata konnten nicht geladen werden",
@@ -74,7 +90,8 @@
     "copy": "(Kopie)"
   },
   "schemeDescriptions": {
-    "default": "Standard-Farbschema mit blauen Primärfarben"
+    "default": "Standard-Farbschema mit blauen Primärfarben",
+    "darkMode": "Dunkles Farbschema für reduzierte Augenbelastung"
   },
   "sections": {
     "colorPalette": "Farbpalette",
