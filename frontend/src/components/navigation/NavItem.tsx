@@ -85,9 +85,9 @@ export const NavItem: React.FC<NavItemProps> = ({
     group
   `;
 
-  // State-based classes - using CSS variables for dark mode support
+  // State-based classes - using CSS variables for dynamic theming
   const stateClasses = isActive
-    ? 'bg-primary-50 text-primary-700'
+    ? 'bg-[var(--color-primary-light,#dbeafe)] text-[var(--color-primary,#3b82f6)]'
     : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-background-surface)]';
 
   // Disabled classes
@@ -116,7 +116,7 @@ export const NavItem: React.FC<NavItemProps> = ({
       <span
         className={`
           flex-shrink-0 w-5 h-5
-          ${isActive ? 'text-primary-600' : 'text-[var(--color-text-tertiary)] group-hover:text-[var(--color-text-secondary)]'}
+          ${isActive ? 'text-[var(--color-primary,#3b82f6)]' : 'text-[var(--color-text-tertiary)] group-hover:text-[var(--color-text-secondary)]'}
           ${isCollapsed ? '' : 'mr-3'}
         `}
         aria-hidden="true"
@@ -136,7 +136,7 @@ export const NavItem: React.FC<NavItemProps> = ({
                 ml-2
                 px-2 py-0.5
                 text-xs font-medium
-                bg-primary-100 text-primary-700
+                bg-[var(--color-primary-light,#dbeafe)] text-[var(--color-primary,#3b82f6)]
                 rounded-full
               "
               aria-label={`${item.badge} notifications`}

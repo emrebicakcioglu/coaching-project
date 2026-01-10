@@ -39,6 +39,42 @@ import {
   AlertsTab,
 } from '../components/design';
 
+// Helper to apply a color change directly to CSS variables for live preview
+function applyCssVariable(path: string, value: string): void {
+  const root = document.documentElement;
+
+  // Map design system paths to CSS variable names
+  const pathToCssVar: Record<string, string> = {
+    'colors.primary': '--color-primary',
+    'colors.primaryHover': '--color-primary-hover',
+    'colors.primaryLight': '--color-primary-light',
+    'colors.secondary': '--color-secondary',
+    'colors.accent': '--color-accent',
+    'colors.background.page': '--color-background-page',
+    'colors.background.card': '--color-background-card',
+    'colors.background.sidebar': '--color-background-sidebar',
+    'colors.background.modal': '--color-background-modal',
+    'colors.background.input': '--color-background-input',
+    'colors.text.primary': '--color-text-primary',
+    'colors.text.secondary': '--color-text-secondary',
+    'colors.text.muted': '--color-text-muted',
+    'colors.text.inverse': '--color-text-inverse',
+    'colors.text.link': '--color-text-link',
+    'colors.status.success': '--color-success',
+    'colors.status.warning': '--color-warning',
+    'colors.status.error': '--color-error',
+    'colors.status.info': '--color-info',
+    'colors.border.light': '--color-border-light',
+    'colors.border.default': '--color-border-default',
+    'colors.border.dark': '--color-border-dark',
+  };
+
+  const cssVar = pathToCssVar[path];
+  if (cssVar) {
+    root.style.setProperty(cssVar, value);
+  }
+}
+
 export function DesignSystemPage() {
   const { t } = useTranslation('design');
   const { hasPermission } = useAuth();
@@ -252,6 +288,11 @@ export function DesignSystemPage() {
       if (s.id !== selectedScheme.id) return s;
       return deepMerge(s, updateData);
     }));
+
+    // Apply CSS variable immediately for live preview if editing the active scheme
+    if (selectedScheme.is_active) {
+      applyCssVariable(path, value);
+    }
 
     // Debounce API call - wait 500ms after last change
     if (saveTimeoutRef.current) {
@@ -642,7 +683,7 @@ export function DesignSystemPage() {
                           onClick={() => setActiveTab(tab.id)}
                           className={`px-4 py-3 font-medium text-sm whitespace-nowrap transition-colors ${
                             activeTab === tab.id
-                              ? 'text-primary-600 border-b-2 border-primary-600 bg-primary-50/50'
+                              ? 'text-[var(--color-primary,#3b82f6)] border-b-2 border-[var(--color-primary,#3b82f6)] bg-[var(--color-primary-light,#dbeafe)]/50'
                               : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-background-surface)]'
                           }`}
                         >
