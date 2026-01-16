@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DTC Köln - Sticky Header Vorschlag</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+
+        /* ========================================
+           QUICK-INFO-BAR (ganz oben)
+           ======================================== */
+        .top-bar {
+            background: linear-gradient(90deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: white;
+            padding: 10px 20px;
+            font-size: 14px;
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+        .top-bar-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .top-bar a {
+            color: white;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        .top-bar a:hover {
+            color: #E66432;
+        }
+        .top-bar-icon {
+            font-size: 16px;
+        }
+
+        /* ========================================
+           STICKY NAVIGATION
+           ======================================== */
+        .navbar {
+            background-color: white;
+            padding: 15px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            transition: all 0.3s ease;
+        }
+
+        /* Navbar wird kompakter beim Scrollen */
+        .navbar.scrolled {
+            padding: 10px 40px;
+            background-color: rgba(255,255,255,0.98);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .logo-icon {
+            width: 45px;
+            height: 45px;
+            background-color: #E66432;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+        }
+        .logo-text {
+            font-size: 22px;
+            font-weight: bold;
+            color: #333;
+        }
+        .logo-text span {
+            color: #E66432;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 25px;
+            align-items: center;
+        }
+        .nav-links a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.3s;
+            position: relative;
+        }
+        .nav-links a:hover {
+            color: #E66432;
+        }
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: #E66432;
+            transition: width 0.3s;
+        }
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .nav-cta {
+            background-color: #E66432;
+            color: white !important;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: 600;
+        }
+        .nav-cta:hover {
+            background-color: #cf5a2d;
+        }
+        .nav-cta::after {
+            display: none !important;
+        }
+
+        /* ========================================
+           FLOATING CONTACT BUTTON
+           ======================================== */
+        .floating-contact {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .float-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            text-decoration: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+        }
+        .float-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .float-phone {
+            background-color: #E66432;
+        }
+        .float-whatsapp {
+            background-color: #25D366;
+        }
+
+        /* Tooltip beim Hover */
+        .float-btn::before {
+            content: attr(data-tooltip);
+            position: absolute;
+            right: 75px;
+            background-color: #333;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 5px;
+            font-size: 14px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+        .float-btn:hover::before {
+            opacity: 1;
+        }
+
+        /* ========================================
+           DEMO CONTENT (zum Scrollen)
+           ======================================== */
+        .hero {
+            height: 70vh;
+            background: linear-gradient(135deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.3) 100%),
+                        url('https://images.unsplash.com/photo-1554068865-24cecd4e34b8?w=1600') center/cover;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+        }
+        .hero h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        .hero p {
+            font-size: 20px;
+            opacity: 0.9;
+        }
+
+        .content-section {
+            padding: 80px 40px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .content-section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 32px;
+        }
+        .content-section p {
+            color: #666;
+            line-height: 1.8;
+            margin-bottom: 20px;
+            font-size: 17px;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+        .feature-card {
+            background: #f8f8f8;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .feature-icon {
+            font-size: 40px;
+            margin-bottom: 15px;
+        }
+        .feature-card h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .feature-card p {
+            color: #666;
+            font-size: 15px;
+            margin: 0;
+        }
+
+        /* Info-Box zur Erklärung */
+        .info-box {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            border-left: 4px solid #66bb6a;
+            padding: 25px;
+            margin: 40px 0;
+            border-radius: 0 10px 10px 0;
+        }
+        .info-box h3 {
+            color: #2e7d32;
+            margin-bottom: 15px;
+        }
+        .info-box ul {
+            margin-left: 20px;
+            color: #333;
+        }
+        .info-box li {
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+
+        /* Mobile Menu Button */
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: #333;
+        }
+
+        /* ========================================
+           RESPONSIVE
+           ======================================== */
+        @media (max-width: 768px) {
+            .top-bar {
+                gap: 15px;
+                font-size: 12px;
+            }
+            .nav-links {
+                display: none;
+            }
+            .menu-toggle {
+                display: block;
+            }
+            .hero h1 {
+                font-size: 32px;
+            }
+            .floating-contact {
+                bottom: 15px;
+                right: 15px;
+            }
+            .float-btn {
+                width: 50px;
+                height: 50px;
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- QUICK-INFO-BAR -->
+    <div class="top-bar">
+        <div class="top-bar-item">
+            <span class="top-bar-icon">📍</span>
+            <span>Decksteiner Str. 1, 50935 Köln</span>
+        </div>
+        <div class="top-bar-item">
+            <span class="top-bar-icon">📞</span>
+            <a href="tel:+492214859595">0221 485 95 95</a>
+        </div>
+        <div class="top-bar-item">
+            <span class="top-bar-icon">🕐</span>
+            <span>Mo-Di ab 15 Uhr | Mi-So ab 12 Uhr</span>
+        </div>
+        <div class="top-bar-item">
+            <span class="top-bar-icon">✉️</span>
+            <a href="mailto:info@dtc-koeln.de">info@dtc-koeln.de</a>
+        </div>
+    </div>
+
+    <!-- STICKY NAVIGATION -->
+    <nav class="navbar" id="navbar">
+        <div class="logo">
+            <div class="logo-icon">🎾</div>
+            <div class="logo-text">DTC <span>Köln</span></div>
+        </div>
+        <div class="nav-links">
+            <a href="#">Der Club</a>
+            <a href="#">Deckstein's</a>
+            <a href="#">Team</a>
+            <a href="#">Mannschaften</a>
+            <a href="#">Fitness</a>
+            <a href="#">Kontakt</a>
+            <a href="#" class="nav-cta">Mitglied werden</a>
+        </div>
+        <button class="menu-toggle">☰</button>
+    </nav>
+
+    <!-- FLOATING CONTACT BUTTONS -->
+    <div class="floating-contact">
+        <a href="https://wa.me/492214859595" class="float-btn float-whatsapp" data-tooltip="WhatsApp schreiben">💬</a>
+        <a href="tel:+492214859595" class="float-btn float-phone" data-tooltip="Jetzt anrufen">📞</a>
+    </div>
+
+    <!-- DEMO CONTENT -->
+    <section class="hero">
+        <div>
+            <h1>Scrolle nach unten!</h1>
+            <p>Beobachte wie der Header oben "klebt"</p>
+        </div>
+    </section>
+
+    <section class="content-section">
+        <h2>Was macht diese Vorlage besonders?</h2>
+
+        <div class="info-box">
+            <h3>✅ Neue Elemente</h3>
+            <ul>
+                <li><strong>Quick-Info-Bar:</strong> Alle wichtigen Infos auf einen Blick (Adresse, Telefon, Öffnungszeiten, E-Mail)</li>
+                <li><strong>Sticky Navigation:</strong> Bleibt beim Scrollen oben - Nutzer können jederzeit navigieren</li>
+                <li><strong>Floating Buttons:</strong> WhatsApp und Telefon immer erreichbar, egal wo man auf der Seite ist</li>
+                <li><strong>Hover-Effekte:</strong> Unterstreichung bei Navigation, Tooltips bei Floating-Buttons</li>
+                <li><strong>CTA im Header:</strong> "Mitglied werden" Button direkt in der Navigation</li>
+            </ul>
+        </div>
+
+        <p>Diese Elemente sorgen dafür, dass Besucher jederzeit die wichtigsten Informationen sehen und mit einem Klick Kontakt aufnehmen können - ohne erst suchen zu müssen.</p>
+
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="feature-icon">📱</div>
+                <h3>Mobile-Optimiert</h3>
+                <p>Floating-Buttons sind perfekt für Smartphone-Nutzer</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">⚡</div>
+                <h3>Schneller Kontakt</h3>
+                <p>Ein Tap zum Anrufen oder WhatsApp</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">👁️</div>
+                <h3>Immer Sichtbar</h3>
+                <p>Header und Buttons bleiben immer im Blick</p>
+            </div>
+        </div>
+
+        <h2 style="margin-top: 60px;">Noch mehr Inhalt zum Scrollen...</h2>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+        <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+        <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.</p>
+    </section>
+
+    <!-- JavaScript für Scroll-Effekt -->
+    <script>
+        // Navbar wird kompakter beim Scrollen
+        window.addEventListener('scroll', function() {
+            const navbar = document.getElementById('navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+    </script>
+
+</body>
+</html>

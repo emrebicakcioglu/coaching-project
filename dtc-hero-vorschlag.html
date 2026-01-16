@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DTC Köln - Hero-Section Vorschlag</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+
+        /* Quick-Info-Bar oben */
+        .top-bar {
+            background-color: #1a1a1a;
+            color: white;
+            padding: 8px 20px;
+            font-size: 14px;
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+        .top-bar a {
+            color: white;
+            text-decoration: none;
+        }
+        .top-bar span {
+            opacity: 0.7;
+        }
+
+        /* Navigation */
+        .navbar {
+            background-color: white;
+            padding: 15px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #E66432;
+        }
+        .nav-links {
+            display: flex;
+            gap: 25px;
+        }
+        .nav-links a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        .nav-links a:hover {
+            color: #E66432;
+        }
+
+        /* HERO SECTION - VERBESSERT */
+        .hero {
+            height: 85vh;
+            min-height: 500px;
+            background: linear-gradient(135deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.3) 100%),
+                        url('https://images.unsplash.com/photo-1554068865-24cecd4e34b8?w=1600') center/cover;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+            padding: 20px;
+        }
+
+        .hero-content {
+            max-width: 800px;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            background-color: #E66432;
+            padding: 8px 20px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+        }
+
+        .hero h1 {
+            font-size: 56px;
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.3);
+        }
+
+        .hero p {
+            font-size: 20px;
+            opacity: 0.95;
+            margin-bottom: 35px;
+            line-height: 1.6;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary {
+            background-color: #E66432;
+            color: white;
+            padding: 16px 35px;
+            border: none;
+            border-radius: 5px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+        .btn-primary:hover {
+            background-color: #cf5a2d;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(230,100,50,0.4);
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            color: white;
+            padding: 16px 35px;
+            border: 2px solid white;
+            border-radius: 5px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+        .btn-secondary:hover {
+            background-color: white;
+            color: #333;
+        }
+
+        /* Trust-Elemente */
+        .hero-trust {
+            margin-top: 40px;
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        .trust-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Info-Section unter Hero */
+        .quick-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            background-color: #f8f8f8;
+        }
+        .info-card {
+            padding: 30px;
+            text-align: center;
+            border-right: 1px solid #eee;
+        }
+        .info-card:last-child {
+            border-right: none;
+        }
+        .info-card h3 {
+            color: #E66432;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+        .info-card p {
+            color: #666;
+            font-size: 15px;
+        }
+
+        /* Vergleichs-Box */
+        .comparison {
+            max-width: 1000px;
+            margin: 50px auto;
+            padding: 0 20px;
+        }
+        .comparison h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+        }
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+        .comparison-box {
+            padding: 25px;
+            border-radius: 10px;
+        }
+        .comparison-box.old {
+            background-color: #ffebee;
+            border: 2px solid #ef5350;
+        }
+        .comparison-box.new {
+            background-color: #e8f5e9;
+            border: 2px solid #66bb6a;
+        }
+        .comparison-box h3 {
+            margin-bottom: 15px;
+        }
+        .comparison-box ul {
+            margin-left: 20px;
+        }
+        .comparison-box li {
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 36px;
+            }
+            .hero p {
+                font-size: 16px;
+            }
+            .nav-links {
+                display: none;
+            }
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top-Bar mit wichtigen Infos -->
+    <div class="top-bar">
+        <span>📍 Köln-Lindenthal</span>
+        <a href="tel:+492214859595">📞 0221 485 95 95</a>
+        <span>🕐 Mo-Di ab 15 Uhr | Mi-So ab 12 Uhr</span>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="logo">DTC Köln</div>
+        <div class="nav-links">
+            <a href="#">Der Club</a>
+            <a href="#">Deckstein's</a>
+            <a href="#">Team</a>
+            <a href="#">Mannschaften</a>
+            <a href="#">Fitness</a>
+            <a href="#">Kontakt</a>
+        </div>
+    </nav>
+
+    <!-- VERBESSERTE HERO-SECTION -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="hero-badge">Tennisclub seit 1971</div>
+            <h1>Tennis spielen in Köln-Lindenthal</h1>
+            <p>6 Sandplätze, professionelles Training und ein aktives Vereinsleben. Werden Sie Teil unserer Tennis-Familie im Grünen.</p>
+
+            <div class="hero-buttons">
+                <a href="#" class="btn-primary">Jetzt Mitglied werden</a>
+                <a href="#" class="btn-secondary">Probetraining buchen</a>
+            </div>
+
+            <div class="hero-trust">
+                <div class="trust-item">✓ 6 gepflegte Sandplätze</div>
+                <div class="trust-item">✓ DTB-lizenzierte Trainer</div>
+                <div class="trust-item">✓ Clubrestaurant vor Ort</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quick-Info Cards -->
+    <div class="quick-info">
+        <div class="info-card">
+            <h3>Mitgliedschaft</h3>
+            <p>Ab 240€/Jahr für Erwachsene<br>Ermäßigungen für Familien</p>
+        </div>
+        <div class="info-card">
+            <h3>Training</h3>
+            <p>Einzel- und Gruppentraining<br>Für Anfänger bis Profis</p>
+        </div>
+        <div class="info-card">
+            <h3>Restaurant</h3>
+            <p>Deckstein's Clubrestaurant<br>Terrasse mit Platzblick</p>
+        </div>
+    </div>
+
+    <!-- Vergleich: Vorher/Nachher -->
+    <div class="comparison">
+        <h2>Was wurde verbessert?</h2>
+        <div class="comparison-grid">
+            <div class="comparison-box old">
+                <h3>❌ Vorher</h3>
+                <ul>
+                    <li>Slider ohne klare Botschaft</li>
+                    <li>Kein Call-to-Action Button</li>
+                    <li>Wichtige Infos erst nach Scrollen</li>
+                    <li>Besucher wissen nicht, was sie tun sollen</li>
+                </ul>
+            </div>
+            <div class="comparison-box new">
+                <h3>✅ Nachher</h3>
+                <ul>
+                    <li>Klare Überschrift: Was bieten wir, wo?</li>
+                    <li>Zwei prominente Buttons mit Handlungsaufforderung</li>
+                    <li>Trust-Elemente (6 Plätze, Trainer, Restaurant)</li>
+                    <li>Kontakt & Öffnungszeiten sofort sichtbar</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
