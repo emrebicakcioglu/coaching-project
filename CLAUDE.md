@@ -70,6 +70,23 @@ Dies ist ein Coaching-Projekt. Claude Code fungiert als Coach, um Emre bei der E
   - CSS-Animationen beim Laden
   - Vollständiger Footer mit 4 Spalten
 
+### Session 2 (2026-01-16)
+
+**Thema:** Git & GitHub
+
+**Gelernt:**
+- Was Git ist (Versionskontrolle)
+- Was GitHub ist (Code in der Cloud)
+- Repository erstellen (`git init`)
+- Änderungen tracken (`git status`)
+- Dateien hinzufügen (`git add .`)
+- Commits erstellen (`git commit -m "..."`)
+- Mit GitHub verbinden (`git remote add origin`)
+- Code hochladen (`git push`)
+
+**Erstellt:**
+- GitHub Repository: https://github.com/emrebicakcioglu/coaching-project
+
 ## Gelernte Konzepte
 
 - [x] Natürliche Sprache zur Steuerung
@@ -79,6 +96,8 @@ Dies ist ein Coaching-Projekt. Claude Code fungiert als Coach, um Emre bei der E
 - [x] HTML/CSS Grundlagen
 - [x] JavaScript Event-Listener
 - [x] Responsive Design
+- [x] Git Grundlagen (init, add, commit)
+- [x] GitHub (Repository, Push)
 - [ ] Dateien lesen lassen
 - [ ] Code erklären lassen
 - [ ] Befehle ausführen lassen
