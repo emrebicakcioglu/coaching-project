@@ -1,0 +1,236 @@
+// PM-System User Story Dependencies
+// Render: https://dreampuf.github.io/GraphvizOnline
+// Or: dot -Tpng 03_dependencies.dot -o dependencies.png
+
+digraph UserStoryDependencies {
+    // Graph settings
+    rankdir=TB;
+    splines=ortho;
+    nodesep=0.8;
+    ranksep=1.0;
+
+    // Node defaults
+    node [
+        shape=box,
+        style="rounded,filled",
+        fontname="Arial",
+        fontsize=10,
+        width=2.0,
+        height=0.6
+    ];
+
+    // Edge defaults
+    edge [
+        color="#666666",
+        arrowsize=0.8
+    ];
+
+    // ============================================
+    // TIER 1: INFRASTRUCTURE
+    // ============================================
+    subgraph cluster_tier1 {
+        label="Tier 1: Infrastructure";
+        labeljust=l;
+        style=filled;
+        color="#e3f2fd";
+        fillcolor="#e3f2fd";
+
+        node [fillcolor="#bbdefb"];
+
+        "001-001" [label="001-001\nDatabase Schema\n[DONE]"];
+        "001-002" [label="001-002\nPermissions & Roles\n[DONE]"];
+    }
+
+    // ============================================
+    // TIER 2: BACKEND TEMPLATES
+    // ============================================
+    subgraph cluster_tier2 {
+        label="Tier 2: Backend Templates";
+        labeljust=l;
+        style=filled;
+        color="#fff8e1";
+        fillcolor="#fff8e1";
+
+        node [fillcolor="#ffe082"];
+
+        "002-001" [label="002-001\nTemplates CRUD API\n[DONE]"];
+        "002-002" [label="002-002\nStep Types\n[DONE]"];
+        "002-003" [label="002-003\nField Validation\n[DONE]"];
+    }
+
+    // ============================================
+    // TIER 3: BACKEND INSTANCES
+    // ============================================
+    subgraph cluster_tier3 {
+        label="Tier 3: Backend Instances";
+        labeljust=l;
+        style=filled;
+        color="#fff3e0";
+        fillcolor="#fff3e0";
+
+        node [fillcolor="#ffcc80"];
+
+        "003-001" [label="003-001\nInstances CRUD API\n[DONE]"];
+        "003-002" [label="003-002\nStep Completion\n[DONE]"];
+        "003-003" [label="003-003\nProcess Control\n[DONE]"];
+    }
+
+    // ============================================
+    // TIER 4: BACKEND SERVICES
+    // ============================================
+    subgraph cluster_tier4 {
+        label="Tier 4: Backend Services";
+        labeljust=l;
+        style=filled;
+        color="#fbe9e7";
+        fillcolor="#fbe9e7";
+
+        node [fillcolor="#ffab91"];
+
+        "004-001" [label="004-001\nNotifications\n[DONE]"];
+        "004-002" [label="004-002\nGDPR & Retention\n[DONE]"];
+        "004-003" [label="004-003\nAnalytics\n[DONE]"];
+    }
+
+    // ============================================
+    // TIER 5: FRONTEND TEMPLATES
+    // ============================================
+    subgraph cluster_tier5 {
+        label="Tier 5: Frontend Templates";
+        labeljust=l;
+        style=filled;
+        color="#e8f5e9";
+        fillcolor="#e8f5e9";
+
+        node [fillcolor="#a5d6a7"];
+
+        "005-001" [label="005-001\nTemplate List & CRUD\n[DONE]"];
+        "005-002" [label="005-002\nStep Builder\n[DONE]"];
+        "005-003" [label="005-003\nField Builder\n[DONE]"];
+    }
+
+    // ============================================
+    // TIER 6: FRONTEND INSTANCES
+    // ============================================
+    subgraph cluster_tier6 {
+        label="Tier 6: Frontend Instances";
+        labeljust=l;
+        style=filled;
+        color="#e0f2f1";
+        fillcolor="#e0f2f1";
+
+        node [fillcolor="#80cbc4"];
+
+        "006-001" [label="006-001\nInstance List\n[DONE]"];
+        "006-002" [label="006-002\nStep Completion UI\n[DONE]"];
+        "006-003" [label="006-003\nInstance Detail\n[DONE]"];
+    }
+
+    // ============================================
+    // TIER 7-8: FRONTEND FEATURES
+    // ============================================
+    subgraph cluster_tier78 {
+        label="Tier 7-8: Frontend Features";
+        labeljust=l;
+        style=filled;
+        color="#f3e5f5";
+        fillcolor="#f3e5f5";
+
+        "007-001" [label="007-001\nNotification Center\n[IN PROGRESS]", fillcolor="#ce93d8", style="rounded,filled,bold"];
+        "008-001" [label="008-001\nAdmin Dashboard\n[PENDING]", fillcolor="#e1bee7", style="rounded,filled,dashed"];
+        "008-002" [label="008-002\nGDPR & Analytics UI\n[PENDING]", fillcolor="#e1bee7", style="rounded,filled,dashed"];
+    }
+
+    // ============================================
+    // DEPENDENCIES
+    // ============================================
+
+    // Tier 1 internal
+    "001-001" -> "001-002";
+
+    // Tier 1 -> Tier 2
+    "001-001" -> "002-001";
+    "001-002" -> "002-001";
+
+    // Tier 2 internal
+    "002-001" -> "002-002";
+    "002-002" -> "002-003";
+
+    // Tier 2 -> Tier 3
+    "002-001" -> "003-001";
+    "001-002" -> "003-001";
+
+    // Tier 2/3 -> Tier 3
+    "002-002" -> "003-002";
+    "002-003" -> "003-002";
+    "003-001" -> "003-002";
+    "003-001" -> "003-003";
+    "003-002" -> "003-003";
+
+    // Tier 3 -> Tier 4
+    "003-001" -> "004-001";
+    "003-003" -> "004-001";
+    "003-001" -> "004-002";
+    "003-001" -> "004-003";
+    "003-002" -> "004-003";
+
+    // Tier 2 -> Tier 5
+    "002-001" -> "005-001";
+
+    // Tier 5 internal
+    "005-001" -> "005-002";
+    "002-002" -> "005-002";
+    "005-002" -> "005-003";
+    "002-003" -> "005-003";
+
+    // Tier 3 -> Tier 6
+    "003-001" -> "006-001";
+
+    // Tier 5/6 internal
+    "006-001" -> "006-002";
+    "003-002" -> "006-002";
+    "005-003" -> "006-002";
+    "006-002" -> "006-003";
+    "003-003" -> "006-003";
+
+    // Tier 4/6 -> Tier 7
+    "004-001" -> "007-001";
+    "006-003" -> "007-001";
+
+    // Tier 4 -> Tier 8
+    "004-003" -> "008-001";
+    "008-001" -> "008-002";
+    "004-002" -> "008-002";
+    "004-003" -> "008-002";
+
+    // ============================================
+    // CRITICAL PATH (highlighted)
+    // ============================================
+    edge [color="#d32f2f", penwidth=2.5, style=bold];
+    "001-001" -> "002-001" [label="critical"];
+    "002-001" -> "003-001" [label="critical"];
+    "003-001" -> "003-002" [label="critical"];
+    "003-002" -> "006-002" [label="critical"];
+    "006-002" -> "006-003" [label="critical"];
+    "006-003" -> "007-001" [label="critical"];
+
+    // ============================================
+    // LEGEND
+    // ============================================
+    subgraph cluster_legend {
+        label="Legend";
+        labeljust=l;
+        style=filled;
+        color="#fafafa";
+        fillcolor="#fafafa";
+
+        node [width=1.5, height=0.4, fontsize=9];
+
+        leg_done [label="DONE", fillcolor="#a5d6a7"];
+        leg_progress [label="IN PROGRESS", fillcolor="#ce93d8", style="rounded,filled,bold"];
+        leg_pending [label="PENDING", fillcolor="#e1bee7", style="rounded,filled,dashed"];
+        leg_critical [label="Critical Path", shape=plaintext, fillcolor="transparent"];
+
+        leg_done -> leg_progress -> leg_pending [style=invis];
+    }
+}

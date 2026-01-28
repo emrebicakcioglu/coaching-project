@@ -1,0 +1,104 @@
+%% PM-System Runtime Process (BPMN-Style)
+%% Render: https://mermaid.live
+
+flowchart TB
+    subgraph POOL["PM-SYSTEM GESCHAEFTSPROZESS"]
+
+        subgraph LANE_ADMIN["PM-Admin"]
+            direction LR
+            START((Start)) --> CREATE_TMPL["Template\nerstellen"]
+            CREATE_TMPL --> ADD_STEPS["Steps\nhinzufuegen"]
+            ADD_STEPS --> CONFIG_FIELDS["Felder\nkonfigurieren"]
+            CONFIG_FIELDS --> SET_TIMES["Zeiten &\nZuweisungen"]
+            SET_TIMES --> PUBLISH["Template\naktivieren"]
+            PUBLISH --> CREATE_INST["Neue Instanz\nerstellen"]
+            CREATE_INST --> ASSIGN["Bearbeiter\nzuweisen"]
+
+            PAUSE_ACTION["Instanz\npausieren"]
+            RESUME_ACTION["Instanz\nfortsetzen"]
+            RESET_ACTION["Schritt\nzuruecksetzen"]
+        end
+
+        subgraph LANE_BEARBEITER["Bearbeiter"]
+            direction LR
+            RECV_TASK["Aufgabe\nerhalten"]
+            RECV_TASK --> CHECK_TYPE{Step-Typ?}
+
+            CHECK_TYPE -->|Form| REVIEW_FORM["Formular\npruefen"]
+            CHECK_TYPE -->|Manual| DO_MANUAL["Manuelle\nAufgabe"]
+            CHECK_TYPE -->|Edit| CREATE_DOC["Dokument\nerstellen"]
+            CHECK_TYPE -->|API| TRIGGER_API["API\ntriggern"]
+
+            REVIEW_FORM --> COMPLETE_B["Schritt\nabschliessen"]
+            DO_MANUAL --> ADD_PROOF["Nachweis\nhinzufuegen"]
+            ADD_PROOF --> COMPLETE_B
+            CREATE_DOC --> UPLOAD_DOC["Dokument\nhochladen"]
+            UPLOAD_DOC --> COMPLETE_B
+            TRIGGER_API --> WAIT_RESPONSE["Auf Antwort\nwarten"]
+            WAIT_RESPONSE --> COMPLETE_B
+
+            ADD_COMMENT["Kommentar\nhinzufuegen"]
+        end
+
+        subgraph LANE_KUNDE["Kunde (Public Link)"]
+            direction LR
+            RECV_LINK["Link\nerhalten"]
+            RECV_LINK --> OPEN_FORM["Formular\noeffnen"]
+            OPEN_FORM --> FILL_FIELDS["Felder\nausfuellen"]
+            FILL_FIELDS --> VALIDATE{Validierung}
+            VALIDATE -->|Fehler| SHOW_ERROR["Fehler\nanzeigen"]
+            SHOW_ERROR --> FILL_FIELDS
+            VALIDATE -->|OK| SUBMIT["Absenden"]
+            SUBMIT --> COMPLETE_K["Schritt\nabgeschlossen"]
+        end
+
+        subgraph LANE_SYSTEM["System (Automatisch)"]
+            direction LR
+            COMPLETE_B --> UPDATE_STATE["Status\naktualisieren"]
+            COMPLETE_K --> UPDATE_STATE
+
+            UPDATE_STATE --> LOG_HISTORY["History\nschreiben"]
+            LOG_HISTORY --> CALC_TIME["Zeit\nberechnen"]
+            CALC_TIME --> CHECK_LAST{Letzter\nSchritt?}
+
+            CHECK_LAST -->|Nein| NEXT_STEP["Naechster\nSchritt"]
+            NEXT_STEP --> SEND_NOTIF["Benachrichtigung\nsenden"]
+            SEND_NOTIF --> RECV_TASK
+            SEND_NOTIF --> RECV_LINK
+
+            CHECK_LAST -->|Ja| COMPLETE_INST["Instanz\nabschliessen"]
+            COMPLETE_INST --> START_RETENTION["Retention\nTimer starten"]
+            START_RETENTION --> CHECK_EXPIRE{Abgelaufen?}
+            CHECK_EXPIRE -->|Nein| SEND_REMINDER["Reminder\nsenden"]
+            SEND_REMINDER --> CHECK_EXPIRE
+            CHECK_EXPIRE -->|Ja| ARCHIVE["Archivieren"]
+            ARCHIVE --> GDPR_CHECK{GDPR\nLoeschung?}
+            GDPR_CHECK -->|Nein| KEEP["Archiviert\nbehalten"]
+            GDPR_CHECK -->|Ja| DELETE["Daten\nloeschen"]
+            KEEP --> ENDE((Ende))
+            DELETE --> ENDE
+
+            %% Cron Jobs
+            CRON_REMIND["Cron: Reminder\n(taeglich)"]
+            CRON_ARCHIVE["Cron: Archive\n(taeglich)"]
+            CRON_REMIND -.-> SEND_REMINDER
+            CRON_ARCHIVE -.-> CHECK_EXPIRE
+        end
+
+        %% Cross-Lane Connections
+        ASSIGN --> RECV_TASK
+        ASSIGN --> RECV_LINK
+        PAUSE_ACTION -.-> UPDATE_STATE
+        RESUME_ACTION -.-> UPDATE_STATE
+        RESET_ACTION -.-> NEXT_STEP
+        ADD_COMMENT -.-> LOG_HISTORY
+    end
+
+    %% Styling
+    classDef startEnd fill:#4caf50,stroke:#2e7d32,color:#fff
+    classDef process fill:#e3f2fd,stroke:#1976d2
+    classDef decision fill:#fff3e0,stroke:#f57c00
+    classDef system fill:#fce4ec,stroke:#c2185b
+
+    class START,ENDE startEnd
+    class CHECK_TYPE,VALIDATE,CHECK_LAST,CHECK_EXPIRE,GDPR_CHECK decision

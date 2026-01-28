@@ -1,0 +1,200 @@
+@startuml PM-System Activity Diagram
+
+' ============================================
+' STYLING
+' ============================================
+skinparam backgroundColor #FEFEFE
+skinparam activityBackgroundColor #E3F2FD
+skinparam activityBorderColor #1976D2
+skinparam activityFontSize 12
+skinparam arrowColor #666666
+skinparam partitionBackgroundColor #FAFAFA
+skinparam partitionBorderColor #CCCCCC
+
+title PM-System - Vollstaendiger Prozessablauf
+
+' ============================================
+' START
+' ============================================
+start
+
+' ============================================
+' TEMPLATE ERSTELLUNG (Admin)
+' ============================================
+partition "**Template Erstellung** (PM-Admin)" #E8F5E9 {
+    :Template erstellen;
+    note right: Name, Beschreibung,\nRetention-Tage
+
+    :Steps hinzufuegen;
+    note right
+        Step-Typen:
+        * Form
+        * Manual
+        * Edit
+        * API
+    end note
+
+    while (Weitere Steps?) is (Ja)
+        :Step konfigurieren;
+        :Zeiten festlegen;
+        note right: Bearbeitungszeit,\nProzesszeit
+        :Zuweisung festlegen;
+        note right: Kunde oder Bearbeiter
+
+        if (Step-Typ = Form?) then (Ja)
+            :Felder hinzufuegen;
+            note right
+                Feldtypen:
+                * Text, Email, IBAN
+                * PLZ, Telefon, Datum
+                * Dropdown, Datei
+                * Checkbox, Textarea
+            end note
+            while (Weitere Felder?) is (Ja)
+                :Feld konfigurieren;
+                :Validierung setzen;
+            endwhile (Nein)
+        endif
+    endwhile (Nein)
+
+    :Template publizieren;
+}
+
+' ============================================
+' INSTANZ ERSTELLUNG
+' ============================================
+partition "**Instanz Erstellung** (PM-Admin)" #FFF3E0 {
+    :Neue Instanz erstellen;
+    note right: Template-Snapshot\nwird gespeichert
+
+    :Kundendaten eingeben;
+    :Public Token generieren;
+    :Bearbeiter zuweisen;
+    :Benachrichtigungen senden;
+}
+
+' ============================================
+' STEP PROCESSING LOOP
+' ============================================
+partition "**Step-Verarbeitung** (Loop)" #E1F5FE {
+
+    repeat
+        :Aktuellen Step laden;
+
+        if (assigned_to_type?) then (Kunde)
+            ' KUNDE PFAD
+            partition "Kunde (Public Link)" #FFEBEE {
+                :Public Link oeffnen;
+                :Formular anzeigen;
+
+                repeat
+                    :Felder ausfuellen;
+                    :Validierung pruefen;
+
+                    if (Validierung OK?) then (Nein)
+                        :Fehler anzeigen;
+                    endif
+                repeat while (Validierung OK?) is (Nein)
+
+                :Daten absenden;
+            }
+
+        else (Bearbeiter)
+            ' BEARBEITER PFAD
+            partition "Bearbeiter (JWT Auth)" #E8EAF6 {
+                :Benachrichtigung erhalten;
+                :Step oeffnen;
+
+                switch (Step-Typ)
+                    case (Form)
+                        :Kundendaten pruefen;
+                        :Ggf. korrigieren;
+
+                    case (Manual)
+                        :Anweisung lesen;
+                        :Aufgabe erledigen;
+                        if (Nachweis erforderlich?) then (Ja)
+                            :Nachweis eingeben;
+                            note right: Text oder Datei
+                        endif
+                        :Bestaetigen;
+
+                    case (Edit)
+                        if (Output-Typ?) then (Text)
+                            :Text erstellen;
+                        else (Datei)
+                            :Dokument hochladen;
+                        endif
+
+                    case (API)
+                        :Warten auf externes System;
+                        note right: Webhook-Aufruf\nerwartet
+
+                endswitch
+
+                :Step abschliessen;
+            }
+        endif
+
+        ' SYSTEM VERARBEITUNG
+        partition "System (Automatisch)" #FCE4EC {
+            :Status aktualisieren;
+            :History-Eintrag erstellen;
+            :Zeitmessung berechnen;
+            :currentStepIndex++;
+
+            if (Letzter Step?) then (Ja)
+                :Instanz abschliessen;
+                note right: status = completed\ncompletedAt = now()
+            else (Nein)
+                :Naechsten Step aktivieren;
+                :Benachrichtigung senden;
+            endif
+        }
+
+    repeat while (Weitere Steps?) is (Ja)
+}
+
+' ============================================
+' RETENTION & ARCHIVIERUNG
+' ============================================
+partition "**Retention & GDPR** (System)" #F3E5F5 {
+    :Retention-Timer starten;
+    note right: retentionExpiresAt =\ncompletedAt + retentionDays
+
+    while (Retention abgelaufen?) is (Nein)
+        :Taeglich pruefen (Cron);
+
+        if (Archive-Warning faellig?) then (Ja)
+            :Warnung senden;
+        endif
+    endwhile (Ja)
+
+    :Instanz archivieren;
+    note right: status = archived
+
+    if (GDPR-Loeschantrag?) then (Ja)
+        :Audit-Log erstellen;
+        :Daten anonymisieren/loeschen;
+    endif
+}
+
+' ============================================
+' END
+' ============================================
+stop
+
+' ============================================
+' LEGEND
+' ============================================
+legend right
+    |= Farbe |= Verantwortlich |
+    | <#E8F5E9> | PM-Admin |
+    | <#FFF3E0> | System/Admin |
+    | <#FFEBEE> | Kunde |
+    | <#E8EAF6> | Bearbeiter |
+    | <#FCE4EC> | System |
+    | <#F3E5F5> | Cron/GDPR |
+endlegend
+
+@enduml

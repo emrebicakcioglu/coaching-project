@@ -1,0 +1,106 @@
+%% PM-System User Story Dependencies
+%% Render: https://mermaid.live oder VS Code Mermaid Extension
+
+flowchart TB
+    subgraph INFRASTRUKTUR["INFRASTRUKTUR (Tier 1)"]
+        DB["001-001<br/>Database Schema<br/>✅ Complete"]
+        PERM["001-002<br/>Permissions & Roles<br/>✅ Complete"]
+    end
+
+    subgraph BACKEND_TEMPLATES["BACKEND TEMPLATES (Tier 2)"]
+        TMPL_CRUD["002-001<br/>Templates CRUD API<br/>✅ Complete"]
+        STEP_TYPES["002-002<br/>Step Types<br/>✅ Complete"]
+        FIELD_VAL["002-003<br/>Field Validation<br/>✅ Complete"]
+    end
+
+    subgraph BACKEND_INSTANCES["BACKEND INSTANCES (Tier 3)"]
+        INST_CRUD["003-001<br/>Instances CRUD API<br/>✅ Complete"]
+        STEP_COMP["003-002<br/>Step Completion<br/>✅ Complete"]
+        PROC_CTRL["003-003<br/>Process Control<br/>✅ Complete"]
+    end
+
+    subgraph BACKEND_SERVICES["BACKEND SERVICES (Tier 4)"]
+        NOTIF["004-001<br/>Notifications<br/>✅ Complete"]
+        GDPR["004-002<br/>GDPR & Retention<br/>✅ Complete"]
+        ANALYTICS["004-003<br/>Analytics<br/>✅ Complete"]
+    end
+
+    subgraph FRONTEND_TEMPLATES["FRONTEND TEMPLATES (Tier 5)"]
+        FE_TMPL_LIST["005-001<br/>Template List & CRUD<br/>✅ Complete"]
+        FE_STEP_BUILD["005-002<br/>Step Builder<br/>✅ Complete"]
+        FE_FIELD_BUILD["005-003<br/>Field Builder<br/>✅ Complete"]
+    end
+
+    subgraph FRONTEND_INSTANCES["FRONTEND INSTANCES (Tier 6)"]
+        FE_INST_LIST["006-001<br/>Instance List<br/>✅ Complete"]
+        FE_STEP_UI["006-002<br/>Step Completion UI<br/>✅ Complete"]
+        FE_INST_DET["006-003<br/>Instance Detail<br/>✅ Complete"]
+    end
+
+    subgraph FRONTEND_FEATURES["FRONTEND FEATURES (Tier 7-8)"]
+        FE_NOTIF["007-001<br/>Notification Center<br/>🔄 In Progress"]
+        FE_DASH["008-001<br/>Admin Dashboard<br/>⏸ Pending"]
+        FE_GDPR["008-002<br/>GDPR & Analytics UI<br/>⏸ Pending"]
+    end
+
+    %% Infrastruktur Abhängigkeiten
+    DB --> PERM
+    DB --> TMPL_CRUD
+    PERM --> TMPL_CRUD
+
+    %% Backend Templates
+    TMPL_CRUD --> STEP_TYPES
+    STEP_TYPES --> FIELD_VAL
+    TMPL_CRUD --> INST_CRUD
+
+    %% Backend Instances
+    PERM --> INST_CRUD
+    FIELD_VAL --> STEP_COMP
+    STEP_TYPES --> STEP_COMP
+    INST_CRUD --> STEP_COMP
+    STEP_COMP --> PROC_CTRL
+    INST_CRUD --> PROC_CTRL
+
+    %% Backend Services
+    INST_CRUD --> NOTIF
+    PROC_CTRL --> NOTIF
+    INST_CRUD --> GDPR
+    STEP_COMP --> ANALYTICS
+    INST_CRUD --> ANALYTICS
+
+    %% Frontend Templates
+    TMPL_CRUD --> FE_TMPL_LIST
+    FE_TMPL_LIST --> FE_STEP_BUILD
+    STEP_TYPES --> FE_STEP_BUILD
+    FE_STEP_BUILD --> FE_FIELD_BUILD
+    FIELD_VAL --> FE_FIELD_BUILD
+
+    %% Frontend Instances
+    INST_CRUD --> FE_INST_LIST
+    FE_INST_LIST --> FE_STEP_UI
+    STEP_COMP --> FE_STEP_UI
+    FE_FIELD_BUILD --> FE_STEP_UI
+    FE_STEP_UI --> FE_INST_DET
+    PROC_CTRL --> FE_INST_DET
+
+    %% Frontend Features
+    NOTIF --> FE_NOTIF
+    FE_INST_DET --> FE_NOTIF
+    ANALYTICS --> FE_DASH
+    FE_DASH --> FE_GDPR
+    GDPR --> FE_GDPR
+    ANALYTICS --> FE_GDPR
+
+    %% Styling
+    classDef infra fill:#e1f5fe,stroke:#01579b,stroke-width:2px
+    classDef backend fill:#fff3e0,stroke:#e65100,stroke-width:2px
+    classDef frontend fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
+    classDef complete fill:#c8e6c9,stroke:#2e7d32,stroke-width:3px
+    classDef inprogress fill:#fff9c4,stroke:#f9a825,stroke-width:3px,stroke-dasharray: 5 5
+    classDef pending fill:#ffebee,stroke:#c62828,stroke-width:2px,stroke-dasharray: 3 3
+
+    class DB,PERM infra
+    class TMPL_CRUD,STEP_TYPES,FIELD_VAL,INST_CRUD,STEP_COMP,PROC_CTRL,NOTIF,GDPR,ANALYTICS backend
+    class FE_TMPL_LIST,FE_STEP_BUILD,FE_FIELD_BUILD,FE_INST_LIST,FE_STEP_UI,FE_INST_DET frontend
+    class FE_NOTIF inprogress
+    class FE_DASH,FE_GDPR pending

@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+                  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  id="Definitions_PMSystem"
+                  targetNamespace="http://pm-system.local/bpmn">
+
+  <!-- ============================================ -->
+  <!-- COLLABORATION (POOLS & LANES) -->
+  <!-- ============================================ -->
+  <bpmn:collaboration id="Collaboration_PMProcess">
+    <bpmn:participant id="Participant_PMSystem" name="PM-System Prozess" processRef="Process_Main"/>
+  </bpmn:collaboration>
+
+  <!-- ============================================ -->
+  <!-- MAIN PROCESS -->
+  <!-- ============================================ -->
+  <bpmn:process id="Process_Main" isExecutable="true">
+
+    <!-- LANES -->
+    <bpmn:laneSet id="LaneSet_Main">
+      <bpmn:lane id="Lane_Admin" name="PM-Admin">
+        <bpmn:flowNodeRef>StartEvent_1</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_CreateTemplate</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_AddSteps</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ConfigFields</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_PublishTemplate</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_CreateInstance</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_AssignUser</bpmn:flowNodeRef>
+      </bpmn:lane>
+
+      <bpmn:lane id="Lane_Bearbeiter" name="Bearbeiter">
+        <bpmn:flowNodeRef>Task_ReceiveTask</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_StepType</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_FormStep</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ManualStep</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_EditStep</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ApiStep</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_MergeSteps</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_CompleteStep</bpmn:flowNodeRef>
+      </bpmn:lane>
+
+      <bpmn:lane id="Lane_Kunde" name="Kunde">
+        <bpmn:flowNodeRef>Task_ReceiveLink</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_FillForm</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_SubmitForm</bpmn:flowNodeRef>
+      </bpmn:lane>
+
+      <bpmn:lane id="Lane_System" name="System">
+        <bpmn:flowNodeRef>Task_UpdateState</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_LogHistory</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_LastStep</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_NextStep</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_SendNotification</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_CompleteInstance</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_StartRetention</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Event_Timer</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Archive</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>EndEvent_1</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+
+    <!-- ============================================ -->
+    <!-- ADMIN LANE ELEMENTS -->
+    <!-- ============================================ -->
+    <bpmn:startEvent id="StartEvent_1" name="Prozessbedarf erkannt">
+      <bpmn:outgoing>Flow_1</bpmn:outgoing>
+    </bpmn:startEvent>
+
+    <bpmn:userTask id="Task_CreateTemplate" name="Template erstellen">
+      <bpmn:incoming>Flow_1</bpmn:incoming>
+      <bpmn:outgoing>Flow_2</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Task_AddSteps" name="Steps hinzufuegen">
+      <bpmn:incoming>Flow_2</bpmn:incoming>
+      <bpmn:outgoing>Flow_3</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Task_ConfigFields" name="Felder konfigurieren">
+      <bpmn:incoming>Flow_3</bpmn:incoming>
+      <bpmn:outgoing>Flow_4</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Task_PublishTemplate" name="Template publizieren">
+      <bpmn:incoming>Flow_4</bpmn:incoming>
+      <bpmn:outgoing>Flow_5</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Task_CreateInstance" name="Instanz erstellen">
+      <bpmn:incoming>Flow_5</bpmn:incoming>
+      <bpmn:outgoing>Flow_6</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Task_AssignUser" name="Bearbeiter zuweisen">
+      <bpmn:incoming>Flow_6</bpmn:incoming>
+      <bpmn:outgoing>Flow_7</bpmn:outgoing>
+      <bpmn:outgoing>Flow_8</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- ============================================ -->
+    <!-- BEARBEITER LANE ELEMENTS -->
+    <!-- ============================================ -->
+    <bpmn:userTask id="Task_ReceiveTask" name="Aufgabe erhalten">
+      <bpmn:incoming>Flow_7</bpmn:incoming>
+      <bpmn:incoming>Flow_Loop</bpmn:incoming>
+      <bpmn:outgoing>Flow_9</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="Gateway_StepType" name="Step-Typ?">
+      <bpmn:incoming>Flow_9</bpmn:incoming>
+      <bpmn:outgoing>Flow_Form</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Manual</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Edit</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Api</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:userTask id="Task_FormStep" name="Formular pruefen">
+      <bpmn:incoming>Flow_Form</bpmn:incoming>
+      <bpmn:outgoing>Flow_Form_Done</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Task_ManualStep" name="Manuelle Aufgabe erledigen">
+      <bpmn:incoming>Flow_Manual</bpmn:incoming>
+      <bpmn:outgoing>Flow_Manual_Done</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Task_EditStep" name="Dokument erstellen">
+      <bpmn:incoming>Flow_Edit</bpmn:incoming>
+      <bpmn:outgoing>Flow_Edit_Done</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:serviceTask id="Task_ApiStep" name="Auf API warten">
+      <bpmn:incoming>Flow_Api</bpmn:incoming>
+      <bpmn:outgoing>Flow_Api_Done</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <bpmn:exclusiveGateway id="Gateway_MergeSteps" name="Merge">
+      <bpmn:incoming>Flow_Form_Done</bpmn:incoming>
+      <bpmn:incoming>Flow_Manual_Done</bpmn:incoming>
+      <bpmn:incoming>Flow_Edit_Done</bpmn:incoming>
+      <bpmn:incoming>Flow_Api_Done</bpmn:incoming>
+      <bpmn:outgoing>Flow_10</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:userTask id="Task_CompleteStep" name="Schritt abschliessen">
+      <bpmn:incoming>Flow_10</bpmn:incoming>
+      <bpmn:incoming>Flow_CustomerSubmit</bpmn:incoming>
+      <bpmn:outgoing>Flow_11</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- ============================================ -->
+    <!-- KUNDE LANE ELEMENTS -->
+    <!-- ============================================ -->
+    <bpmn:userTask id="Task_ReceiveLink" name="Public Link erhalten">
+      <bpmn:incoming>Flow_8</bpmn:incoming>
+      <bpmn:incoming>Flow_Loop_Customer</bpmn:incoming>
+      <bpmn:outgoing>Flow_12</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Task_FillForm" name="Formular ausfuellen">
+      <bpmn:incoming>Flow_12</bpmn:incoming>
+      <bpmn:outgoing>Flow_13</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Task_SubmitForm" name="Daten absenden">
+      <bpmn:incoming>Flow_13</bpmn:incoming>
+      <bpmn:outgoing>Flow_CustomerSubmit</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- ============================================ -->
+    <!-- SYSTEM LANE ELEMENTS -->
+    <!-- ============================================ -->
+    <bpmn:serviceTask id="Task_UpdateState" name="Status aktualisieren">
+      <bpmn:incoming>Flow_11</bpmn:incoming>
+      <bpmn:outgoing>Flow_14</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <bpmn:serviceTask id="Task_LogHistory" name="History schreiben">
+      <bpmn:incoming>Flow_14</bpmn:incoming>
+      <bpmn:outgoing>Flow_15</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <bpmn:exclusiveGateway id="Gateway_LastStep" name="Letzter Schritt?">
+      <bpmn:incoming>Flow_15</bpmn:incoming>
+      <bpmn:outgoing>Flow_NotLast</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Last</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:serviceTask id="Task_NextStep" name="Naechster Schritt">
+      <bpmn:incoming>Flow_NotLast</bpmn:incoming>
+      <bpmn:outgoing>Flow_16</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <bpmn:sendTask id="Task_SendNotification" name="Benachrichtigung senden">
+      <bpmn:incoming>Flow_16</bpmn:incoming>
+      <bpmn:outgoing>Flow_Loop</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Loop_Customer</bpmn:outgoing>
+    </bpmn:sendTask>
+
+    <bpmn:serviceTask id="Task_CompleteInstance" name="Instanz abschliessen">
+      <bpmn:incoming>Flow_Last</bpmn:incoming>
+      <bpmn:outgoing>Flow_17</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <bpmn:serviceTask id="Task_StartRetention" name="Retention Timer starten">
+      <bpmn:incoming>Flow_17</bpmn:incoming>
+      <bpmn:outgoing>Flow_18</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <bpmn:intermediateCatchEvent id="Event_Timer" name="Retention abgelaufen">
+      <bpmn:incoming>Flow_18</bpmn:incoming>
+      <bpmn:outgoing>Flow_19</bpmn:outgoing>
+      <bpmn:timerEventDefinition id="TimerEventDefinition_1">
+        <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">P${retentionDays}D</bpmn:timeDuration>
+      </bpmn:timerEventDefinition>
+    </bpmn:intermediateCatchEvent>
+
+    <bpmn:serviceTask id="Task_Archive" name="Archivieren / GDPR">
+      <bpmn:incoming>Flow_19</bpmn:incoming>
+      <bpmn:outgoing>Flow_20</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <bpmn:endEvent id="EndEvent_1" name="Prozess beendet">
+      <bpmn:incoming>Flow_20</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <!-- ============================================ -->
+    <!-- SEQUENCE FLOWS -->
+    <!-- ============================================ -->
+    <bpmn:sequenceFlow id="Flow_1" sourceRef="StartEvent_1" targetRef="Task_CreateTemplate"/>
+    <bpmn:sequenceFlow id="Flow_2" sourceRef="Task_CreateTemplate" targetRef="Task_AddSteps"/>
+    <bpmn:sequenceFlow id="Flow_3" sourceRef="Task_AddSteps" targetRef="Task_ConfigFields"/>
+    <bpmn:sequenceFlow id="Flow_4" sourceRef="Task_ConfigFields" targetRef="Task_PublishTemplate"/>
+    <bpmn:sequenceFlow id="Flow_5" sourceRef="Task_PublishTemplate" targetRef="Task_CreateInstance"/>
+    <bpmn:sequenceFlow id="Flow_6" sourceRef="Task_CreateInstance" targetRef="Task_AssignUser"/>
+    <bpmn:sequenceFlow id="Flow_7" sourceRef="Task_AssignUser" targetRef="Task_ReceiveTask" name="Bearbeiter"/>
+    <bpmn:sequenceFlow id="Flow_8" sourceRef="Task_AssignUser" targetRef="Task_ReceiveLink" name="Kunde"/>
+    <bpmn:sequenceFlow id="Flow_9" sourceRef="Task_ReceiveTask" targetRef="Gateway_StepType"/>
+
+    <bpmn:sequenceFlow id="Flow_Form" sourceRef="Gateway_StepType" targetRef="Task_FormStep" name="Form"/>
+    <bpmn:sequenceFlow id="Flow_Manual" sourceRef="Gateway_StepType" targetRef="Task_ManualStep" name="Manual"/>
+    <bpmn:sequenceFlow id="Flow_Edit" sourceRef="Gateway_StepType" targetRef="Task_EditStep" name="Edit"/>
+    <bpmn:sequenceFlow id="Flow_Api" sourceRef="Gateway_StepType" targetRef="Task_ApiStep" name="API"/>
+
+    <bpmn:sequenceFlow id="Flow_Form_Done" sourceRef="Task_FormStep" targetRef="Gateway_MergeSteps"/>
+    <bpmn:sequenceFlow id="Flow_Manual_Done" sourceRef="Task_ManualStep" targetRef="Gateway_MergeSteps"/>
+    <bpmn:sequenceFlow id="Flow_Edit_Done" sourceRef="Task_EditStep" targetRef="Gateway_MergeSteps"/>
+    <bpmn:sequenceFlow id="Flow_Api_Done" sourceRef="Task_ApiStep" targetRef="Gateway_MergeSteps"/>
+
+    <bpmn:sequenceFlow id="Flow_10" sourceRef="Gateway_MergeSteps" targetRef="Task_CompleteStep"/>
+    <bpmn:sequenceFlow id="Flow_11" sourceRef="Task_CompleteStep" targetRef="Task_UpdateState"/>
+
+    <bpmn:sequenceFlow id="Flow_12" sourceRef="Task_ReceiveLink" targetRef="Task_FillForm"/>
+    <bpmn:sequenceFlow id="Flow_13" sourceRef="Task_FillForm" targetRef="Task_SubmitForm"/>
+    <bpmn:sequenceFlow id="Flow_CustomerSubmit" sourceRef="Task_SubmitForm" targetRef="Task_CompleteStep"/>
+
+    <bpmn:sequenceFlow id="Flow_14" sourceRef="Task_UpdateState" targetRef="Task_LogHistory"/>
+    <bpmn:sequenceFlow id="Flow_15" sourceRef="Task_LogHistory" targetRef="Gateway_LastStep"/>
+    <bpmn:sequenceFlow id="Flow_NotLast" sourceRef="Gateway_LastStep" targetRef="Task_NextStep" name="Nein"/>
+    <bpmn:sequenceFlow id="Flow_Last" sourceRef="Gateway_LastStep" targetRef="Task_CompleteInstance" name="Ja"/>
+    <bpmn:sequenceFlow id="Flow_16" sourceRef="Task_NextStep" targetRef="Task_SendNotification"/>
+    <bpmn:sequenceFlow id="Flow_Loop" sourceRef="Task_SendNotification" targetRef="Task_ReceiveTask"/>
+    <bpmn:sequenceFlow id="Flow_Loop_Customer" sourceRef="Task_SendNotification" targetRef="Task_ReceiveLink"/>
+    <bpmn:sequenceFlow id="Flow_17" sourceRef="Task_CompleteInstance" targetRef="Task_StartRetention"/>
+    <bpmn:sequenceFlow id="Flow_18" sourceRef="Task_StartRetention" targetRef="Event_Timer"/>
+    <bpmn:sequenceFlow id="Flow_19" sourceRef="Event_Timer" targetRef="Task_Archive"/>
+    <bpmn:sequenceFlow id="Flow_20" sourceRef="Task_Archive" targetRef="EndEvent_1"/>
+
+  </bpmn:process>
+
+  <!-- ============================================ -->
+  <!-- DIAGRAM (Visual Layout) -->
+  <!-- ============================================ -->
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_PMProcess">
+      <!-- Participant -->
+      <bpmndi:BPMNShape id="Participant_PMSystem_di" bpmnElement="Participant_PMSystem" isHorizontal="true">
+        <dc:Bounds x="160" y="80" width="1800" height="800"/>
+      </bpmndi:BPMNShape>
+
+      <!-- Lanes -->
+      <bpmndi:BPMNShape id="Lane_Admin_di" bpmnElement="Lane_Admin" isHorizontal="true">
+        <dc:Bounds x="190" y="80" width="1770" height="200"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Bearbeiter_di" bpmnElement="Lane_Bearbeiter" isHorizontal="true">
+        <dc:Bounds x="190" y="280" width="1770" height="200"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Kunde_di" bpmnElement="Lane_Kunde" isHorizontal="true">
+        <dc:Bounds x="190" y="480" width="1770" height="150"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_System_di" bpmnElement="Lane_System" isHorizontal="true">
+        <dc:Bounds x="190" y="630" width="1770" height="250"/>
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+
+</bpmn:definitions>
