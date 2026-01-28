@@ -1,0 +1,691 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+                  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+                  xmlns:bioc="http://bpmn.io/schema/bpmn/biocolor/1.0"
+                  xmlns:color="http://www.omg.org/spec/BPMN/non-normative/color/1.0"
+                  id="Definitions_AllStories"
+                  targetNamespace="http://pm-system.local/bpmn/stories">
+
+  <!-- ============================================ -->
+  <!-- PM-SYSTEM: ALLE 20 USER STORIES MIT ABHÄNGIGKEITEN -->
+  <!-- ============================================ -->
+
+  <bpmn:collaboration id="Collaboration_Stories">
+    <bpmn:participant id="Pool_PMSystem" name="PM-System User Stories (20 Stories)" processRef="Process_AllStories"/>
+
+    <!-- Dokumentation -->
+    <bpmn:textAnnotation id="TextAnnotation_Legend">
+      <bpmn:text>LEGENDE:
+✅ Grün = Abgeschlossen (15)
+🔄 Gelb = In Bearbeitung (1)
+⏸ Rot = Ausstehend (4)
+
+Fortschritt: 75% (15/20)</bpmn:text>
+    </bpmn:textAnnotation>
+  </bpmn:collaboration>
+
+  <!-- ============================================ -->
+  <!-- HAUPTPROZESS MIT ALLEN STORIES -->
+  <!-- ============================================ -->
+  <bpmn:process id="Process_AllStories" isExecutable="false">
+
+    <!-- ============================================ -->
+    <!-- LANES (TIERS) -->
+    <!-- ============================================ -->
+    <bpmn:laneSet id="LaneSet_Tiers">
+
+      <bpmn:lane id="Lane_Tier1" name="TIER 1: Infrastruktur">
+        <bpmn:flowNodeRef>Start_Project</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Story_001_001</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Story_001_002</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_Tier1_Split</bpmn:flowNodeRef>
+      </bpmn:lane>
+
+      <bpmn:lane id="Lane_Tier2" name="TIER 2: Backend Templates">
+        <bpmn:flowNodeRef>Story_002_001</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Story_002_002</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Story_002_003</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_Tier2_Split</bpmn:flowNodeRef>
+      </bpmn:lane>
+
+      <bpmn:lane id="Lane_Tier3" name="TIER 3: Backend Instances">
+        <bpmn:flowNodeRef>Story_003_001</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Story_003_002</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Story_003_003</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_Tier3_Split</bpmn:flowNodeRef>
+      </bpmn:lane>
+
+      <bpmn:lane id="Lane_Tier4" name="TIER 4: Backend Services">
+        <bpmn:flowNodeRef>Story_004_001</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Story_004_002</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Story_004_003</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_Tier4_Join</bpmn:flowNodeRef>
+      </bpmn:lane>
+
+      <bpmn:lane id="Lane_Tier5" name="TIER 5: Frontend Templates">
+        <bpmn:flowNodeRef>Story_005_001</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Story_005_002</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Story_005_003</bpmn:flowNodeRef>
+      </bpmn:lane>
+
+      <bpmn:lane id="Lane_Tier6" name="TIER 6: Frontend Instances">
+        <bpmn:flowNodeRef>Story_006_001</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Story_006_002</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Story_006_003</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_Tier6_Join</bpmn:flowNodeRef>
+      </bpmn:lane>
+
+      <bpmn:lane id="Lane_Tier7_8" name="TIER 7-8: Frontend Features">
+        <bpmn:flowNodeRef>Story_007_001</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Story_008_001</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Story_008_002</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_Final_Join</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_Project</bpmn:flowNodeRef>
+      </bpmn:lane>
+
+    </bpmn:laneSet>
+
+    <!-- ============================================ -->
+    <!-- START EVENT -->
+    <!-- ============================================ -->
+    <bpmn:startEvent id="Start_Project" name="Projekt Start">
+      <bpmn:outgoing>Flow_Start_001_001</bpmn:outgoing>
+    </bpmn:startEvent>
+
+    <!-- ============================================ -->
+    <!-- TIER 1: INFRASTRUKTUR (2 Stories) -->
+    <!-- ============================================ -->
+
+    <bpmn:task id="Story_001_001" name="001-001&#10;Database Schema&#10;[DONE ✅]">
+      <bpmn:documentation>
+Story: Database Schema für Templates, Instances, Steps
+Status: Abgeschlossen
+Abhängigkeiten: Keine (Basis)
+Blockiert: 001-002, 002-001
+      </bpmn:documentation>
+      <bpmn:incoming>Flow_Start_001_001</bpmn:incoming>
+      <bpmn:outgoing>Flow_001_001_to_001_002</bpmn:outgoing>
+      <bpmn:outgoing>Flow_001_001_to_002_001</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:task id="Story_001_002" name="001-002&#10;Permissions &amp; Roles&#10;[DONE ✅]">
+      <bpmn:documentation>
+Story: Rollen- und Berechtigungssystem
+Status: Abgeschlossen
+Abhängigkeiten: 001-001
+Blockiert: 002-001, 003-001
+      </bpmn:documentation>
+      <bpmn:incoming>Flow_001_001_to_001_002</bpmn:incoming>
+      <bpmn:outgoing>Flow_001_002_to_002_001</bpmn:outgoing>
+      <bpmn:outgoing>Flow_001_002_to_003_001</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:parallelGateway id="Gateway_Tier1_Split" name="Tier 1 Complete">
+      <bpmn:incoming>Flow_001_001_to_002_001</bpmn:incoming>
+      <bpmn:incoming>Flow_001_002_to_002_001</bpmn:incoming>
+      <bpmn:outgoing>Flow_Tier1_to_002_001</bpmn:outgoing>
+    </bpmn:parallelGateway>
+
+    <!-- ============================================ -->
+    <!-- TIER 2: BACKEND TEMPLATES (3 Stories) -->
+    <!-- ============================================ -->
+
+    <bpmn:task id="Story_002_001" name="002-001&#10;Templates CRUD API&#10;[DONE ✅]">
+      <bpmn:documentation>
+Story: REST API für Prozess-Templates (CRUD)
+Status: Abgeschlossen
+Abhängigkeiten: 001-001, 001-002
+Blockiert: 002-002, 003-001, 005-001
+      </bpmn:documentation>
+      <bpmn:incoming>Flow_Tier1_to_002_001</bpmn:incoming>
+      <bpmn:outgoing>Flow_002_001_to_002_002</bpmn:outgoing>
+      <bpmn:outgoing>Flow_002_001_to_003_001</bpmn:outgoing>
+      <bpmn:outgoing>Flow_002_001_to_005_001</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:task id="Story_002_002" name="002-002&#10;Step Types&#10;[DONE ✅]">
+      <bpmn:documentation>
+Story: Step-Typen (Form, Manual, Edit, API)
+Status: Abgeschlossen
+Abhängigkeiten: 002-001
+Blockiert: 002-003, 003-002, 005-002
+      </bpmn:documentation>
+      <bpmn:incoming>Flow_002_001_to_002_002</bpmn:incoming>
+      <bpmn:outgoing>Flow_002_002_to_002_003</bpmn:outgoing>
+      <bpmn:outgoing>Flow_002_002_to_003_002</bpmn:outgoing>
+      <bpmn:outgoing>Flow_002_002_to_005_002</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:task id="Story_002_003" name="002-003&#10;Field Validation&#10;[DONE ✅]">
+      <bpmn:documentation>
+Story: Feldvalidierung (IBAN, PLZ, Email, etc.)
+Status: Abgeschlossen
+Abhängigkeiten: 002-002
+Blockiert: 003-002, 005-003
+      </bpmn:documentation>
+      <bpmn:incoming>Flow_002_002_to_002_003</bpmn:incoming>
+      <bpmn:outgoing>Flow_002_003_to_003_002</bpmn:outgoing>
+      <bpmn:outgoing>Flow_002_003_to_005_003</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:parallelGateway id="Gateway_Tier2_Split" name="Tier 2 Parallel">
+      <bpmn:incoming>Flow_002_001_to_003_001</bpmn:incoming>
+      <bpmn:incoming>Flow_001_002_to_003_001</bpmn:incoming>
+      <bpmn:outgoing>Flow_Tier2_to_003_001</bpmn:outgoing>
+    </bpmn:parallelGateway>
+
+    <!-- ============================================ -->
+    <!-- TIER 3: BACKEND INSTANCES (3 Stories) -->
+    <!-- ============================================ -->
+
+    <bpmn:task id="Story_003_001" name="003-001&#10;Instances CRUD API&#10;[DONE ✅]">
+      <bpmn:documentation>
+Story: REST API für Prozess-Instanzen
+Status: Abgeschlossen
+Abhängigkeiten: 001-002, 002-001
+Blockiert: 003-002, 003-003, 004-001, 004-002, 004-003, 006-001
+      </bpmn:documentation>
+      <bpmn:incoming>Flow_Tier2_to_003_001</bpmn:incoming>
+      <bpmn:outgoing>Flow_003_001_to_003_002</bpmn:outgoing>
+      <bpmn:outgoing>Flow_003_001_to_003_003</bpmn:outgoing>
+      <bpmn:outgoing>Flow_003_001_to_004_001</bpmn:outgoing>
+      <bpmn:outgoing>Flow_003_001_to_004_002</bpmn:outgoing>
+      <bpmn:outgoing>Flow_003_001_to_004_003</bpmn:outgoing>
+      <bpmn:outgoing>Flow_003_001_to_006_001</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:task id="Story_003_002" name="003-002&#10;Step Completion&#10;[DONE ✅]">
+      <bpmn:documentation>
+Story: Step-Abschluss-Logik mit Zeitmessung
+Status: Abgeschlossen
+Abhängigkeiten: 002-002, 002-003, 003-001
+Blockiert: 003-003, 004-003, 006-002
+      </bpmn:documentation>
+      <bpmn:incoming>Flow_003_001_to_003_002</bpmn:incoming>
+      <bpmn:incoming>Flow_002_002_to_003_002</bpmn:incoming>
+      <bpmn:incoming>Flow_002_003_to_003_002</bpmn:incoming>
+      <bpmn:outgoing>Flow_003_002_to_003_003</bpmn:outgoing>
+      <bpmn:outgoing>Flow_003_002_to_004_003</bpmn:outgoing>
+      <bpmn:outgoing>Flow_003_002_to_006_002</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:task id="Story_003_003" name="003-003&#10;Process Control&#10;[DONE ✅]">
+      <bpmn:documentation>
+Story: Pause/Resume/Reset für Instanzen
+Status: Abgeschlossen
+Abhängigkeiten: 003-001, 003-002
+Blockiert: 004-001, 006-003
+      </bpmn:documentation>
+      <bpmn:incoming>Flow_003_001_to_003_003</bpmn:incoming>
+      <bpmn:incoming>Flow_003_002_to_003_003</bpmn:incoming>
+      <bpmn:outgoing>Flow_003_003_to_004_001</bpmn:outgoing>
+      <bpmn:outgoing>Flow_003_003_to_006_003</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:parallelGateway id="Gateway_Tier3_Split" name="Tier 3 Parallel">
+      <bpmn:incoming>Flow_003_001_to_004_001</bpmn:incoming>
+      <bpmn:incoming>Flow_003_003_to_004_001</bpmn:incoming>
+      <bpmn:outgoing>Flow_Tier3_to_004_001</bpmn:outgoing>
+    </bpmn:parallelGateway>
+
+    <!-- ============================================ -->
+    <!-- TIER 4: BACKEND SERVICES (3 Stories) -->
+    <!-- ============================================ -->
+
+    <bpmn:task id="Story_004_001" name="004-001&#10;Notifications&#10;[DONE ✅]">
+      <bpmn:documentation>
+Story: Email-Benachrichtigungen, Reminder, Cron-Jobs
+Status: Abgeschlossen
+Abhängigkeiten: 003-001, 003-003
+Blockiert: 007-001
+      </bpmn:documentation>
+      <bpmn:incoming>Flow_Tier3_to_004_001</bpmn:incoming>
+      <bpmn:outgoing>Flow_004_001_to_007_001</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:task id="Story_004_002" name="004-002&#10;GDPR &amp; Retention&#10;[DONE ✅]">
+      <bpmn:documentation>
+Story: GDPR-Compliance, Datenexport, Löschung, Anonymisierung
+Status: Abgeschlossen
+Abhängigkeiten: 003-001
+Blockiert: 008-002
+      </bpmn:documentation>
+      <bpmn:incoming>Flow_003_001_to_004_002</bpmn:incoming>
+      <bpmn:outgoing>Flow_004_002_to_008_002</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:task id="Story_004_003" name="004-003&#10;Analytics&#10;[DONE ✅]">
+      <bpmn:documentation>
+Story: Statistiken, Trends, Bottleneck-Analyse
+Status: Abgeschlossen
+Abhängigkeiten: 003-001, 003-002
+Blockiert: 008-001, 008-002
+      </bpmn:documentation>
+      <bpmn:incoming>Flow_003_001_to_004_003</bpmn:incoming>
+      <bpmn:incoming>Flow_003_002_to_004_003</bpmn:incoming>
+      <bpmn:outgoing>Flow_004_003_to_008_001</bpmn:outgoing>
+      <bpmn:outgoing>Flow_004_003_to_008_002</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:parallelGateway id="Gateway_Tier4_Join" name="Tier 4 Complete">
+      <bpmn:incoming>Flow_004_001_to_007_001</bpmn:incoming>
+      <bpmn:outgoing>Flow_Tier4_to_007_001</bpmn:outgoing>
+    </bpmn:parallelGateway>
+
+    <!-- ============================================ -->
+    <!-- TIER 5: FRONTEND TEMPLATES (3 Stories) -->
+    <!-- ============================================ -->
+
+    <bpmn:task id="Story_005_001" name="005-001&#10;Template List &amp; CRUD&#10;[DONE ✅]">
+      <bpmn:documentation>
+Story: Frontend Template-Liste mit Pagination, CRUD
+Status: Abgeschlossen
+Abhängigkeiten: 002-001
+Blockiert: 005-002
+      </bpmn:documentation>
+      <bpmn:incoming>Flow_002_001_to_005_001</bpmn:incoming>
+      <bpmn:outgoing>Flow_005_001_to_005_002</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:task id="Story_005_002" name="005-002&#10;Step Builder&#10;[DONE ✅]">
+      <bpmn:documentation>
+Story: Drag &amp; Drop Step Builder UI
+Status: Abgeschlossen
+Abhängigkeiten: 002-002, 005-001
+Blockiert: 005-003
+      </bpmn:documentation>
+      <bpmn:incoming>Flow_005_001_to_005_002</bpmn:incoming>
+      <bpmn:incoming>Flow_002_002_to_005_002</bpmn:incoming>
+      <bpmn:outgoing>Flow_005_002_to_005_003</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:task id="Story_005_003" name="005-003&#10;Field Builder&#10;[DONE ✅]">
+      <bpmn:documentation>
+Story: Feld-Konfiguration UI (11 Feldtypen)
+Status: Abgeschlossen
+Abhängigkeiten: 002-003, 005-002
+Blockiert: 006-002
+      </bpmn:documentation>
+      <bpmn:incoming>Flow_005_002_to_005_003</bpmn:incoming>
+      <bpmn:incoming>Flow_002_003_to_005_003</bpmn:incoming>
+      <bpmn:outgoing>Flow_005_003_to_006_002</bpmn:outgoing>
+    </bpmn:task>
+
+    <!-- ============================================ -->
+    <!-- TIER 6: FRONTEND INSTANCES (3 Stories) -->
+    <!-- ============================================ -->
+
+    <bpmn:task id="Story_006_001" name="006-001&#10;Instance List&#10;[DONE ✅]">
+      <bpmn:documentation>
+Story: Instanz-Liste mit Filterung, Status-Badges
+Status: Abgeschlossen
+Abhängigkeiten: 003-001
+Blockiert: 006-002
+      </bpmn:documentation>
+      <bpmn:incoming>Flow_003_001_to_006_001</bpmn:incoming>
+      <bpmn:outgoing>Flow_006_001_to_006_002</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:task id="Story_006_002" name="006-002&#10;Step Completion UI&#10;[DONE ✅]">
+      <bpmn:documentation>
+Story: Step-Ausführung UI (Form, Manual, Edit, API)
+Status: Abgeschlossen
+Abhängigkeiten: 003-002, 005-003, 006-001
+Blockiert: 006-003
+      </bpmn:documentation>
+      <bpmn:incoming>Flow_006_001_to_006_002</bpmn:incoming>
+      <bpmn:incoming>Flow_003_002_to_006_002</bpmn:incoming>
+      <bpmn:incoming>Flow_005_003_to_006_002</bpmn:incoming>
+      <bpmn:outgoing>Flow_006_002_to_006_003</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:task id="Story_006_003" name="006-003&#10;Instance Detail&#10;[DONE ✅]">
+      <bpmn:documentation>
+Story: Instanz-Detailansicht, Pause/Resume/Reset UI
+Status: Abgeschlossen
+Abhängigkeiten: 003-003, 006-002
+Blockiert: 007-001
+      </bpmn:documentation>
+      <bpmn:incoming>Flow_006_002_to_006_003</bpmn:incoming>
+      <bpmn:incoming>Flow_003_003_to_006_003</bpmn:incoming>
+      <bpmn:outgoing>Flow_006_003_to_007_001</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:parallelGateway id="Gateway_Tier6_Join" name="Tier 6 Complete">
+      <bpmn:incoming>Flow_Tier4_to_007_001</bpmn:incoming>
+      <bpmn:incoming>Flow_006_003_to_007_001</bpmn:incoming>
+      <bpmn:outgoing>Flow_Tier6_to_007_001</bpmn:outgoing>
+    </bpmn:parallelGateway>
+
+    <!-- ============================================ -->
+    <!-- TIER 7-8: FRONTEND FEATURES (3 Stories) -->
+    <!-- ============================================ -->
+
+    <bpmn:userTask id="Story_007_001" name="007-001&#10;Notification Center&#10;[IN PROGRESS 🔄]">
+      <bpmn:documentation>
+Story: Notification Bell, Dropdown, Präferenzen
+Status: IN BEARBEITUNG (Story 16)
+Abhängigkeiten: 004-001, 006-003
+Blockiert: -
+      </bpmn:documentation>
+      <bpmn:incoming>Flow_Tier6_to_007_001</bpmn:incoming>
+      <bpmn:outgoing>Flow_007_001_to_Final</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:manualTask id="Story_008_001" name="008-001&#10;Admin Dashboard&#10;[PENDING ⏸]">
+      <bpmn:documentation>
+Story: Dashboard mit Stats, Charts, Widgets
+Status: AUSSTEHEND (Story 17)
+Abhängigkeiten: 004-003
+Blockiert: 008-002
+      </bpmn:documentation>
+      <bpmn:incoming>Flow_004_003_to_008_001</bpmn:incoming>
+      <bpmn:outgoing>Flow_008_001_to_008_002</bpmn:outgoing>
+    </bpmn:manualTask>
+
+    <bpmn:manualTask id="Story_008_002" name="008-002&#10;GDPR &amp; Analytics UI&#10;[PENDING ⏸]">
+      <bpmn:documentation>
+Story: GDPR Dashboard, Analytics-Seite, CSV Export
+Status: AUSSTEHEND (Story 20)
+Abhängigkeiten: 004-002, 004-003, 008-001
+Blockiert: - (Letztes Feature)
+      </bpmn:documentation>
+      <bpmn:incoming>Flow_008_001_to_008_002</bpmn:incoming>
+      <bpmn:incoming>Flow_004_002_to_008_002</bpmn:incoming>
+      <bpmn:incoming>Flow_004_003_to_008_002</bpmn:incoming>
+      <bpmn:outgoing>Flow_008_002_to_Final</bpmn:outgoing>
+    </bpmn:manualTask>
+
+    <bpmn:parallelGateway id="Gateway_Final_Join" name="All Complete">
+      <bpmn:incoming>Flow_007_001_to_Final</bpmn:incoming>
+      <bpmn:incoming>Flow_008_002_to_Final</bpmn:incoming>
+      <bpmn:outgoing>Flow_Final_to_End</bpmn:outgoing>
+    </bpmn:parallelGateway>
+
+    <!-- ============================================ -->
+    <!-- END EVENT -->
+    <!-- ============================================ -->
+    <bpmn:endEvent id="End_Project" name="MVP Complete&#10;(20/20 Stories)">
+      <bpmn:incoming>Flow_Final_to_End</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <!-- ============================================ -->
+    <!-- SEQUENCE FLOWS (ABHÄNGIGKEITEN) -->
+    <!-- ============================================ -->
+
+    <!-- Start -->
+    <bpmn:sequenceFlow id="Flow_Start_001_001" sourceRef="Start_Project" targetRef="Story_001_001"/>
+
+    <!-- Tier 1 -->
+    <bpmn:sequenceFlow id="Flow_001_001_to_001_002" sourceRef="Story_001_001" targetRef="Story_001_002"/>
+    <bpmn:sequenceFlow id="Flow_001_001_to_002_001" sourceRef="Story_001_001" targetRef="Gateway_Tier1_Split"/>
+    <bpmn:sequenceFlow id="Flow_001_002_to_002_001" sourceRef="Story_001_002" targetRef="Gateway_Tier1_Split"/>
+    <bpmn:sequenceFlow id="Flow_001_002_to_003_001" sourceRef="Story_001_002" targetRef="Gateway_Tier2_Split"/>
+    <bpmn:sequenceFlow id="Flow_Tier1_to_002_001" sourceRef="Gateway_Tier1_Split" targetRef="Story_002_001"/>
+
+    <!-- Tier 2 -->
+    <bpmn:sequenceFlow id="Flow_002_001_to_002_002" sourceRef="Story_002_001" targetRef="Story_002_002"/>
+    <bpmn:sequenceFlow id="Flow_002_002_to_002_003" sourceRef="Story_002_002" targetRef="Story_002_003"/>
+    <bpmn:sequenceFlow id="Flow_002_001_to_003_001" sourceRef="Story_002_001" targetRef="Gateway_Tier2_Split"/>
+    <bpmn:sequenceFlow id="Flow_002_001_to_005_001" sourceRef="Story_002_001" targetRef="Story_005_001"/>
+    <bpmn:sequenceFlow id="Flow_002_002_to_003_002" sourceRef="Story_002_002" targetRef="Story_003_002"/>
+    <bpmn:sequenceFlow id="Flow_002_002_to_005_002" sourceRef="Story_002_002" targetRef="Story_005_002"/>
+    <bpmn:sequenceFlow id="Flow_002_003_to_003_002" sourceRef="Story_002_003" targetRef="Story_003_002"/>
+    <bpmn:sequenceFlow id="Flow_002_003_to_005_003" sourceRef="Story_002_003" targetRef="Story_005_003"/>
+    <bpmn:sequenceFlow id="Flow_Tier2_to_003_001" sourceRef="Gateway_Tier2_Split" targetRef="Story_003_001"/>
+
+    <!-- Tier 3 -->
+    <bpmn:sequenceFlow id="Flow_003_001_to_003_002" sourceRef="Story_003_001" targetRef="Story_003_002"/>
+    <bpmn:sequenceFlow id="Flow_003_001_to_003_003" sourceRef="Story_003_001" targetRef="Story_003_003"/>
+    <bpmn:sequenceFlow id="Flow_003_002_to_003_003" sourceRef="Story_003_002" targetRef="Story_003_003"/>
+    <bpmn:sequenceFlow id="Flow_003_001_to_004_001" sourceRef="Story_003_001" targetRef="Gateway_Tier3_Split"/>
+    <bpmn:sequenceFlow id="Flow_003_001_to_004_002" sourceRef="Story_003_001" targetRef="Story_004_002"/>
+    <bpmn:sequenceFlow id="Flow_003_001_to_004_003" sourceRef="Story_003_001" targetRef="Story_004_003"/>
+    <bpmn:sequenceFlow id="Flow_003_001_to_006_001" sourceRef="Story_003_001" targetRef="Story_006_001"/>
+    <bpmn:sequenceFlow id="Flow_003_002_to_004_003" sourceRef="Story_003_002" targetRef="Story_004_003"/>
+    <bpmn:sequenceFlow id="Flow_003_002_to_006_002" sourceRef="Story_003_002" targetRef="Story_006_002"/>
+    <bpmn:sequenceFlow id="Flow_003_003_to_004_001" sourceRef="Story_003_003" targetRef="Gateway_Tier3_Split"/>
+    <bpmn:sequenceFlow id="Flow_003_003_to_006_003" sourceRef="Story_003_003" targetRef="Story_006_003"/>
+    <bpmn:sequenceFlow id="Flow_Tier3_to_004_001" sourceRef="Gateway_Tier3_Split" targetRef="Story_004_001"/>
+
+    <!-- Tier 4 -->
+    <bpmn:sequenceFlow id="Flow_004_001_to_007_001" sourceRef="Story_004_001" targetRef="Gateway_Tier4_Join"/>
+    <bpmn:sequenceFlow id="Flow_004_002_to_008_002" sourceRef="Story_004_002" targetRef="Story_008_002"/>
+    <bpmn:sequenceFlow id="Flow_004_003_to_008_001" sourceRef="Story_004_003" targetRef="Story_008_001"/>
+    <bpmn:sequenceFlow id="Flow_004_003_to_008_002" sourceRef="Story_004_003" targetRef="Story_008_002"/>
+    <bpmn:sequenceFlow id="Flow_Tier4_to_007_001" sourceRef="Gateway_Tier4_Join" targetRef="Gateway_Tier6_Join"/>
+
+    <!-- Tier 5 -->
+    <bpmn:sequenceFlow id="Flow_005_001_to_005_002" sourceRef="Story_005_001" targetRef="Story_005_002"/>
+    <bpmn:sequenceFlow id="Flow_005_002_to_005_003" sourceRef="Story_005_002" targetRef="Story_005_003"/>
+    <bpmn:sequenceFlow id="Flow_005_003_to_006_002" sourceRef="Story_005_003" targetRef="Story_006_002"/>
+
+    <!-- Tier 6 -->
+    <bpmn:sequenceFlow id="Flow_006_001_to_006_002" sourceRef="Story_006_001" targetRef="Story_006_002"/>
+    <bpmn:sequenceFlow id="Flow_006_002_to_006_003" sourceRef="Story_006_002" targetRef="Story_006_003"/>
+    <bpmn:sequenceFlow id="Flow_006_003_to_007_001" sourceRef="Story_006_003" targetRef="Gateway_Tier6_Join"/>
+    <bpmn:sequenceFlow id="Flow_Tier6_to_007_001" sourceRef="Gateway_Tier6_Join" targetRef="Story_007_001"/>
+
+    <!-- Tier 7-8 -->
+    <bpmn:sequenceFlow id="Flow_007_001_to_Final" sourceRef="Story_007_001" targetRef="Gateway_Final_Join"/>
+    <bpmn:sequenceFlow id="Flow_008_001_to_008_002" sourceRef="Story_008_001" targetRef="Story_008_002"/>
+    <bpmn:sequenceFlow id="Flow_008_002_to_Final" sourceRef="Story_008_002" targetRef="Gateway_Final_Join"/>
+
+    <!-- End -->
+    <bpmn:sequenceFlow id="Flow_Final_to_End" sourceRef="Gateway_Final_Join" targetRef="End_Project"/>
+
+  </bpmn:process>
+
+  <!-- ============================================ -->
+  <!-- DIAGRAM (Visual Layout) -->
+  <!-- ============================================ -->
+  <bpmndi:BPMNDiagram id="BPMNDiagram_AllStories">
+    <bpmndi:BPMNPlane id="BPMNPlane_AllStories" bpmnElement="Collaboration_Stories">
+
+      <!-- Pool -->
+      <bpmndi:BPMNShape id="Pool_PMSystem_di" bpmnElement="Pool_PMSystem" isHorizontal="true">
+        <dc:Bounds x="160" y="80" width="1600" height="1120"/>
+        <bpmndi:BPMNLabel/>
+      </bpmndi:BPMNShape>
+
+      <!-- Lane: Tier 1 -->
+      <bpmndi:BPMNShape id="Lane_Tier1_di" bpmnElement="Lane_Tier1" isHorizontal="true">
+        <dc:Bounds x="190" y="80" width="1570" height="160"/>
+        <bpmndi:BPMNLabel/>
+      </bpmndi:BPMNShape>
+
+      <!-- Lane: Tier 2 -->
+      <bpmndi:BPMNShape id="Lane_Tier2_di" bpmnElement="Lane_Tier2" isHorizontal="true">
+        <dc:Bounds x="190" y="240" width="1570" height="140"/>
+        <bpmndi:BPMNLabel/>
+      </bpmndi:BPMNShape>
+
+      <!-- Lane: Tier 3 -->
+      <bpmndi:BPMNShape id="Lane_Tier3_di" bpmnElement="Lane_Tier3" isHorizontal="true">
+        <dc:Bounds x="190" y="380" width="1570" height="140"/>
+        <bpmndi:BPMNLabel/>
+      </bpmndi:BPMNShape>
+
+      <!-- Lane: Tier 4 -->
+      <bpmndi:BPMNShape id="Lane_Tier4_di" bpmnElement="Lane_Tier4" isHorizontal="true">
+        <dc:Bounds x="190" y="520" width="1570" height="140"/>
+        <bpmndi:BPMNLabel/>
+      </bpmndi:BPMNShape>
+
+      <!-- Lane: Tier 5 -->
+      <bpmndi:BPMNShape id="Lane_Tier5_di" bpmnElement="Lane_Tier5" isHorizontal="true">
+        <dc:Bounds x="190" y="660" width="1570" height="140"/>
+        <bpmndi:BPMNLabel/>
+      </bpmndi:BPMNShape>
+
+      <!-- Lane: Tier 6 -->
+      <bpmndi:BPMNShape id="Lane_Tier6_di" bpmnElement="Lane_Tier6" isHorizontal="true">
+        <dc:Bounds x="190" y="800" width="1570" height="140"/>
+        <bpmndi:BPMNLabel/>
+      </bpmndi:BPMNShape>
+
+      <!-- Lane: Tier 7-8 -->
+      <bpmndi:BPMNShape id="Lane_Tier7_8_di" bpmnElement="Lane_Tier7_8" isHorizontal="true">
+        <dc:Bounds x="190" y="940" width="1570" height="260"/>
+        <bpmndi:BPMNLabel/>
+      </bpmndi:BPMNShape>
+
+      <!-- Start Event -->
+      <bpmndi:BPMNShape id="Start_Project_di" bpmnElement="Start_Project">
+        <dc:Bounds x="242" y="142" width="36" height="36"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="225" y="185" width="70" height="14"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <!-- Tier 1 Stories -->
+      <bpmndi:BPMNShape id="Story_001_001_di" bpmnElement="Story_001_001" bioc:stroke="#43a047" bioc:fill="#c8e6c9">
+        <dc:Bounds x="330" y="120" width="120" height="80"/>
+        <bpmndi:BPMNLabel/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Story_001_002_di" bpmnElement="Story_001_002" bioc:stroke="#43a047" bioc:fill="#c8e6c9">
+        <dc:Bounds x="500" y="120" width="120" height="80"/>
+        <bpmndi:BPMNLabel/>
+      </bpmndi:BPMNShape>
+
+      <!-- Tier 2 Stories -->
+      <bpmndi:BPMNShape id="Story_002_001_di" bpmnElement="Story_002_001" bioc:stroke="#43a047" bioc:fill="#c8e6c9">
+        <dc:Bounds x="330" y="270" width="120" height="80"/>
+        <bpmndi:BPMNLabel/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Story_002_002_di" bpmnElement="Story_002_002" bioc:stroke="#43a047" bioc:fill="#c8e6c9">
+        <dc:Bounds x="500" y="270" width="120" height="80"/>
+        <bpmndi:BPMNLabel/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Story_002_003_di" bpmnElement="Story_002_003" bioc:stroke="#43a047" bioc:fill="#c8e6c9">
+        <dc:Bounds x="670" y="270" width="120" height="80"/>
+        <bpmndi:BPMNLabel/>
+      </bpmndi:BPMNShape>
+
+      <!-- Tier 3 Stories -->
+      <bpmndi:BPMNShape id="Story_003_001_di" bpmnElement="Story_003_001" bioc:stroke="#43a047" bioc:fill="#c8e6c9">
+        <dc:Bounds x="330" y="410" width="120" height="80"/>
+        <bpmndi:BPMNLabel/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Story_003_002_di" bpmnElement="Story_003_002" bioc:stroke="#43a047" bioc:fill="#c8e6c9">
+        <dc:Bounds x="500" y="410" width="120" height="80"/>
+        <bpmndi:BPMNLabel/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Story_003_003_di" bpmnElement="Story_003_003" bioc:stroke="#43a047" bioc:fill="#c8e6c9">
+        <dc:Bounds x="670" y="410" width="120" height="80"/>
+        <bpmndi:BPMNLabel/>
+      </bpmndi:BPMNShape>
+
+      <!-- Tier 4 Stories -->
+      <bpmndi:BPMNShape id="Story_004_001_di" bpmnElement="Story_004_001" bioc:stroke="#43a047" bioc:fill="#c8e6c9">
+        <dc:Bounds x="840" y="550" width="120" height="80"/>
+        <bpmndi:BPMNLabel/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Story_004_002_di" bpmnElement="Story_004_002" bioc:stroke="#43a047" bioc:fill="#c8e6c9">
+        <dc:Bounds x="1010" y="550" width="120" height="80"/>
+        <bpmndi:BPMNLabel/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Story_004_003_di" bpmnElement="Story_004_003" bioc:stroke="#43a047" bioc:fill="#c8e6c9">
+        <dc:Bounds x="1180" y="550" width="120" height="80"/>
+        <bpmndi:BPMNLabel/>
+      </bpmndi:BPMNShape>
+
+      <!-- Tier 5 Stories -->
+      <bpmndi:BPMNShape id="Story_005_001_di" bpmnElement="Story_005_001" bioc:stroke="#43a047" bioc:fill="#c8e6c9">
+        <dc:Bounds x="500" y="690" width="120" height="80"/>
+        <bpmndi:BPMNLabel/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Story_005_002_di" bpmnElement="Story_005_002" bioc:stroke="#43a047" bioc:fill="#c8e6c9">
+        <dc:Bounds x="670" y="690" width="120" height="80"/>
+        <bpmndi:BPMNLabel/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Story_005_003_di" bpmnElement="Story_005_003" bioc:stroke="#43a047" bioc:fill="#c8e6c9">
+        <dc:Bounds x="840" y="690" width="120" height="80"/>
+        <bpmndi:BPMNLabel/>
+      </bpmndi:BPMNShape>
+
+      <!-- Tier 6 Stories -->
+      <bpmndi:BPMNShape id="Story_006_001_di" bpmnElement="Story_006_001" bioc:stroke="#43a047" bioc:fill="#c8e6c9">
+        <dc:Bounds x="500" y="830" width="120" height="80"/>
+        <bpmndi:BPMNLabel/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Story_006_002_di" bpmnElement="Story_006_002" bioc:stroke="#43a047" bioc:fill="#c8e6c9">
+        <dc:Bounds x="840" y="830" width="120" height="80"/>
+        <bpmndi:BPMNLabel/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Story_006_003_di" bpmnElement="Story_006_003" bioc:stroke="#43a047" bioc:fill="#c8e6c9">
+        <dc:Bounds x="1010" y="830" width="120" height="80"/>
+        <bpmndi:BPMNLabel/>
+      </bpmndi:BPMNShape>
+
+      <!-- Tier 7-8 Stories -->
+      <bpmndi:BPMNShape id="Story_007_001_di" bpmnElement="Story_007_001" bioc:stroke="#fb8c00" bioc:fill="#fff9c4">
+        <dc:Bounds x="1180" y="970" width="120" height="80"/>
+        <bpmndi:BPMNLabel/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Story_008_001_di" bpmnElement="Story_008_001" bioc:stroke="#e53935" bioc:fill="#ffcdd2">
+        <dc:Bounds x="1180" y="1060" width="120" height="80"/>
+        <bpmndi:BPMNLabel/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Story_008_002_di" bpmnElement="Story_008_002" bioc:stroke="#e53935" bioc:fill="#ffcdd2">
+        <dc:Bounds x="1350" y="1060" width="120" height="80"/>
+        <bpmndi:BPMNLabel/>
+      </bpmndi:BPMNShape>
+
+      <!-- End Event -->
+      <bpmndi:BPMNShape id="End_Project_di" bpmnElement="End_Project">
+        <dc:Bounds x="1552" y="1082" width="36" height="36"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1530" y="1125" width="80" height="27"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <!-- Gateways -->
+      <bpmndi:BPMNShape id="Gateway_Tier1_Split_di" bpmnElement="Gateway_Tier1_Split">
+        <dc:Bounds x="675" y="135" width="50" height="50"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Gateway_Tier2_Split_di" bpmnElement="Gateway_Tier2_Split">
+        <dc:Bounds x="675" y="425" width="50" height="50"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Gateway_Tier3_Split_di" bpmnElement="Gateway_Tier3_Split">
+        <dc:Bounds x="845" y="425" width="50" height="50"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Gateway_Tier4_Join_di" bpmnElement="Gateway_Tier4_Join">
+        <dc:Bounds x="1015" y="565" width="50" height="50"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Gateway_Tier6_Join_di" bpmnElement="Gateway_Tier6_Join">
+        <dc:Bounds x="1185" y="845" width="50" height="50"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Gateway_Final_Join_di" bpmnElement="Gateway_Final_Join">
+        <dc:Bounds x="1485" y="1075" width="50" height="50"/>
+      </bpmndi:BPMNShape>
+
+      <!-- Legend Annotation -->
+      <bpmndi:BPMNShape id="TextAnnotation_Legend_di" bpmnElement="TextAnnotation_Legend">
+        <dc:Bounds x="1500" y="100" width="200" height="100"/>
+      </bpmndi:BPMNShape>
+
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+
+</bpmn:definitions>
