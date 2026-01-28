@@ -1,0 +1,746 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+                  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+                  xmlns:bioc="http://bpmn.io/schema/bpmn/biocolor/1.0"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  id="Definitions_PMRuntime"
+                  targetNamespace="http://pm-system.local/bpmn/runtime">
+
+  <!-- ============================================ -->
+  <!-- PM-SYSTEM: LAUFZEIT-PROZESS -->
+  <!-- Vollständiger Prozessablauf einer Instanz -->
+  <!-- ============================================ -->
+
+  <bpmn:collaboration id="Collaboration_Runtime">
+    <bpmn:participant id="Pool_PMSystem" name="PM-System Prozessablauf" processRef="Process_Runtime"/>
+
+    <bpmn:textAnnotation id="Annotation_Info">
+      <bpmn:text>PM-SYSTEM PROZESSABLAUF
+========================
+1. Template erstellen (Admin)
+2. Instanz starten
+3. Steps durchlaufen
+4. Prozess-Kontrolle
+5. Abschluss &amp; Archivierung</bpmn:text>
+    </bpmn:textAnnotation>
+  </bpmn:collaboration>
+
+  <!-- ============================================ -->
+  <!-- HAUPTPROZESS -->
+  <!-- ============================================ -->
+  <bpmn:process id="Process_Runtime" isExecutable="true">
+
+    <!-- ============================================ -->
+    <!-- LANES (Verantwortlichkeiten) -->
+    <!-- ============================================ -->
+    <bpmn:laneSet id="LaneSet_Runtime">
+
+      <bpmn:lane id="Lane_Admin" name="PM-Admin">
+        <bpmn:flowNodeRef>Start_Process</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_CreateTemplate</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>SubProcess_ConfigTemplate</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_PublishTemplate</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_CreateInstance</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_AssignBearbeiter</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_SendLinks</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_PauseInstance</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ResumeInstance</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ResetStep</bpmn:flowNodeRef>
+      </bpmn:lane>
+
+      <bpmn:lane id="Lane_Bearbeiter" name="Bearbeiter">
+        <bpmn:flowNodeRef>Task_ReceiveAssignment</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_OpenStep</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_StepType</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ReviewForm</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_DoManualTask</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_CreateDocument</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_WaitForAPI</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_MergeStepTypes</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_CompleteStep_B</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_AddComment</bpmn:flowNodeRef>
+      </bpmn:lane>
+
+      <bpmn:lane id="Lane_Kunde" name="Kunde (Public Link)">
+        <bpmn:flowNodeRef>Task_ReceiveLink</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_OpenPublicForm</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_FillFormFields</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_Validation</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ShowErrors</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_SubmitForm</bpmn:flowNodeRef>
+      </bpmn:lane>
+
+      <bpmn:lane id="Lane_System" name="System (Automatisch)">
+        <bpmn:flowNodeRef>Task_SaveStepData</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_UpdateHistory</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_CalculateTime</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_IncrementStep</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_LastStep</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_SendNotification</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_CompleteInstance</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_StartRetention</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Event_RetentionTimer</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_SendArchiveWarning</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ArchiveInstance</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_GDPRDelete</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_AnonymizeData</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_DeleteData</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_KeepArchived</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_MergeGDPR</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_Process</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Event_ReminderTimer</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_SendReminder</bpmn:flowNodeRef>
+      </bpmn:lane>
+
+    </bpmn:laneSet>
+
+    <!-- ============================================ -->
+    <!-- PHASE 1: TEMPLATE ERSTELLEN (Admin) -->
+    <!-- ============================================ -->
+
+    <bpmn:startEvent id="Start_Process" name="Prozessbedarf&#10;erkannt">
+      <bpmn:outgoing>Flow_Start_to_CreateTemplate</bpmn:outgoing>
+    </bpmn:startEvent>
+
+    <bpmn:userTask id="Task_CreateTemplate" name="Template&#10;erstellen">
+      <bpmn:documentation>
+Admin erstellt ein neues Prozess-Template mit:
+- Name und Beschreibung
+- Retention-Zeitraum (Tage)
+- Kategorie/Tags
+      </bpmn:documentation>
+      <bpmn:incoming>Flow_Start_to_CreateTemplate</bpmn:incoming>
+      <bpmn:outgoing>Flow_CreateTemplate_to_Config</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- Sub-Process: Template Konfiguration -->
+    <bpmn:subProcess id="SubProcess_ConfigTemplate" name="Template konfigurieren">
+      <bpmn:documentation>
+Konfiguration des Templates mit Steps und Feldern
+      </bpmn:documentation>
+      <bpmn:incoming>Flow_CreateTemplate_to_Config</bpmn:incoming>
+      <bpmn:outgoing>Flow_Config_to_Publish</bpmn:outgoing>
+
+      <!-- Sub-Process Start -->
+      <bpmn:startEvent id="SubStart_Config">
+        <bpmn:outgoing>Flow_Sub_Start</bpmn:outgoing>
+      </bpmn:startEvent>
+
+      <!-- Step hinzufügen (Loop) -->
+      <bpmn:userTask id="Task_AddStep" name="Step hinzufuegen&#10;(Drag &amp; Drop)">
+        <bpmn:documentation>
+Step-Typen:
+- Form: Formular mit Feldern
+- Manual: Manuelle Aufgabe mit Anweisung
+- Edit: Dokument erstellen (Text/Datei)
+- API: Externes System (Webhook)
+        </bpmn:documentation>
+        <bpmn:incoming>Flow_Sub_Start</bpmn:incoming>
+        <bpmn:incoming>Flow_MoreSteps_Yes</bpmn:incoming>
+        <bpmn:outgoing>Flow_AddStep_to_Config</bpmn:outgoing>
+      </bpmn:userTask>
+
+      <bpmn:userTask id="Task_ConfigStep" name="Step&#10;konfigurieren">
+        <bpmn:documentation>
+Konfiguration pro Step:
+- Name und Beschreibung
+- Zugewiesen an: Kunde oder Bearbeiter
+- Bearbeitungszeit (Min/Max in Minuten)
+- Prozesszeit (Min/Max in Tagen)
+        </bpmn:documentation>
+        <bpmn:incoming>Flow_AddStep_to_Config</bpmn:incoming>
+        <bpmn:outgoing>Flow_ConfigStep_to_Gateway</bpmn:outgoing>
+      </bpmn:userTask>
+
+      <bpmn:exclusiveGateway id="Gateway_StepTypeConfig" name="Step-Typ?">
+        <bpmn:incoming>Flow_ConfigStep_to_Gateway</bpmn:incoming>
+        <bpmn:outgoing>Flow_StepType_Form</bpmn:outgoing>
+        <bpmn:outgoing>Flow_StepType_Manual</bpmn:outgoing>
+        <bpmn:outgoing>Flow_StepType_Edit</bpmn:outgoing>
+        <bpmn:outgoing>Flow_StepType_API</bpmn:outgoing>
+      </bpmn:exclusiveGateway>
+
+      <!-- Form Step: Felder konfigurieren -->
+      <bpmn:userTask id="Task_ConfigFields" name="Felder&#10;konfigurieren">
+        <bpmn:documentation>
+11 Feldtypen verfuegbar:
+1. Text (Freitext)
+2. Email (mit Validierung)
+3. IBAN (ISO 13616)
+4. PLZ (5 Ziffern)
+5. Telefon (Format-Validierung)
+6. Datum (Date Picker)
+7. Dropdown (Optionen)
+8. Datei (Upload, Typen/Groesse)
+9. Checkbox (Boolean)
+10. Textarea (Mehrzeilig)
+11. Number (Zahlen)
+
+Pro Feld: Label, Name, Required, Hilfetext
+        </bpmn:documentation>
+        <bpmn:incoming>Flow_StepType_Form</bpmn:incoming>
+        <bpmn:outgoing>Flow_Fields_to_Merge</bpmn:outgoing>
+      </bpmn:userTask>
+
+      <!-- Manual Step Config -->
+      <bpmn:userTask id="Task_ConfigManual" name="Anweisung &amp;&#10;Nachweis">
+        <bpmn:documentation>
+Manual-Step Konfiguration:
+- Anweisungstext (was zu tun ist)
+- Button-Text (z.B. "Erledigt")
+- Nachweis erforderlich? (Ja/Nein)
+- Nachweis-Typ: Text oder Datei
+        </bpmn:documentation>
+        <bpmn:incoming>Flow_StepType_Manual</bpmn:incoming>
+        <bpmn:outgoing>Flow_Manual_to_Merge</bpmn:outgoing>
+      </bpmn:userTask>
+
+      <!-- Edit Step Config -->
+      <bpmn:userTask id="Task_ConfigEdit" name="Output-Typ&#10;festlegen">
+        <bpmn:documentation>
+Edit-Step Konfiguration:
+- Output-Typ: Text oder Datei
+- Bei Text: Rich-Text-Editor
+- Bei Datei: Erlaubte Dateitypen
+        </bpmn:documentation>
+        <bpmn:incoming>Flow_StepType_Edit</bpmn:incoming>
+        <bpmn:outgoing>Flow_Edit_to_Merge</bpmn:outgoing>
+      </bpmn:userTask>
+
+      <!-- API Step Config -->
+      <bpmn:userTask id="Task_ConfigAPI" name="Webhook&#10;konfigurieren">
+        <bpmn:documentation>
+API-Step Konfiguration:
+- Webhook-URL (extern)
+- API-Key fuer Authentifizierung
+- Timeout-Einstellungen
+        </bpmn:documentation>
+        <bpmn:incoming>Flow_StepType_API</bpmn:incoming>
+        <bpmn:outgoing>Flow_API_to_Merge</bpmn:outgoing>
+      </bpmn:userTask>
+
+      <bpmn:exclusiveGateway id="Gateway_MergeConfig">
+        <bpmn:incoming>Flow_Fields_to_Merge</bpmn:incoming>
+        <bpmn:incoming>Flow_Manual_to_Merge</bpmn:incoming>
+        <bpmn:incoming>Flow_Edit_to_Merge</bpmn:incoming>
+        <bpmn:incoming>Flow_API_to_Merge</bpmn:incoming>
+        <bpmn:outgoing>Flow_Merge_to_MoreSteps</bpmn:outgoing>
+      </bpmn:exclusiveGateway>
+
+      <bpmn:exclusiveGateway id="Gateway_MoreSteps" name="Weitere&#10;Steps?">
+        <bpmn:incoming>Flow_Merge_to_MoreSteps</bpmn:incoming>
+        <bpmn:outgoing>Flow_MoreSteps_Yes</bpmn:outgoing>
+        <bpmn:outgoing>Flow_MoreSteps_No</bpmn:outgoing>
+      </bpmn:exclusiveGateway>
+
+      <bpmn:endEvent id="SubEnd_Config">
+        <bpmn:incoming>Flow_MoreSteps_No</bpmn:incoming>
+      </bpmn:endEvent>
+
+      <!-- Sub-Process Flows -->
+      <bpmn:sequenceFlow id="Flow_Sub_Start" sourceRef="SubStart_Config" targetRef="Task_AddStep"/>
+      <bpmn:sequenceFlow id="Flow_AddStep_to_Config" sourceRef="Task_AddStep" targetRef="Task_ConfigStep"/>
+      <bpmn:sequenceFlow id="Flow_ConfigStep_to_Gateway" sourceRef="Task_ConfigStep" targetRef="Gateway_StepTypeConfig"/>
+      <bpmn:sequenceFlow id="Flow_StepType_Form" name="Form" sourceRef="Gateway_StepTypeConfig" targetRef="Task_ConfigFields"/>
+      <bpmn:sequenceFlow id="Flow_StepType_Manual" name="Manual" sourceRef="Gateway_StepTypeConfig" targetRef="Task_ConfigManual"/>
+      <bpmn:sequenceFlow id="Flow_StepType_Edit" name="Edit" sourceRef="Gateway_StepTypeConfig" targetRef="Task_ConfigEdit"/>
+      <bpmn:sequenceFlow id="Flow_StepType_API" name="API" sourceRef="Gateway_StepTypeConfig" targetRef="Task_ConfigAPI"/>
+      <bpmn:sequenceFlow id="Flow_Fields_to_Merge" sourceRef="Task_ConfigFields" targetRef="Gateway_MergeConfig"/>
+      <bpmn:sequenceFlow id="Flow_Manual_to_Merge" sourceRef="Task_ConfigManual" targetRef="Gateway_MergeConfig"/>
+      <bpmn:sequenceFlow id="Flow_Edit_to_Merge" sourceRef="Task_ConfigEdit" targetRef="Gateway_MergeConfig"/>
+      <bpmn:sequenceFlow id="Flow_API_to_Merge" sourceRef="Task_ConfigAPI" targetRef="Gateway_MergeConfig"/>
+      <bpmn:sequenceFlow id="Flow_Merge_to_MoreSteps" sourceRef="Gateway_MergeConfig" targetRef="Gateway_MoreSteps"/>
+      <bpmn:sequenceFlow id="Flow_MoreSteps_Yes" name="Ja" sourceRef="Gateway_MoreSteps" targetRef="Task_AddStep"/>
+      <bpmn:sequenceFlow id="Flow_MoreSteps_No" name="Nein" sourceRef="Gateway_MoreSteps" targetRef="SubEnd_Config"/>
+
+    </bpmn:subProcess>
+
+    <bpmn:serviceTask id="Task_PublishTemplate" name="Template&#10;publizieren">
+      <bpmn:documentation>
+Template wird aktiviert und kann fuer neue Instanzen verwendet werden.
+      </bpmn:documentation>
+      <bpmn:incoming>Flow_Config_to_Publish</bpmn:incoming>
+      <bpmn:outgoing>Flow_Publish_to_CreateInstance</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <!-- ============================================ -->
+    <!-- PHASE 2: INSTANZ ERSTELLEN -->
+    <!-- ============================================ -->
+
+    <bpmn:userTask id="Task_CreateInstance" name="Neue Instanz&#10;erstellen">
+      <bpmn:documentation>
+Admin erstellt eine neue Prozess-Instanz:
+- Template auswaehlen
+- Kundendaten eingeben (Name, Email)
+- Public Token wird automatisch generiert
+- Template-Snapshot wird gespeichert
+      </bpmn:documentation>
+      <bpmn:incoming>Flow_Publish_to_CreateInstance</bpmn:incoming>
+      <bpmn:outgoing>Flow_CreateInstance_to_Assign</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Task_AssignBearbeiter" name="Bearbeiter&#10;zuweisen">
+      <bpmn:documentation>
+Ein Bearbeiter wird der Instanz zugewiesen.
+Dieser ist verantwortlich fuer interne Steps.
+      </bpmn:documentation>
+      <bpmn:incoming>Flow_CreateInstance_to_Assign</bpmn:incoming>
+      <bpmn:outgoing>Flow_Assign_to_SendLinks</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:parallelGateway id="Gateway_SendLinks" name="Benachrichtigungen">
+      <bpmn:incoming>Flow_Assign_to_SendLinks</bpmn:incoming>
+      <bpmn:outgoing>Flow_SendLinks_to_Bearbeiter</bpmn:outgoing>
+      <bpmn:outgoing>Flow_SendLinks_to_Kunde</bpmn:outgoing>
+    </bpmn:parallelGateway>
+
+    <!-- ============================================ -->
+    <!-- PHASE 3a: BEARBEITER-PFAD -->
+    <!-- ============================================ -->
+
+    <bpmn:task id="Task_ReceiveAssignment" name="Zuweisung&#10;erhalten">
+      <bpmn:documentation>
+Bearbeiter erhaelt Email-Benachrichtigung mit Link zur Instanz.
+      </bpmn:documentation>
+      <bpmn:incoming>Flow_SendLinks_to_Bearbeiter</bpmn:incoming>
+      <bpmn:incoming>Flow_Notification_to_Bearbeiter</bpmn:incoming>
+      <bpmn:outgoing>Flow_Assignment_to_OpenStep</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:userTask id="Task_OpenStep" name="Aktuellen Step&#10;oeffnen">
+      <bpmn:incoming>Flow_Assignment_to_OpenStep</bpmn:incoming>
+      <bpmn:outgoing>Flow_OpenStep_to_StepType</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="Gateway_StepType" name="Step-Typ?">
+      <bpmn:incoming>Flow_OpenStep_to_StepType</bpmn:incoming>
+      <bpmn:outgoing>Flow_Type_Form</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Type_Manual</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Type_Edit</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Type_API</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <!-- Form Step (Bearbeiter) -->
+    <bpmn:userTask id="Task_ReviewForm" name="Formular&#10;pruefen/korrigieren">
+      <bpmn:documentation>
+Bearbeiter prueft die vom Kunden eingegebenen Daten.
+Bei Bedarf koennen Korrekturen vorgenommen werden.
+      </bpmn:documentation>
+      <bpmn:incoming>Flow_Type_Form</bpmn:incoming>
+      <bpmn:outgoing>Flow_ReviewForm_to_Merge</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- Manual Step -->
+    <bpmn:userTask id="Task_DoManualTask" name="Manuelle Aufgabe&#10;erledigen">
+      <bpmn:documentation>
+Bearbeiter fuehrt die beschriebene Aufgabe aus:
+- Liest die Anweisung
+- Fuehrt die Aktion durch (z.B. Dokument versenden)
+- Gibt ggf. Nachweis ein (Text oder Datei-Upload)
+- Klickt auf Bestaetigen
+      </bpmn:documentation>
+      <bpmn:incoming>Flow_Type_Manual</bpmn:incoming>
+      <bpmn:outgoing>Flow_ManualTask_to_Merge</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- Edit Step -->
+    <bpmn:userTask id="Task_CreateDocument" name="Dokument&#10;erstellen">
+      <bpmn:documentation>
+Bearbeiter erstellt ein Dokument:
+- Text: Rich-Text-Editor verwenden
+- Datei: Dokument hochladen
+      </bpmn:documentation>
+      <bpmn:incoming>Flow_Type_Edit</bpmn:incoming>
+      <bpmn:outgoing>Flow_CreateDoc_to_Merge</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- API Step -->
+    <bpmn:receiveTask id="Task_WaitForAPI" name="Auf externes&#10;System warten">
+      <bpmn:documentation>
+System wartet auf Webhook-Aufruf von externem System.
+UI zeigt: "Warten auf externes System..."
+Kein manueller Button verfuegbar.
+      </bpmn:documentation>
+      <bpmn:incoming>Flow_Type_API</bpmn:incoming>
+      <bpmn:outgoing>Flow_WaitAPI_to_Merge</bpmn:outgoing>
+    </bpmn:receiveTask>
+
+    <bpmn:exclusiveGateway id="Gateway_MergeStepTypes">
+      <bpmn:incoming>Flow_ReviewForm_to_Merge</bpmn:incoming>
+      <bpmn:incoming>Flow_ManualTask_to_Merge</bpmn:incoming>
+      <bpmn:incoming>Flow_CreateDoc_to_Merge</bpmn:incoming>
+      <bpmn:incoming>Flow_WaitAPI_to_Merge</bpmn:incoming>
+      <bpmn:outgoing>Flow_MergeTypes_to_Complete</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:userTask id="Task_CompleteStep_B" name="Schritt&#10;abschliessen">
+      <bpmn:incoming>Flow_MergeTypes_to_Complete</bpmn:incoming>
+      <bpmn:outgoing>Flow_CompleteB_to_Save</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Task_AddComment" name="Kommentar&#10;hinzufuegen">
+      <bpmn:documentation>
+Optional: Bearbeiter kann Kommentare zum Step hinzufuegen.
+      </bpmn:documentation>
+    </bpmn:userTask>
+
+    <!-- ============================================ -->
+    <!-- PHASE 3b: KUNDE-PFAD (Public Link) -->
+    <!-- ============================================ -->
+
+    <bpmn:task id="Task_ReceiveLink" name="Public Link&#10;erhalten">
+      <bpmn:documentation>
+Kunde erhaelt Email mit Public Link zur Prozess-Instanz.
+Link enthaelt UUID-Token fuer Zugriff ohne Login.
+      </bpmn:documentation>
+      <bpmn:incoming>Flow_SendLinks_to_Kunde</bpmn:incoming>
+      <bpmn:incoming>Flow_Notification_to_Kunde</bpmn:incoming>
+      <bpmn:outgoing>Flow_ReceiveLink_to_Open</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:userTask id="Task_OpenPublicForm" name="Formular&#10;oeffnen">
+      <bpmn:incoming>Flow_ReceiveLink_to_Open</bpmn:incoming>
+      <bpmn:outgoing>Flow_OpenForm_to_Fill</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Task_FillFormFields" name="Felder&#10;ausfuellen">
+      <bpmn:documentation>
+Kunde fuellt die konfigurierten Felder aus:
+- Pflichtfelder muessen ausgefuellt werden
+- Validierung erfolgt in Echtzeit
+- Hilfetext wird angezeigt
+      </bpmn:documentation>
+      <bpmn:incoming>Flow_OpenForm_to_Fill</bpmn:incoming>
+      <bpmn:incoming>Flow_Errors_to_Fill</bpmn:incoming>
+      <bpmn:outgoing>Flow_Fill_to_Validation</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="Gateway_Validation" name="Validierung&#10;OK?">
+      <bpmn:incoming>Flow_Fill_to_Validation</bpmn:incoming>
+      <bpmn:outgoing>Flow_Validation_OK</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Validation_Error</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:task id="Task_ShowErrors" name="Fehler&#10;anzeigen">
+      <bpmn:documentation>
+Validierungsfehler werden beim jeweiligen Feld angezeigt:
+- Pflichtfeld nicht ausgefuellt
+- Ungueltiges Format (Email, IBAN, PLZ, etc.)
+- Datei zu gross oder falscher Typ
+      </bpmn:documentation>
+      <bpmn:incoming>Flow_Validation_Error</bpmn:incoming>
+      <bpmn:outgoing>Flow_Errors_to_Fill</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:userTask id="Task_SubmitForm" name="Formular&#10;absenden">
+      <bpmn:incoming>Flow_Validation_OK</bpmn:incoming>
+      <bpmn:outgoing>Flow_Submit_to_Save</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <!-- ============================================ -->
+    <!-- PHASE 4: PROZESS-KONTROLLE (Admin) -->
+    <!-- ============================================ -->
+
+    <bpmn:userTask id="Task_PauseInstance" name="Instanz&#10;pausieren">
+      <bpmn:documentation>
+Admin pausiert die Instanz:
+- Grund muss angegeben werden (min. 10 Zeichen)
+- pausedAt wird gesetzt
+- Kunde/Bearbeiter werden benachrichtigt
+      </bpmn:documentation>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Task_ResumeInstance" name="Instanz&#10;fortsetzen">
+      <bpmn:documentation>
+Admin setzt pausierte Instanz fort:
+- totalPausedTime wird akkumuliert
+- pausedAt/pauseReason werden geloescht
+- Benachrichtigung wird gesendet
+      </bpmn:documentation>
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Task_ResetStep" name="Schritt&#10;zuruecksetzen">
+      <bpmn:documentation>
+Admin setzt auf frueheren Schritt zurueck:
+- Zielschritt muss vor aktuellem liegen
+- Daten der zurueckgesetzten Schritte werden geloescht
+- Grund muss angegeben werden
+- History-Eintrag wird erstellt
+      </bpmn:documentation>
+    </bpmn:userTask>
+
+    <!-- ============================================ -->
+    <!-- PHASE 4: SYSTEM-VERARBEITUNG -->
+    <!-- ============================================ -->
+
+    <bpmn:serviceTask id="Task_SaveStepData" name="Step-Daten&#10;speichern">
+      <bpmn:documentation>
+System speichert die Daten in instance.data.step_X:
+- completedAt, completedBy
+- fieldValues (Form), proofText/proofFileId (Manual)
+- outputText/outputFileId (Edit)
+      </bpmn:documentation>
+      <bpmn:incoming>Flow_CompleteB_to_Save</bpmn:incoming>
+      <bpmn:incoming>Flow_Submit_to_Save</bpmn:incoming>
+      <bpmn:outgoing>Flow_Save_to_History</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <bpmn:serviceTask id="Task_UpdateHistory" name="History&#10;aktualisieren">
+      <bpmn:documentation>
+History-Eintrag wird erstellt:
+- Typ: step_completed
+- User, Timestamp
+- Step-Index
+      </bpmn:documentation>
+      <bpmn:incoming>Flow_Save_to_History</bpmn:incoming>
+      <bpmn:outgoing>Flow_History_to_Time</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <bpmn:serviceTask id="Task_CalculateTime" name="Zeit&#10;berechnen">
+      <bpmn:documentation>
+processingTime wird berechnet:
+- Zeit seit Step-Start
+- Minus Pausen (totalPausedTime)
+      </bpmn:documentation>
+      <bpmn:incoming>Flow_History_to_Time</bpmn:incoming>
+      <bpmn:outgoing>Flow_Time_to_Increment</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <bpmn:serviceTask id="Task_IncrementStep" name="currentStepIndex&#10;erhoehen">
+      <bpmn:incoming>Flow_Time_to_Increment</bpmn:incoming>
+      <bpmn:outgoing>Flow_Increment_to_LastStep</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <bpmn:exclusiveGateway id="Gateway_LastStep" name="Letzter&#10;Schritt?">
+      <bpmn:incoming>Flow_Increment_to_LastStep</bpmn:incoming>
+      <bpmn:outgoing>Flow_NotLastStep</bpmn:outgoing>
+      <bpmn:outgoing>Flow_LastStep</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <!-- Nicht letzter Step: Benachrichtigung & Loop -->
+    <bpmn:sendTask id="Task_SendNotification" name="Benachrichtigung&#10;senden">
+      <bpmn:documentation>
+Email-Benachrichtigung an naechsten Verantwortlichen:
+- step_assigned Event
+- Link zur Instanz
+      </bpmn:documentation>
+      <bpmn:incoming>Flow_NotLastStep</bpmn:incoming>
+      <bpmn:outgoing>Flow_Notification_to_Bearbeiter</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Notification_to_Kunde</bpmn:outgoing>
+    </bpmn:sendTask>
+
+    <!-- Reminder Timer (Boundary Event) -->
+    <bpmn:intermediateCatchEvent id="Event_ReminderTimer" name="Reminder&#10;faellig">
+      <bpmn:outgoing>Flow_Reminder_to_Send</bpmn:outgoing>
+      <bpmn:timerEventDefinition>
+        <bpmn:timeDuration>P${reminderDays}D</bpmn:timeDuration>
+      </bpmn:timerEventDefinition>
+    </bpmn:intermediateCatchEvent>
+
+    <bpmn:sendTask id="Task_SendReminder" name="Reminder&#10;senden">
+      <bpmn:documentation>
+Erinnerung bei Inaktivitaet:
+- reminder_1: Erste Erinnerung
+- reminder_2: Zweite Erinnerung
+      </bpmn:documentation>
+      <bpmn:incoming>Flow_Reminder_to_Send</bpmn:incoming>
+    </bpmn:sendTask>
+
+    <!-- ============================================ -->
+    <!-- PHASE 5: ABSCHLUSS & ARCHIVIERUNG -->
+    <!-- ============================================ -->
+
+    <bpmn:serviceTask id="Task_CompleteInstance" name="Instanz&#10;abschliessen">
+      <bpmn:documentation>
+Instanz wird abgeschlossen:
+- status = completed
+- completedAt = now()
+      </bpmn:documentation>
+      <bpmn:incoming>Flow_LastStep</bpmn:incoming>
+      <bpmn:outgoing>Flow_Complete_to_Retention</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <bpmn:serviceTask id="Task_StartRetention" name="Retention-Timer&#10;starten">
+      <bpmn:documentation>
+retentionExpiresAt = completedAt + retentionDays
+      </bpmn:documentation>
+      <bpmn:incoming>Flow_Complete_to_Retention</bpmn:incoming>
+      <bpmn:outgoing>Flow_Retention_to_Timer</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <bpmn:intermediateCatchEvent id="Event_RetentionTimer" name="Retention&#10;abgelaufen">
+      <bpmn:incoming>Flow_Retention_to_Timer</bpmn:incoming>
+      <bpmn:outgoing>Flow_Timer_to_Warning</bpmn:outgoing>
+      <bpmn:timerEventDefinition>
+        <bpmn:timeDuration>P${retentionDays}D</bpmn:timeDuration>
+      </bpmn:timerEventDefinition>
+    </bpmn:intermediateCatchEvent>
+
+    <bpmn:sendTask id="Task_SendArchiveWarning" name="Archivierungs-&#10;Warnung senden">
+      <bpmn:documentation>
+Warnung vor Archivierung (archiveNotifyDays vor Ablauf)
+      </bpmn:documentation>
+      <bpmn:incoming>Flow_Timer_to_Warning</bpmn:incoming>
+      <bpmn:outgoing>Flow_Warning_to_Archive</bpmn:outgoing>
+    </bpmn:sendTask>
+
+    <bpmn:serviceTask id="Task_ArchiveInstance" name="Instanz&#10;archivieren">
+      <bpmn:documentation>
+status = archived
+      </bpmn:documentation>
+      <bpmn:incoming>Flow_Warning_to_Archive</bpmn:incoming>
+      <bpmn:outgoing>Flow_Archive_to_GDPR</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <bpmn:exclusiveGateway id="Gateway_GDPRDelete" name="GDPR-&#10;Aktion?">
+      <bpmn:incoming>Flow_Archive_to_GDPR</bpmn:incoming>
+      <bpmn:outgoing>Flow_GDPR_Anonymize</bpmn:outgoing>
+      <bpmn:outgoing>Flow_GDPR_Delete</bpmn:outgoing>
+      <bpmn:outgoing>Flow_GDPR_Keep</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:serviceTask id="Task_AnonymizeData" name="Daten&#10;anonymisieren">
+      <bpmn:documentation>
+Kundendaten werden anonymisiert:
+- Name, Email ersetzt
+- PII-Felder in data ersetzt
+- Audit-Log erstellt
+      </bpmn:documentation>
+      <bpmn:incoming>Flow_GDPR_Anonymize</bpmn:incoming>
+      <bpmn:outgoing>Flow_Anonymize_to_Merge</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <bpmn:serviceTask id="Task_DeleteData" name="Daten&#10;loeschen">
+      <bpmn:documentation>
+Vollstaendige Loeschung (Art. 17 DSGVO):
+- Kaskadierendes Loeschen
+- Audit-Log (nicht loeschbar)
+      </bpmn:documentation>
+      <bpmn:incoming>Flow_GDPR_Delete</bpmn:incoming>
+      <bpmn:outgoing>Flow_Delete_to_Merge</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <bpmn:task id="Task_KeepArchived" name="Archiviert&#10;behalten">
+      <bpmn:incoming>Flow_GDPR_Keep</bpmn:incoming>
+      <bpmn:outgoing>Flow_Keep_to_Merge</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:exclusiveGateway id="Gateway_MergeGDPR">
+      <bpmn:incoming>Flow_Anonymize_to_Merge</bpmn:incoming>
+      <bpmn:incoming>Flow_Delete_to_Merge</bpmn:incoming>
+      <bpmn:incoming>Flow_Keep_to_Merge</bpmn:incoming>
+      <bpmn:outgoing>Flow_MergeGDPR_to_End</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:endEvent id="End_Process" name="Prozess&#10;beendet">
+      <bpmn:incoming>Flow_MergeGDPR_to_End</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <!-- ============================================ -->
+    <!-- SEQUENCE FLOWS -->
+    <!-- ============================================ -->
+
+    <!-- Phase 1: Template -->
+    <bpmn:sequenceFlow id="Flow_Start_to_CreateTemplate" sourceRef="Start_Process" targetRef="Task_CreateTemplate"/>
+    <bpmn:sequenceFlow id="Flow_CreateTemplate_to_Config" sourceRef="Task_CreateTemplate" targetRef="SubProcess_ConfigTemplate"/>
+    <bpmn:sequenceFlow id="Flow_Config_to_Publish" sourceRef="SubProcess_ConfigTemplate" targetRef="Task_PublishTemplate"/>
+    <bpmn:sequenceFlow id="Flow_Publish_to_CreateInstance" sourceRef="Task_PublishTemplate" targetRef="Task_CreateInstance"/>
+
+    <!-- Phase 2: Instanz -->
+    <bpmn:sequenceFlow id="Flow_CreateInstance_to_Assign" sourceRef="Task_CreateInstance" targetRef="Task_AssignBearbeiter"/>
+    <bpmn:sequenceFlow id="Flow_Assign_to_SendLinks" sourceRef="Task_AssignBearbeiter" targetRef="Gateway_SendLinks"/>
+    <bpmn:sequenceFlow id="Flow_SendLinks_to_Bearbeiter" name="Bearbeiter" sourceRef="Gateway_SendLinks" targetRef="Task_ReceiveAssignment"/>
+    <bpmn:sequenceFlow id="Flow_SendLinks_to_Kunde" name="Kunde" sourceRef="Gateway_SendLinks" targetRef="Task_ReceiveLink"/>
+
+    <!-- Phase 3a: Bearbeiter -->
+    <bpmn:sequenceFlow id="Flow_Assignment_to_OpenStep" sourceRef="Task_ReceiveAssignment" targetRef="Task_OpenStep"/>
+    <bpmn:sequenceFlow id="Flow_OpenStep_to_StepType" sourceRef="Task_OpenStep" targetRef="Gateway_StepType"/>
+    <bpmn:sequenceFlow id="Flow_Type_Form" name="Form" sourceRef="Gateway_StepType" targetRef="Task_ReviewForm"/>
+    <bpmn:sequenceFlow id="Flow_Type_Manual" name="Manual" sourceRef="Gateway_StepType" targetRef="Task_DoManualTask"/>
+    <bpmn:sequenceFlow id="Flow_Type_Edit" name="Edit" sourceRef="Gateway_StepType" targetRef="Task_CreateDocument"/>
+    <bpmn:sequenceFlow id="Flow_Type_API" name="API" sourceRef="Gateway_StepType" targetRef="Task_WaitForAPI"/>
+    <bpmn:sequenceFlow id="Flow_ReviewForm_to_Merge" sourceRef="Task_ReviewForm" targetRef="Gateway_MergeStepTypes"/>
+    <bpmn:sequenceFlow id="Flow_ManualTask_to_Merge" sourceRef="Task_DoManualTask" targetRef="Gateway_MergeStepTypes"/>
+    <bpmn:sequenceFlow id="Flow_CreateDoc_to_Merge" sourceRef="Task_CreateDocument" targetRef="Gateway_MergeStepTypes"/>
+    <bpmn:sequenceFlow id="Flow_WaitAPI_to_Merge" sourceRef="Task_WaitForAPI" targetRef="Gateway_MergeStepTypes"/>
+    <bpmn:sequenceFlow id="Flow_MergeTypes_to_Complete" sourceRef="Gateway_MergeStepTypes" targetRef="Task_CompleteStep_B"/>
+    <bpmn:sequenceFlow id="Flow_CompleteB_to_Save" sourceRef="Task_CompleteStep_B" targetRef="Task_SaveStepData"/>
+
+    <!-- Phase 3b: Kunde -->
+    <bpmn:sequenceFlow id="Flow_ReceiveLink_to_Open" sourceRef="Task_ReceiveLink" targetRef="Task_OpenPublicForm"/>
+    <bpmn:sequenceFlow id="Flow_OpenForm_to_Fill" sourceRef="Task_OpenPublicForm" targetRef="Task_FillFormFields"/>
+    <bpmn:sequenceFlow id="Flow_Fill_to_Validation" sourceRef="Task_FillFormFields" targetRef="Gateway_Validation"/>
+    <bpmn:sequenceFlow id="Flow_Validation_OK" name="OK" sourceRef="Gateway_Validation" targetRef="Task_SubmitForm"/>
+    <bpmn:sequenceFlow id="Flow_Validation_Error" name="Fehler" sourceRef="Gateway_Validation" targetRef="Task_ShowErrors"/>
+    <bpmn:sequenceFlow id="Flow_Errors_to_Fill" sourceRef="Task_ShowErrors" targetRef="Task_FillFormFields"/>
+    <bpmn:sequenceFlow id="Flow_Submit_to_Save" sourceRef="Task_SubmitForm" targetRef="Task_SaveStepData"/>
+
+    <!-- Phase 4: System -->
+    <bpmn:sequenceFlow id="Flow_Save_to_History" sourceRef="Task_SaveStepData" targetRef="Task_UpdateHistory"/>
+    <bpmn:sequenceFlow id="Flow_History_to_Time" sourceRef="Task_UpdateHistory" targetRef="Task_CalculateTime"/>
+    <bpmn:sequenceFlow id="Flow_Time_to_Increment" sourceRef="Task_CalculateTime" targetRef="Task_IncrementStep"/>
+    <bpmn:sequenceFlow id="Flow_Increment_to_LastStep" sourceRef="Task_IncrementStep" targetRef="Gateway_LastStep"/>
+    <bpmn:sequenceFlow id="Flow_NotLastStep" name="Nein" sourceRef="Gateway_LastStep" targetRef="Task_SendNotification"/>
+    <bpmn:sequenceFlow id="Flow_LastStep" name="Ja" sourceRef="Gateway_LastStep" targetRef="Task_CompleteInstance"/>
+    <bpmn:sequenceFlow id="Flow_Notification_to_Bearbeiter" sourceRef="Task_SendNotification" targetRef="Task_ReceiveAssignment"/>
+    <bpmn:sequenceFlow id="Flow_Notification_to_Kunde" sourceRef="Task_SendNotification" targetRef="Task_ReceiveLink"/>
+    <bpmn:sequenceFlow id="Flow_Reminder_to_Send" sourceRef="Event_ReminderTimer" targetRef="Task_SendReminder"/>
+
+    <!-- Phase 5: Abschluss -->
+    <bpmn:sequenceFlow id="Flow_Complete_to_Retention" sourceRef="Task_CompleteInstance" targetRef="Task_StartRetention"/>
+    <bpmn:sequenceFlow id="Flow_Retention_to_Timer" sourceRef="Task_StartRetention" targetRef="Event_RetentionTimer"/>
+    <bpmn:sequenceFlow id="Flow_Timer_to_Warning" sourceRef="Event_RetentionTimer" targetRef="Task_SendArchiveWarning"/>
+    <bpmn:sequenceFlow id="Flow_Warning_to_Archive" sourceRef="Task_SendArchiveWarning" targetRef="Task_ArchiveInstance"/>
+    <bpmn:sequenceFlow id="Flow_Archive_to_GDPR" sourceRef="Task_ArchiveInstance" targetRef="Gateway_GDPRDelete"/>
+    <bpmn:sequenceFlow id="Flow_GDPR_Anonymize" name="Anonymisieren" sourceRef="Gateway_GDPRDelete" targetRef="Task_AnonymizeData"/>
+    <bpmn:sequenceFlow id="Flow_GDPR_Delete" name="Loeschen" sourceRef="Gateway_GDPRDelete" targetRef="Task_DeleteData"/>
+    <bpmn:sequenceFlow id="Flow_GDPR_Keep" name="Behalten" sourceRef="Gateway_GDPRDelete" targetRef="Task_KeepArchived"/>
+    <bpmn:sequenceFlow id="Flow_Anonymize_to_Merge" sourceRef="Task_AnonymizeData" targetRef="Gateway_MergeGDPR"/>
+    <bpmn:sequenceFlow id="Flow_Delete_to_Merge" sourceRef="Task_DeleteData" targetRef="Gateway_MergeGDPR"/>
+    <bpmn:sequenceFlow id="Flow_Keep_to_Merge" sourceRef="Task_KeepArchived" targetRef="Gateway_MergeGDPR"/>
+    <bpmn:sequenceFlow id="Flow_MergeGDPR_to_End" sourceRef="Gateway_MergeGDPR" targetRef="End_Process"/>
+
+  </bpmn:process>
+
+  <!-- ============================================ -->
+  <!-- DIAGRAM (Layout) -->
+  <!-- ============================================ -->
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Runtime">
+    <bpmndi:BPMNPlane id="BPMNPlane_Runtime" bpmnElement="Collaboration_Runtime">
+
+      <!-- Pool -->
+      <bpmndi:BPMNShape id="Pool_PMSystem_di" bpmnElement="Pool_PMSystem" isHorizontal="true">
+        <dc:Bounds x="160" y="80" width="2400" height="1000"/>
+      </bpmndi:BPMNShape>
+
+      <!-- Lane: Admin -->
+      <bpmndi:BPMNShape id="Lane_Admin_di" bpmnElement="Lane_Admin" isHorizontal="true">
+        <dc:Bounds x="190" y="80" width="2370" height="250"/>
+      </bpmndi:BPMNShape>
+
+      <!-- Lane: Bearbeiter -->
+      <bpmndi:BPMNShape id="Lane_Bearbeiter_di" bpmnElement="Lane_Bearbeiter" isHorizontal="true">
+        <dc:Bounds x="190" y="330" width="2370" height="220"/>
+      </bpmndi:BPMNShape>
+
+      <!-- Lane: Kunde -->
+      <bpmndi:BPMNShape id="Lane_Kunde_di" bpmnElement="Lane_Kunde" isHorizontal="true">
+        <dc:Bounds x="190" y="550" width="2370" height="180"/>
+      </bpmndi:BPMNShape>
+
+      <!-- Lane: System -->
+      <bpmndi:BPMNShape id="Lane_System_di" bpmnElement="Lane_System" isHorizontal="true">
+        <dc:Bounds x="190" y="730" width="2370" height="350"/>
+      </bpmndi:BPMNShape>
+
+      <!-- Info Annotation -->
+      <bpmndi:BPMNShape id="Annotation_Info_di" bpmnElement="Annotation_Info">
+        <dc:Bounds x="2300" y="100" width="200" height="120"/>
+      </bpmndi:BPMNShape>
+
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+
+</bpmn:definitions>
